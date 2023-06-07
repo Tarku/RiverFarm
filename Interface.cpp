@@ -5,11 +5,55 @@ sf::Font Interface::font;
 sf::RenderWindow* Interface::window;
 sf::Texture Interface::uiTexture;
 sf::Sprite Interface::uiIconBackground;
+sf::Text Interface::textDeclarations[];
+unsigned char Interface::uiTextCount = 0;
+
+void Interface::CreateText(const std::string& stringToDraw, const v2f& position, const sf::Color& color, const float scale)
+{
+	sf::Text text = sf::Text(stringToDraw, font);
+
+	text.setFillColor(color);
+	text.setScale(scale, scale);
+
+	Interface::textDeclarations[Interface::uiTextCount] = text;
+
+
+	Interface::uiTextCount++;
+}
+
+
+void Interface::SetTextString(uchar textID, const std::string& newString)
+{
+
+	if (textID >= Interface::uiTextCount || textID < 0) return;
+	if (Interface::textDeclarations[textID].getString() == newString) return;
+
+	Interface::textDeclarations[textID].setString(newString);
+}
+
+// This uses normalized coordinates like (0.0f, 0.5f)
+void Interface::CreateNormalizedText(const std::string& stringToDraw, const sf::Vector2f& normalizedPosition, const sf::Color& color, const float scale, const bool adjustHorizontally)
+{
+	sf::Text text = sf::Text(stringToDraw, font);
+
+	v2f absolutePosition = v2f(normalizedPosition.x * WINDOW_WIDTH, normalizedPosition.y * WINDOW_HEIGHT);
+
+	if (adjustHorizontally)
+		absolutePosition -= v2f(text.getGlobalBounds().width / 2, 0);
+
+	text.setFillColor(color);
+	text.setPosition(absolutePosition);
+
+	text.setFillColor(color);
+	text.setScale(scale, scale);
+
+	Interface::textDeclarations[Interface::uiTextCount] = text;
+
+	Interface::uiTextCount++;
+}
 
 void Interface::Initialize(sf::RenderWindow* window)
 {
-	std::cout << &Interface::uiTexture << std::endl;
-
 	Interface::font.loadFromFile(Interface::fontName);
 	Interface::uiTexture.loadFromFile("ui.png");
 
@@ -18,32 +62,10 @@ void Interface::Initialize(sf::RenderWindow* window)
 	Interface::window = window;
 }
 
-void Interface::DrawText(const std::string& text, const sf::Vector2f& absolutePosition, const sf::Color& color, const float scale)
+void Interface::DrawText(unsigned char textID)
 {
-	sf::Text t = sf::Text(text, font);
-
-	t.setScale(scale, scale);
-
-	t.setFillColor(color);
-	t.setPosition(absolutePosition);
-	
-	window->draw(t);
-}
-void Interface::DrawTextNormalized(const std::string& text, const sf::Vector2f& normalizedPosition, const sf::Color& color, const float scale, const bool adjustHorizontally)
-{
-	sf::Text t = sf::Text(text, font);
-
-	t.setScale(scale, scale);
-
-	v2f absolutePosition = v2f(normalizedPosition.x * WINDOW_WIDTH, normalizedPosition.y * WINDOW_HEIGHT);
-
-	if (adjustHorizontally)
-		absolutePosition -= v2f(t.getGlobalBounds().width / 2, 0);
-
-	t.setFillColor(color);
-	t.setPosition(absolutePosition);
-
-	window->draw(t);
+	if (textID >= Interface::uiTextCount || textID < 0) return;
+	window->draw(Interface::textDeclarations[textID]);
 }
 
 void Interface::DrawUIElement(AtlasID atlasID, const sf::Vector2f& absolutePosition)
@@ -66,7 +88,7 @@ void Interface::DrawUIElement(AtlasID atlasID, const sf::Vector2f& absolutePosit
 
 void Interface::DrawUIElementNormalized(AtlasID atlasID, const sf::Vector2f& normalizedPosition, const bool adjustHorizontally)
 {
-	if (atlasID == AtlasID{ 0, 0 }) // These coordinates are reserved
+	if (atlasID == AtlasID{ 0, 0 }) // These coordinates are reserved, don't use them
 		return;
 
 
@@ -90,4 +112,5 @@ void Interface::DrawUIElementNormalized(AtlasID atlasID, const sf::Vector2f& nor
 }
 void Interface::Dispose()
 {
+
 }

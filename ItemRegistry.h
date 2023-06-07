@@ -12,6 +12,7 @@ public:
 
 enum ItemID
 {
+	ItemAir,
 	ItemWood,
 	ItemDirt,
 	ItemSand

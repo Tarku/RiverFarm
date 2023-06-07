@@ -14,6 +14,9 @@ private:
 	static sf::Texture uiTexture;
 	static sf::Sprite uiIconBackground;
 
+	static sf::Text textDeclarations[32];
+
+	static unsigned char uiTextCount;
 public:
 	enum InterfaceState
 	{
@@ -22,8 +25,14 @@ public:
 
 	static void Initialize(sf::RenderWindow* window);
 
-	static void DrawText(const std::string& text, const sf::Vector2f& absolutePosition, const sf::Color& color = sf::Color::White, const float scale = 1.f);
-	static void DrawTextNormalized(const std::string& text, const sf::Vector2f& normalizedPosition, const sf::Color& color = sf::Color::White, const float scale = 1.f, const bool adjustHorizontally = true);
+
+	static void CreateText(const std::string& text, const v2f& position, const sf::Color& color = sf::Color::White, const float scale = 1.f);
+	static void CreateNormalizedText(const std::string& text, const sf::Vector2f& normalizedPosition, const sf::Color& color = sf::Color::White, const float scale = 1.f, const bool adjustHorizontally = true);
+
+	static void SetTextString(uchar textID, const std::string& newString);
+
+	static void DrawText(unsigned char textID);
+	static void DrawTextNormalized();
 	
 	static void DrawUIElement(AtlasID atlasId, const sf::Vector2f& absolutePosition);
 	static void DrawUIElementNormalized(AtlasID atlasId, const sf::Vector2f& normalizedPosition, const bool adjustHorizontally = true);

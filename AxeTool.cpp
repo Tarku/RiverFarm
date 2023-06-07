@@ -1,4 +1,4 @@
-#include "ToolDefinitions.h"
+#include "ToolDeclarations.h"
 
 AxeTool::AxeTool()
 {

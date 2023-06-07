@@ -3,13 +3,14 @@
 #include <SFML/Window.hpp>
 #include <time.h>
 
-#include "Entity.h"
+#include "EntityDeclarations.h"
 #include "TileRegistry.h"
-#include "ToolDefinitions.h"
+#include "ToolDeclarations.h"
 #include "Shared.h"
 #include "Interface.h"
 #include "World.h"
 #include "Inventory.h"
+#include "AtlasManager.h"
 
 using namespace sf;
 
@@ -23,6 +24,8 @@ private:
 
 	Image m_iconImage;
 	Font m_font;
+
+	PlayerEntity m_player = PlayerEntity(v2f(0, 0));
 
 	Text m_toolText;
 	
@@ -41,6 +44,8 @@ private:
 	Event m_curEvent;
 
 
+	View m_spriteView;
+	View m_uiView;
 
 	Texture m_textureAtlas;
 
@@ -48,7 +53,7 @@ private:
 
 	Vector2i m_mousePosition;
 public:
-	static long Seed;
+	static time_t Seed;
 
 	Game();
 

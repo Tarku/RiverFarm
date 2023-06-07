@@ -11,7 +11,7 @@ typedef unsigned short amount_t;
 class Inventory
 {
 private:
-	static std::array<amount_t, 256> m_inventoryItems;
+	static std::array<amount_t, MAX_ITEMS> m_inventoryItems;
 
 public:
 	static void Initialize();

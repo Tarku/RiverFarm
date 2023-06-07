@@ -86,7 +86,7 @@
     <ClInclude Include="Shared.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ToolDefinitions.h">
+    <ClInclude Include="ToolDeclarations.h">
       <Filter>Header Files\Tools</Filter>
     </ClInclude>
     <ClInclude Include="Tile.h">
@@ -110,7 +110,7 @@
     <ClInclude Include="PerlinNoise.hpp">
       <Filter>Header Files\World</Filter>
     </ClInclude>
-    <ClInclude Include="Entity.h">
+    <ClInclude Include="EntityDeclarations.h">
       <Filter>Header Files\World</Filter>
     </ClInclude>
     <ClInclude Include="Interface.h">

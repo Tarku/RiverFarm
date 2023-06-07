@@ -3,14 +3,15 @@
 #include "Shared.h"
 
 enum TileCategory {
+	NonDirtLike,
 	DirtLike
 };
 
 struct Tile
 {
 	std::string name = "Unknown";
-	AtlasID id;
+	AtlasID id = { 0, 0 };
 
-	TileCategory tileCategory;
-	int itemDrop;
+	TileCategory tileCategory = NonDirtLike;
+	int itemDrop = -1;
 };

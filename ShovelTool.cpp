@@ -1,4 +1,4 @@
-#include "ToolDefinitions.h"
+#include "ToolDeclarations.h"
 #include "TileRegistry.h"
 
 ShovelTool::ShovelTool()

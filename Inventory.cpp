@@ -1,6 +1,6 @@
 #include "Inventory.h"
 
-std::array<amount_t, 256> Inventory::m_inventoryItems = std::array<amount_t, 256>();
+std::array<amount_t, 256> Inventory::m_inventoryItems = std::array<amount_t, MAX_ITEMS>();
 
 void Inventory::Initialize()
 {

@@ -33,7 +33,7 @@ void World::DoWorldGen()
 	uint64_t t1 = getTimestamp();
 
 	Game::Seed = getTimestamp();
-	m_perlin.reseed(Game::Seed);
+	m_perlin.reseed((unsigned int) Game::Seed);
 	ResetWorld();
 
 	int radius = rand() % 5 + 5;
@@ -71,7 +71,7 @@ void World::DoWorldGen()
 
 	uint64_t dt = t2 - t1;
 
-	printf("World generation time: %d microseconds.\n", dt);
+	printf("World generation time: %d microseconds.\n", (int) dt);
 }
 
 void World::AttemptSpreadWater(const Vector2f& position)
@@ -92,11 +92,14 @@ void World::AttemptSpreadWater(const Vector2f& position)
 
 void World::Update()
 {
+	bool stopUpdate = false;
 	// std::cout << "World update" << std::endl;
 	for (int y = 0; y < MAP_HEIGHT; y++)
 	{
 		for (int x = 0; x < MAP_WIDTH; x++)
 		{
+			if (stopUpdate);
+
 			if (TileAt(Vector2f(x, y), 0) == TileID::Water || x == 0 || y == 0 || x == MAP_WIDTH - 1 || y == MAP_HEIGHT - 1)
 			{
 
@@ -121,13 +124,7 @@ void World::Update()
 					if (TileAt(Vector2f(x, y) + neighbor, 0) == TileID::Water)
 					{
 						SetTile(Vector2f(x, y), 0, TileID::Water);
-						break;
-						break;
-						break;
-						break;
-						break;
-						break;
-						break;
+						stopUpdate = true;
 					}
 				}
 			}

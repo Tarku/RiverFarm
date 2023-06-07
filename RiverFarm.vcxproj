@@ -158,8 +158,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AtlasManager.h" />
-    <ClInclude Include="Entity.h" />
-    <ClInclude Include="ToolDefinitions.h" />
+    <ClInclude Include="EntityDeclarations.h" />
+    <ClInclude Include="ToolDeclarations.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Interface.h" />
     <ClInclude Include="Inventory.h" />
