@@ -143,7 +143,7 @@
   <ItemGroup>
     <ClCompile Include="AtlasManager.cpp" />
     <ClCompile Include="AxeTool.cpp" />
-    <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="ItemEntity.cpp" />
     <ClCompile Include="PlayerEntity.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -158,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AtlasManager.h" />
+    <ClInclude Include="Chunk.h" />
     <ClInclude Include="EntityDeclarations.h" />
     <ClInclude Include="ToolDeclarations.h" />
     <ClInclude Include="Game.h" />

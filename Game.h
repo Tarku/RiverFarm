@@ -20,6 +20,8 @@ private:
 	short m_currentToolIndex = 0;
 	AgriculturalTool* m_currentTool = m_tools[m_currentToolIndex];
 
+	v2f m_cameraPosition = v2f(0, 0);
+
 	Interface m_interface;
 
 	Image m_iconImage;

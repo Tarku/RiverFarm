@@ -45,11 +45,17 @@ Game::Game()
 
 	Interface::CreateNormalizedText(m_currentTool->name, Vector2f(0.5f, 0.075f));
 	Interface::CreateNormalizedText(std::format("FPS: {}", (int)m_fps), Vector2f(0.0f, 0.00f), sf::Color::Yellow, 1.0F, false);
+	Interface::CreateNormalizedText(std::format("Camera X, Y: {}, {}", m_cameraPosition.x, m_cameraPosition.y), Vector2f(0.f, 0.1f), sf::Color::White, 1.0F, false);
 }
 
 Vector2f Game::ScreenToWorld(Vector2i& position)
 {
-	return { (position.x / TEXTURE_SCALE) / (float) TILE_SIZE, (position.y / TEXTURE_SCALE) / (float) TILE_SIZE };
+	Vector2f output = m_window.mapPixelToCoords(position, m_spriteView);
+
+	output.x /= (float)TILE_SIZE * TEXTURE_SCALE;
+	output.y /= (float)TILE_SIZE * TEXTURE_SCALE;
+
+	return output;
 }
 
 void Game::HandleEvents()
@@ -59,7 +65,7 @@ void Game::HandleEvents()
 		m_mousePosition = Mouse::getPosition(m_window);
 
 
-		for (auto& entity : Entity::Entities)
+		for (auto& entity : World::WorldEntities)
 		{
 			entity->HandleEvents(&m_curEvent);
 		}
@@ -67,22 +73,18 @@ void Game::HandleEvents()
 		if (m_curEvent.type == Event::Closed) m_window.close();
 		if (m_curEvent.type == Event::KeyPressed)
 		{
-			switch (m_curEvent.key.code)
-			{
-			case Keyboard::R:
+			if (m_curEvent.key.code == Keyboard::R)
 				m_world.DoWorldGen();
-				break;
-			case Keyboard::I:
 
+			if (m_curEvent.key.code == Keyboard::I)
 				Inventory::ShowContents();
-				break;
-			case Keyboard::Left:
+
+			if (m_curEvent.key.code == Keyboard::Left)
 				m_currentToolIndex--;
-				break;
-			case Keyboard::Right:
+
+			if (m_curEvent.key.code == Keyboard::Right)
 				m_currentToolIndex++;
-				break;
-			}
+
 			if (m_currentToolIndex < 0)
 				m_currentToolIndex = sizeof(m_tools) / sizeof(AgriculturalTool);
 
@@ -97,15 +99,7 @@ void Game::HandleEvents()
 			if (m_curEvent.mouseButton.button == Mouse::Left)
 			{
 
-				Vector2f mousePosition = m_window.mapPixelToCoords(m_mousePosition, m_spriteView);
-				/*
-				mousePosition += (m_spriteView.getCenter() - m_spriteView.getSize() / 2.f);
-
-				*/
-				mousePosition.x /= (float)TILE_SIZE * TEXTURE_SCALE;
-				mousePosition.y /= (float)TILE_SIZE * TEXTURE_SCALE;
-				printf("%f / %f\n", mousePosition.x, mousePosition.y);
-
+				Vector2f mousePosition = ScreenToWorld(m_mousePosition);
 
 				if (m_world.InBounds(mousePosition, 0))
 				{
@@ -121,9 +115,11 @@ void Game::Update(float timeElapsed)
 {
 	HandleEvents();
 
-	for (auto& entity : Entity::Entities)
+	int i = 0;
+	for (auto& entity : World::WorldEntities)
 	{
-		entity->Update(timeElapsed);
+		entity->Update(&m_world, timeElapsed);
+		i++;
 	}
 
 	m_ticks++;
@@ -135,34 +131,19 @@ void Game::Update(float timeElapsed)
 
 	Interface::SetTextString(0, m_currentTool->name);
 	Interface::SetTextString(1, std::format("FPS: {}", (int)m_fps));
+	Interface::SetTextString(2, std::format("Player X, Y: {}, {}", (int) m_player.position.x / TILE_SIZE, (int)m_player.position.y / TILE_SIZE));
 }
 
 void Game::Draw()
 {
 	m_window.clear();
 
-	m_spriteView.setCenter(m_player.position + v2f(16, 16));
+	m_cameraPosition = m_player.position + v2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 	m_window.setView(m_spriteView);
 
-	// Tile rendering
-	for (int z = 0; z < MAP_LEVELS; z++)
-	{
-		for (int y = 0; y < MAP_HEIGHT; y++)
-		{
-			for (int x = 0; x < MAP_WIDTH; x++)
-			{
-				m_currentTile = TileRegistry::Tiles[m_world.TileAt(Vector2f((float) x, (float) y), z)];
-				Sprite s = Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Tiles), IntRect(m_currentTile.id.x * 16, m_currentTile.id.y * 16, 16, 16));
+	m_world.DrawChunks(&m_window, m_cameraPosition);
 
-				s.setPosition(Vector2f(x * TEXTURE_SCALE * TILE_SIZE, y * TEXTURE_SCALE * TILE_SIZE));
-				s.setScale(TEXTURE_SCALE, TEXTURE_SCALE);
-
-				m_window.draw(s);
-			}
-		}
-	}
-
-	for (auto& entity : Entity::Entities)
+	for (auto& entity : World::WorldEntities)
 	{
 		entity->Draw(&m_window);
 	}
@@ -173,6 +154,7 @@ void Game::Draw()
 
 	Interface::DrawText(0);
 	Interface::DrawText(1);
+	Interface::DrawText(2);
 
 	m_window.display();
 

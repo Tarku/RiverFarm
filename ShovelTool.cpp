@@ -14,5 +14,5 @@ bool ShovelTool::CanBeUsedHere(World* world, const sf::Vector2f& position)
 
 void ShovelTool::OnUse(World* world, const sf::Vector2f& position)
 {
-	world->SetTile(position, 0, TileID::Air);
+	TileRegistry::Tiles[world->TileAt(position, 0)].OnTileBreak(position, world);
 }

@@ -1,32 +1,40 @@
 #pragma once
 
+#ifndef WORLD_H
+#define WORLD_H
+
 #include "Shared.h"
+#include "Chunk.h"
 #include "PerlinNoise.hpp"
-
-
-using namespace sf;
+#include "EntityDeclarations.h"
 
 class World
 {
 private:
-	unsigned char m_map[MAP_LEVELS][MAP_HEIGHT][MAP_WIDTH];
+	Chunk* m_map[MAP_HEIGHT / CHUNK_HEIGHT][MAP_WIDTH / CHUNK_WIDTH] = {};
 
 	siv::PerlinNoise m_perlin{};
+	int chunksDrawn = 0;
 
 public:
 	World();
 
+	static std::vector<Entity*> WorldEntities;
+
 	void ResetWorld();
 	void Update();
 
+	void DrawChunks(RenderWindow* window, const v2f& cameraPosition);
+
 	void DoWorldGen();
 
-	void AttemptSpreadWater(const Vector2f& position);
+	void AttemptSpreadWater(const v2f& position);
 
-	unsigned char TileAt(const Vector2f& position, int layer);
-	void SetTile(const Vector2f& position, int layer, unsigned char tileID);
+	unsigned char TileAt(const v2f& position, int layer);
+	void SetTile(const v2f& position, int layer, unsigned char tileID);
 
-	bool IsEmptyAt(const Vector2f& position, int layer);
-	bool InBounds(const Vector2f& position, int layer);
+	bool IsEmptyAt(const v2f& position, int layer);
+	bool InBounds(const v2f& position, int layer);
 };
 
+#endif

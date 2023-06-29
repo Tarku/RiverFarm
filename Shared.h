@@ -15,15 +15,20 @@ constexpr int MAX_ATLASES = 4;
 
 constexpr int TILE_SIZE = 16;
 
-constexpr int MAP_HEIGHT = 128;
-constexpr int MAP_WIDTH = 128;
+constexpr int MAP_HEIGHT = 1024;
+constexpr int MAP_WIDTH = 1024;
+
+constexpr int CHUNK_HEIGHT = 32;
+constexpr int CHUNK_WIDTH = 32;
+
 constexpr int MAP_LEVELS = 2;
 
 constexpr int TEXTURE_SCALE = 2;
 
-constexpr unsigned int WINDOW_WIDTH = (TILE_SIZE * TEXTURE_SCALE * 30);
-constexpr unsigned int WINDOW_HEIGHT = (TILE_SIZE * TEXTURE_SCALE * 30);
+constexpr unsigned int WINDOW_WIDTH = (TILE_SIZE * CHUNK_WIDTH * TEXTURE_SCALE);
+constexpr unsigned int WINDOW_HEIGHT = (TILE_SIZE * CHUNK_HEIGHT * TEXTURE_SCALE);
 
+typedef sf::Vector3f v3f; // shorthand
 typedef sf::Vector2f v2f; // shorthand
 typedef unsigned char uchar;
 

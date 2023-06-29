@@ -13,6 +13,5 @@ bool AxeTool::CanBeUsedHere(World* world, const sf::Vector2f& position)
 
 void AxeTool::OnUse(World* world, const sf::Vector2f& position)
 {
-	world->SetTile(position, 1, TileID::Air);
-	Inventory::Add(ItemID::ItemWood, 1);
+	TileRegistry::Tiles[world->TileAt(position, 1)].OnTileBreak(position, world, 1);
 }

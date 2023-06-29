@@ -19,5 +19,8 @@ enum TileID
 	Shrub,
 	Water,
 	WateredTilledSoil,
-	Sand
+	Sand,
+	Stone,
+	Gravel,
+	GrassWithFlowers
 };
