@@ -145,15 +145,16 @@
     <ClCompile Include="AxeTool.cpp" />
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="ItemEntity.cpp" />
+    <ClCompile Include="ItemRegistry.cpp" />
     <ClCompile Include="PlayerEntity.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="HoeTool.cpp" />
     <ClCompile Include="Interface.cpp" />
     <ClCompile Include="Inventory.cpp" />
-    <ClCompile Include="ItemRegistry.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ShovelTool.cpp" />
     <ClCompile Include="TileRegistry.cpp" />
+    <ClCompile Include="Utils.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -170,6 +171,7 @@
     <ClInclude Include="Shared.h" />
     <ClInclude Include="Tile.h" />
     <ClInclude Include="TileRegistry.h" />
+    <ClInclude Include="Utils.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>

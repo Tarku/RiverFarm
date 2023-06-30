@@ -25,14 +25,14 @@
     <Filter Include="Source Files\Inventory">
       <UniqueIdentifier>{92ddc49e-19f3-441c-8150-fb462c788a07}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Tools">
-      <UniqueIdentifier>{f7fbb0e6-6a98-4657-8731-f18e746f29ed}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\World">
       <UniqueIdentifier>{d73a26a7-ba62-4881-91ac-bc8002881fa2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Rendering">
       <UniqueIdentifier>{3d99f34b-2d5e-4319-8ea4-03e1af3b8944}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Inventory\Tools">
+      <UniqueIdentifier>{f7fbb0e6-6a98-4657-8731-f18e746f29ed}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -46,21 +46,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AxeTool.cpp">
-      <Filter>Source Files\Tools</Filter>
+      <Filter>Source Files\Inventory\Tools</Filter>
     </ClCompile>
     <ClCompile Include="HoeTool.cpp">
-      <Filter>Source Files\Tools</Filter>
+      <Filter>Source Files\Inventory\Tools</Filter>
     </ClCompile>
     <ClCompile Include="ShovelTool.cpp">
-      <Filter>Source Files\Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="TileRegistry.cpp">
-      <Filter>Source Files\World</Filter>
+      <Filter>Source Files\Inventory\Tools</Filter>
     </ClCompile>
     <ClCompile Include="World.cpp">
-      <Filter>Source Files\World</Filter>
-    </ClCompile>
-    <ClCompile Include="ItemRegistry.cpp">
       <Filter>Source Files\World</Filter>
     </ClCompile>
     <ClCompile Include="Inventory.cpp">
@@ -75,7 +69,16 @@
     <ClCompile Include="AtlasManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TileRegistry.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemRegistry.cpp">
+      <Filter>Source Files\Inventory</Filter>
+    </ClCompile>
     <ClCompile Include="Chunk.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -98,12 +101,6 @@
     <ClInclude Include="Inventory.h">
       <Filter>Header Files\Inventory</Filter>
     </ClInclude>
-    <ClInclude Include="Item.h">
-      <Filter>Header Files\World</Filter>
-    </ClInclude>
-    <ClInclude Include="ItemRegistry.h">
-      <Filter>Header Files\World</Filter>
-    </ClInclude>
     <ClInclude Include="TileRegistry.h">
       <Filter>Header Files\World</Filter>
     </ClInclude>
@@ -119,8 +116,17 @@
     <ClInclude Include="AtlasManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Chunk.h">
+    <ClInclude Include="Utils.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chunk.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="Item.h">
+      <Filter>Header Files\Inventory</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemRegistry.h">
+      <Filter>Header Files\Inventory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

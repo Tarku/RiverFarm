@@ -5,9 +5,7 @@
 class TileRegistry
 {
 public:
-	static Tile Tiles[MAX_TILES];
-
-	constexpr static unsigned int TileCount();
+	const static Tile Tiles[MAX_TILES];
 };
 
 enum TileID

@@ -5,9 +5,7 @@
 class ItemRegistry
 {
 public:
-	static Item Items[256];
-
-	constexpr static unsigned int ItemCount() { return sizeof(Items) / sizeof(Item); };
+	static const Item Items[256];
 };
 
 enum ItemID

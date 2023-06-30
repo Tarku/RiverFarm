@@ -30,7 +30,7 @@ bool Chunk::CanBeRendered(const v2f& cameraPosition)
 
 void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 {
-	Sprite* s = new Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Tiles), IntRect(0 * 16, 0 * 16, 16, 16));
+	Sprite* s = new Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Tiles), IntRect(0, 0, 16, 16));
 	for (int z = 0; z < MAP_LEVELS; z++)
 	{
 		for (int y = 0; y < CHUNK_HEIGHT; y++)
@@ -43,7 +43,13 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 
 				s->setTextureRect(IntRect(m_currentTile.id.x * 16, m_currentTile.id.y * 16, 16, 16));
 
-				s->setPosition(v2f((m_position.x + x) * scaledTileSize, (m_position.y + y) * scaledTileSize) - cameraPosition);
+				s->setPosition(
+					v2f(
+						(m_position.x + x) * scaledTileSize,
+						(m_position.y + y) * scaledTileSize
+					) - cameraPosition
+				);
+
 				s->setScale(TEXTURE_SCALE, TEXTURE_SCALE);
 
 				window->draw(*s);

@@ -1,7 +1,6 @@
 #include "TileRegistry.h"
 
-
-Tile TileRegistry::Tiles[] = {
+const Tile TileRegistry::Tiles[] = {
 	Tile("Air", {0, 0}, TileCategory::NonDirtLike),
 	Tile("Dirt", {1, 0}, TileCategory::DirtLike, ItemID::ItemDirt),
 	Tile("Tilled Soil", {2, 0}, TileCategory::DirtLike, ItemID::ItemDirt),
@@ -15,8 +14,3 @@ Tile TileRegistry::Tiles[] = {
 	Tile("Gravel", {2, 2}, TileCategory::DirtLike, ItemID::ItemSand),
 	Tile("Grass with flowers", {3, 2}, TileCategory::DirtLike, ItemID::ItemDirt),
 };
-
-constexpr unsigned int TileRegistry::TileCount()
-{
-	return sizeof(TileRegistry::Tiles) / sizeof(Tile);
-}

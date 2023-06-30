@@ -6,7 +6,6 @@
 #include "Shared.h"
 #include "ItemRegistry.h"
 #include "AtlasManager.h"
-#include <vector>
 
 using namespace sf;
 
@@ -21,14 +20,13 @@ public:
 	v2f velocity;
 
 	AtlasID atlasID = { 0, 0 };
-	Texture texture;
 
 	virtual void HandleEvents(Event* event) = 0;
 	virtual void Update(World* world, float dt) = 0;
 	virtual void Draw(RenderWindow* window) = 0;
 };
 
-class PlayerEntity : public Entity, public std::enable_shared_from_this<PlayerEntity>
+class PlayerEntity : public Entity
 {
 private:
 	float m_speed = TILE_SIZE * TEXTURE_SCALE * 16;

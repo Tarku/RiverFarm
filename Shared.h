@@ -21,12 +21,15 @@ constexpr int MAP_WIDTH = 1024;
 constexpr int CHUNK_HEIGHT = 32;
 constexpr int CHUNK_WIDTH = 32;
 
+constexpr int UI_ICON_WIDTH = 32;
+constexpr int UI_ICON_HEIGHT = 32;
+
 constexpr int MAP_LEVELS = 2;
 
-constexpr int TEXTURE_SCALE = 2;
+constexpr float TEXTURE_SCALE = 0.25f;
 
-constexpr unsigned int WINDOW_WIDTH = (TILE_SIZE * CHUNK_WIDTH * TEXTURE_SCALE);
-constexpr unsigned int WINDOW_HEIGHT = (TILE_SIZE * CHUNK_HEIGHT * TEXTURE_SCALE);
+constexpr unsigned int WINDOW_WIDTH = (TILE_SIZE * CHUNK_WIDTH * 2);
+constexpr unsigned int WINDOW_HEIGHT = (TILE_SIZE * CHUNK_HEIGHT * 2);
 
 typedef sf::Vector3f v3f; // shorthand
 typedef sf::Vector2f v2f; // shorthand

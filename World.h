@@ -14,7 +14,6 @@ private:
 	Chunk* m_map[MAP_HEIGHT / CHUNK_HEIGHT][MAP_WIDTH / CHUNK_WIDTH] = {};
 
 	siv::PerlinNoise m_perlin{};
-	int chunksDrawn = 0;
 
 public:
 	World();
@@ -23,6 +22,8 @@ public:
 
 	void ResetWorld();
 	void Update();
+
+	void Dispose();
 
 	void DrawChunks(RenderWindow* window, const v2f& cameraPosition);
 

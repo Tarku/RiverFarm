@@ -2,9 +2,6 @@
 
 #include "Shared.h"
 
-#define UI_ICON_WIDTH (int) 32
-#define UI_ICON_HEIGHT (int) 32
-
 class Interface
 {
 private:
@@ -16,7 +13,7 @@ private:
 
 	static sf::Text textDeclarations[32];
 
-	static unsigned char uiTextCount;
+	static uchar uiTextCount;
 public:
 	enum InterfaceState
 	{

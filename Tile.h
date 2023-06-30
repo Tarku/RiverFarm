@@ -16,7 +16,7 @@ struct Tile
 	TileCategory tileCategory = NonDirtLike;
 	ItemID itemDrop = ItemID::ItemAir;
 
-	void OnTileBreak(const v2f& position, World* world, int layer = 0)
+	void OnTileBreak(const v2f& position, World* world, int layer = 0) const
 	{
 		world->SetTile(position, layer, 0);
 		world->WorldEntities.push_back(new ItemEntity(position, itemDrop));

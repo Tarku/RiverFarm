@@ -2,13 +2,14 @@
 #include "Tile.h"
 #include "Game.h"
 #include "TileRegistry.h"
-
+#include "Utils.h"
 
 std::vector<Entity*> World::WorldEntities = std::vector<Entity*>();
 
 World::World()
 {
-	ResetWorld();
+	Utils::Log("World created.");
+
 	DoWorldGen();
 }
 
@@ -24,43 +25,36 @@ void World::ResetWorld()
 
 }
 
-uint64_t getTimestamp()
-{
-	return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-}
 void World::DoWorldGen()
 {
-	uint64_t t1 = getTimestamp();
+	ResetWorld();
 
-	Game::Seed = getTimestamp();
+	Game::Seed = Utils::getTimestamp();
 	m_perlin.reseed((unsigned int) Game::Seed);
 
-	int radius = rand() % 5 + 5;
-
-	int midX = MAP_WIDTH / 2;
-	int midY = MAP_HEIGHT / 2;
+	time_t worldgenStartTime = Utils::getTimestamp();
 
 	for (int y = 0; y < MAP_HEIGHT; y++)
 	{
 		for (int x = 0; x < MAP_WIDTH; x++)
 		{
-			double perlinValue = m_perlin.octave2D_01(x * (1.f / 8), y * (1.f / 8), 1);
+			double perlinValue = m_perlin.octave2D_01(x * (1.f / 8), y * (1.f / 8), 2);
 			double perlinValue2 = m_perlin.octave2D_01(x * (1.f / 16), y * (1.f / 16), 1);
 			double perlinValue3 = m_perlin.octave2D_01(x * (1.f / 32), y * (1.f / 32), 1);
 			double perlinValue4 = m_perlin.octave2D_01(x * (1.f / 64), y * (1.f / 64), 1);
 
-			double erosionValue = m_perlin.octave2D_01(x * (1.f / 16), y * (1.f / 16), 1);
+			double erosionValue = m_perlin.octave2D_01(x * (1.f / 8) + x * (1.f / 16), y * (1.f / 16) - y * (1.f / 8), 1);
 
 			perlinValue += perlinValue2;
 			perlinValue += perlinValue3;
 
 			perlinValue /= 3;
+
 			perlinValue -= perlinValue4 / 20;
 
 
 			if (perlinValue < 0.5)
 			{
-
 				SetTile(Vector2f(x, y), 0, TileID::Water);
 			}
 			else if (perlinValue >= 0.5 && perlinValue < 0.56)
@@ -81,7 +75,8 @@ void World::DoWorldGen()
 
 					if (rand() % 8 == 0)
 						SetTile(Vector2f(x, y), 1, TileID::Shrub);
-					if (rand() % 8 == 1)
+
+					if (rand() % 8 == 0)
 						SetTile(Vector2f(x, y), 1, TileID::GrassWithFlowers);
 				}
 			}
@@ -90,21 +85,21 @@ void World::DoWorldGen()
 		}
 	}
 
-	uint64_t t2 = getTimestamp();
+	time_t worldgenEndTime = Utils::getTimestamp();
+	time_t worldgenTotalTime = worldgenEndTime - worldgenStartTime;
 
-	uint64_t dt = t2 - t1;
-
-	printf("World generation time: %d microseconds.\n", (int) dt);
+	printf("World generation time: %d microseconds.\n", (int) worldgenTotalTime);
 }
 
 void World::AttemptSpreadWater(const v2f& position)
 {
 	bool cond = TileAt(position, 0) == TileID::Air;
+
 	if (!cond)
 		return;
 
 	SetTile(position, 0, TileID::Water);
-	std::cout << "Attempting to spread water at " << position.x << ";" << position.y << std::endl;
+	// printf("Attempting to spread water at %d;%d\n", position.x, position.y);
 
 
 	AttemptSpreadWater(Vector2f(position.x + 1, position.y));
@@ -115,7 +110,7 @@ void World::AttemptSpreadWater(const v2f& position)
 
 void World::DrawChunks(RenderWindow* window, const v2f& cameraPosition)
 {
-	int chunksDrawnTemp = 0;
+	int chunksDrawn = 0;
 
 	for (int y = 0; y < MAP_HEIGHT / CHUNK_HEIGHT; y++)
 	{
@@ -125,32 +120,20 @@ void World::DrawChunks(RenderWindow* window, const v2f& cameraPosition)
 			{
 
 				m_map[y][x]->Draw(window, cameraPosition);
-				chunksDrawnTemp++;
+				chunksDrawn++;
 			}
 		}
 	}
 
-	printf("%d chunks drawn.\n", chunksDrawnTemp);
-
-	chunksDrawn = chunksDrawnTemp;
+	// printf("%d chunks drawn.\n", chunksDrawn);
 }
 
 void World::Update()
 {
-	bool stopUpdate = false;
-	// std::cout << "World update" << std::endl;
 	for (int y = 0; y < MAP_HEIGHT; y++)
 	{
 		for (int x = 0; x < MAP_WIDTH; x++)
 		{
-			if (stopUpdate);
-
-			if (TileAt(Vector2f(x, y), 0) == TileID::Water || x == 0 || y == 0 || x == MAP_WIDTH - 1 || y == MAP_HEIGHT - 1)
-			{
-
-				//AttemptSpreadWater(Vector2f(x, y));
-			}
-
 			if (TileAt(Vector2f(x, y), 0) == TileID::TilledSoil)
 				for (auto neighbor : neighbors)
 				{
@@ -169,7 +152,6 @@ void World::Update()
 					if (TileAt(Vector2f(x, y) + neighbor, 0) == TileID::Water)
 					{
 						SetTile(Vector2f(x, y), 0, TileID::Water);
-						stopUpdate = true;
 					}
 				}
 			}
@@ -213,5 +195,25 @@ void World::SetTile(const v2f& position, int layer, unsigned char tileID)
 bool World::IsEmptyAt(const v2f& position, int layer)
 {
 	if (!InBounds(position, layer)) return false;
+
 	return TileAt(position, layer) == TileID::Air;
+}
+
+void World::Dispose()
+{
+	// Dispose entities
+
+	WorldEntities.clear();
+
+	// Dispose of the map's chunks
+
+	for (int y = 0; y < MAP_HEIGHT / CHUNK_HEIGHT; y++)
+	{
+		for (int x = 0; x < MAP_WIDTH / CHUNK_WIDTH; x++)
+		{
+			delete m_map[y][x];
+		}
+	}
+
+	Utils::Log("World disposed.");
 }
