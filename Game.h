@@ -28,7 +28,7 @@ private:
 
 	Image m_iconImage;
 
-	PlayerEntity m_player = PlayerEntity(v2f(0, 0));
+	PlayerEntity m_player = PlayerEntity(v2f(0.0f, 0.0f));
 	
 
 	Clock m_clock;
@@ -38,7 +38,7 @@ private:
 	long m_ticks = 0;
 
 	RenderWindow m_window = RenderWindow(VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "River Farm", Style::Titlebar | Style::Close);
-	Event m_curEvent;
+	Event m_curEvent = Event();
 
 	World m_world;
 public:

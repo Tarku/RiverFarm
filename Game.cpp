@@ -13,11 +13,11 @@ time_t Game::Seed = Utils::getTimestamp();
 
 Game::Game()
 {
-	srand(Game::Seed);
+	srand((unsigned int) Game::Seed);
 
 	bool atlasesLoaded = AtlasManager::LoadAtlases();
 
-	if (!atlasesLoaded) printf("Couldn't load atlases!\n");
+	if (!atlasesLoaded) Utils::Log("Couldn't load atlases!");
 
 	m_iconImage.loadFromFile("icon.png");
 
@@ -52,7 +52,7 @@ void Game::HandleEvents()
 	{	
 		Vector2i m = Mouse::getPosition(m_window);
 
-		m_mousePosition = v2f( m.x, m.y ) ;
+		m_mousePosition = v2f( (float) m.x, (float) m.y ) ;
 
 		for (auto& entity : World::WorldEntities)
 		{
@@ -127,7 +127,9 @@ void Game::Draw()
 
 	m_cameraPosition = m_player.position + v2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 
-	m_world.DrawChunks(&m_window, m_cameraPosition);
+	int chunksRendered = m_world.DrawChunks(&m_window, m_cameraPosition);
+
+	m_window.setTitle(std::format("River Farm - {} chunks rendered", chunksRendered));
 
 	for (auto& entity : World::WorldEntities)
 	{
@@ -147,9 +149,12 @@ void Game::Draw()
 void Game::Dispose()
 {
 	delete m_currentTool;
+	delete[] &m_tools;
 
 	Interface::Dispose();
 	m_world.Dispose();
+
+	m_window.~RenderWindow();
 }
 
 void Game::Run()

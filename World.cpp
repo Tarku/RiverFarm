@@ -43,7 +43,7 @@ void World::DoWorldGen()
 			double perlinValue3 = m_perlin.octave2D_01(x * (1.f / 32), y * (1.f / 32), 1);
 			double perlinValue4 = m_perlin.octave2D_01(x * (1.f / 64), y * (1.f / 64), 1);
 
-			double erosionValue = m_perlin.octave2D_01(x * (1.f / 8) + x * (1.f / 16), y * (1.f / 16) - y * (1.f / 8), 1);
+			double erosionValue = m_perlin.octave2D_01(x * (1.f / 8) + x * (1.f / 16), y * (1.f / 16) - y * (1.f / 8), 5);
 
 			perlinValue += perlinValue2;
 			perlinValue += perlinValue3;
@@ -77,7 +77,7 @@ void World::DoWorldGen()
 						SetTile(Vector2f(x, y), 1, TileID::Shrub);
 
 					if (rand() % 8 == 0)
-						SetTile(Vector2f(x, y), 1, TileID::GrassWithFlowers);
+						SetTile(Vector2f(x, y), 0, TileID::GrassWithFlowers);
 				}
 			}
 
@@ -108,7 +108,7 @@ void World::AttemptSpreadWater(const v2f& position)
 	AttemptSpreadWater(Vector2f(position.x, position.y - 1));
 }
 
-void World::DrawChunks(RenderWindow* window, const v2f& cameraPosition)
+int World::DrawChunks(RenderWindow* window, const v2f& cameraPosition)
 {
 	int chunksDrawn = 0;
 
@@ -125,6 +125,7 @@ void World::DrawChunks(RenderWindow* window, const v2f& cameraPosition)
 		}
 	}
 
+	return chunksDrawn;
 	// printf("%d chunks drawn.\n", chunksDrawn);
 }
 

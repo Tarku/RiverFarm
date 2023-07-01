@@ -22,10 +22,10 @@ Chunk::Chunk(const v2f& position)
 bool Chunk::CanBeRendered(const v2f& cameraPosition)
 {
 	return 
-		m_position.x < (cameraPosition.x + WINDOW_WIDTH / 2) / (TILE_SIZE * TEXTURE_SCALE) 
-		&& m_position.y < (cameraPosition.y + WINDOW_HEIGHT / 2) / (TILE_SIZE * TEXTURE_SCALE)
-		&& m_position.x > ((cameraPosition.x - WINDOW_WIDTH * 2) / (TILE_SIZE * TEXTURE_SCALE))
-		&& m_position.y > ((cameraPosition.y - WINDOW_HEIGHT * 2) / (TILE_SIZE * TEXTURE_SCALE));
+		m_position.x < (cameraPosition.x + WINDOW_WIDTH) / (TILE_SIZE * TEXTURE_SCALE) 
+		&& m_position.y < (cameraPosition.y + WINDOW_HEIGHT) / (TILE_SIZE * TEXTURE_SCALE)
+		&& m_position.x > ((cameraPosition.x - WINDOW_WIDTH) / (TILE_SIZE * TEXTURE_SCALE))
+		&& m_position.y > ((cameraPosition.y - WINDOW_HEIGHT) / (TILE_SIZE * TEXTURE_SCALE));
 }
 
 void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
@@ -47,7 +47,7 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 					v2f(
 						(m_position.x + x) * scaledTileSize,
 						(m_position.y + y) * scaledTileSize
-					) - cameraPosition
+					) - (v2f) cameraPosition
 				);
 
 				s->setScale(TEXTURE_SCALE, TEXTURE_SCALE);

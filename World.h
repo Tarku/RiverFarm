@@ -25,7 +25,7 @@ public:
 
 	void Dispose();
 
-	void DrawChunks(RenderWindow* window, const v2f& cameraPosition);
+	int DrawChunks(RenderWindow* window, const v2f& cameraPosition);
 
 	void DoWorldGen();
 

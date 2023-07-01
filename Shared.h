@@ -26,7 +26,7 @@ constexpr int UI_ICON_HEIGHT = 32;
 
 constexpr int MAP_LEVELS = 2;
 
-constexpr float TEXTURE_SCALE = 0.25f;
+constexpr float TEXTURE_SCALE = 2.f;
 
 constexpr unsigned int WINDOW_WIDTH = (TILE_SIZE * CHUNK_WIDTH * 2);
 constexpr unsigned int WINDOW_HEIGHT = (TILE_SIZE * CHUNK_HEIGHT * 2);
