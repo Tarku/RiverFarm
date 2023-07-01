@@ -3,10 +3,10 @@
 sf::Texture AtlasManager::Atlases[];
 
 std::string AtlasManager::atlasFilenames[] = {
-	"atlas.png",
-	"entities.png",
-	"ui.png",
-	"items.png"
+	"Assets/atlas.png",
+	"Assets/entities.png",
+	"Assets/ui.png",
+	"Assets/items.png"
 };
 
 bool AtlasManager::LoadAtlases()

@@ -19,7 +19,7 @@ Game::Game()
 
 	if (!atlasesLoaded) Utils::Log("Couldn't load atlases!");
 
-	m_iconImage.loadFromFile("icon.png");
+	m_iconImage.loadFromFile("Assets/icon.png");
 
 	m_window.setFramerateLimit(60);
 	m_window.setIcon(m_iconImage.getSize().x, m_iconImage.getSize().y, m_iconImage.getPixelsPtr());

@@ -3,13 +3,14 @@
 #include <SFML/Window.hpp>
 #include <time.h>
 
-#include "EntityDeclarations.h"
-#include "TileRegistry.h"
-#include "ToolDeclarations.h"
+#include "World/TileRegistry.h"
+#include "World/World.h"
+
+#include "Entities/EntityDeclarations.h"
+#include "Tools/ToolDeclarations.h"
+#include "Inventory/Inventory.h"
 #include "Shared.h"
 #include "Interface.h"
-#include "World.h"
-#include "Inventory.h"
 #include "AtlasManager.h"
 #include "Utils.h"
 

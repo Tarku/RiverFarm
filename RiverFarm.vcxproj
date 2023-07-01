@@ -71,9 +71,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\SFML\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\SFML\lib;$(LibraryPath)</LibraryPath>
-    <ExecutablePath>D:\SFML\include;$(VC_ExecutablePath_x64);$(CommonExecutablePath)</ExecutablePath>
+    <IncludePath>Includes;$(IncludePath)</IncludePath>
+    <LibraryPath>Libraries;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>$(VC_ExecutablePath_x64);$(CommonExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>D:\SFML\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
@@ -119,7 +119,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>freetype.lib;jpeg.lib;openal32.lib;flac.lib;opengl32.lib;winmm.lib;gdi32.lib;sfml-system-d.lib;sfml-window-d.lib;sfml-graphics-d.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\SFML\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\SFML\lib;D:\SFML\bin</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -142,40 +142,39 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AtlasManager.cpp" />
-    <ClCompile Include="AxeTool.cpp" />
-    <ClCompile Include="Chunk.cpp" />
-    <ClCompile Include="ItemEntity.cpp" />
-    <ClCompile Include="ItemRegistry.cpp" />
-    <ClCompile Include="PlayerEntity.cpp" />
+    <ClCompile Include="Entities\ItemEntity.cpp" />
+    <ClCompile Include="Entities\PlayerEntity.cpp" />
+    <ClCompile Include="Inventory\Inventory.cpp" />
+    <ClCompile Include="Inventory\ItemRegistry.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="HoeTool.cpp" />
     <ClCompile Include="Interface.cpp" />
-    <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ShovelTool.cpp" />
-    <ClCompile Include="TileRegistry.cpp" />
+    <ClCompile Include="Tools\AxeTool.cpp" />
+    <ClCompile Include="Tools\HoeTool.cpp" />
+    <ClCompile Include="Tools\ShovelTool.cpp" />
     <ClCompile Include="Utils.cpp" />
-    <ClCompile Include="World.cpp" />
+    <ClCompile Include="World\Chunk.cpp" />
+    <ClCompile Include="World\TileRegistry.cpp" />
+    <ClCompile Include="World\World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AtlasManager.h" />
-    <ClInclude Include="Chunk.h" />
-    <ClInclude Include="EntityDeclarations.h" />
-    <ClInclude Include="ToolDeclarations.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Includes\PerlinNoise.hpp" />
     <ClInclude Include="Interface.h" />
-    <ClInclude Include="Inventory.h" />
-    <ClInclude Include="Item.h" />
-    <ClInclude Include="ItemRegistry.h" />
-    <ClInclude Include="PerlinNoise.hpp" />
+    <ClInclude Include="Inventory\Inventory.h" />
+    <ClInclude Include="Inventory\Item.h" />
+    <ClInclude Include="Inventory\ItemRegistry.h" />
     <ClInclude Include="Shared.h" />
-    <ClInclude Include="Tile.h" />
-    <ClInclude Include="TileRegistry.h" />
+    <ClInclude Include="Tools\ToolDeclarations.h" />
     <ClInclude Include="Utils.h" />
-    <ClInclude Include="World.h" />
+    <ClInclude Include="World\Chunk.h" />
+    <ClInclude Include="World\Tile.h" />
+    <ClInclude Include="World\TileRegistry.h" />
+    <ClInclude Include="World\World.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="code.txt" />
+    <None Include=".gitignore" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

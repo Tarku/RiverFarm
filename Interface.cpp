@@ -1,6 +1,7 @@
 #include "Interface.h"
+#include "AtlasManager.h"
 
-std::string Interface::fontName = "font.ttf";
+std::string Interface::fontName = "Assets/font.ttf";
 sf::Font Interface::font;
 sf::RenderWindow* Interface::window;
 sf::Texture Interface::uiTexture;
@@ -55,7 +56,7 @@ void Interface::CreateNormalizedText(const std::string& stringToDraw, const sf::
 void Interface::Initialize(sf::RenderWindow* window)
 {
 	Interface::font.loadFromFile(Interface::fontName);
-	Interface::uiTexture.loadFromFile("ui.png");
+	Interface::uiTexture = *AtlasManager::GetAtlas(AtlasTextureID::UI);
 
 	Interface::uiIconBackground = sf::Sprite(Interface::uiTexture, sf::IntRect(0, 0, UI_ICON_WIDTH, UI_ICON_HEIGHT));
 
