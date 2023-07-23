@@ -3,15 +3,19 @@
 #include "../Shared.h"
 
 #include "ItemRegistry.h"
+#include "Item.h"
 
 #include <array>
 
 typedef unsigned short amount_t;
 
+class ItemRegistry;
+
 class Inventory
 {
 private:
-	static std::array<amount_t, MAX_ITEMS> m_inventoryItems;
+	static const int m_inventorySize = 256;
+	static std::array<amount_t, m_inventorySize> m_inventoryItems;
 
 public:
 	static void Initialize();

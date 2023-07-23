@@ -13,6 +13,10 @@ class World;
 
 class Entity
 {
+protected:
+	static Texture* entitiesAtlas;
+	static Texture* itemsAtlas;
+
 public:
 	Entity() {};
 
@@ -23,33 +27,51 @@ public:
 
 	virtual void HandleEvents(Event* event) = 0;
 	virtual void Update(World* world, float dt) = 0;
-	virtual void Draw(RenderWindow* window) = 0;
+	virtual void Draw(RenderWindow* window, v2f cameraPosition) = 0;
+
+
+	inline virtual FloatRect GetRectangle()
+	{
+		return FloatRect(position.x, position.y, 1, 1);
+	}
+
+	inline static void DisposeEntityResources()
+	{
+		delete entitiesAtlas;
+	}
 };
 
 class PlayerEntity : public Entity
 {
 private:
-	float m_speed = TILE_SIZE * TEXTURE_SCALE * 16;
+	float m_speed = 16;
+	bool m_didCollide = false;
+	bool m_inWater = false;
 
 public:
 	PlayerEntity(const v2f& position);
 
 	void HandleEvents(Event* event) override;
 	void Update(World* world, float dt) override;
-	void Draw(sf::RenderWindow* window) override;
+	void Draw(sf::RenderWindow* window, v2f cameraPosition) override;
 };
 
 class ItemEntity : public Entity
 {
 private:
 	uchar m_itemID = -1;
+	bool m_inPlayerRange = false;
+
+	const float MAX_ITEM_LIFETIME = 5.f * 60.f;
+	float m_lifetime = 0;
 
 public:
 	ItemEntity(const v2f& position, ItemID itemID);
+	~ItemEntity();
 
 	void HandleEvents(Event* event) override;
 	void Update(World* world, float dt) override;
-	void Draw(sf::RenderWindow* window) override;
+	void Draw(sf::RenderWindow* window, v2f cameraPosition) override;
 };
 
 #endif

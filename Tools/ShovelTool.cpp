@@ -4,12 +4,12 @@
 ShovelTool::ShovelTool()
 {
 	name = "Shovel"; 
-	uiIcon = { 3, 0 };
+	uiIcon = AtlasID( 3, 0 );
 }
 
 bool ShovelTool::CanBeUsedHere(World* world, const sf::Vector2f& position)
 {
-	return TileRegistry::Tiles[world->TileAt(position, 0)].tileCategory == TileCategory::DirtLike && world->IsEmptyAt(position, 1);
+	return TileRegistry::Tiles[world->TileAt(position, 0)].tileProperties.isDiggable && world->IsEmptyAt(position, 1);
 }
 
 void ShovelTool::OnUse(World* world, const sf::Vector2f& position)

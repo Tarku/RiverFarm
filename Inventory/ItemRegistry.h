@@ -5,7 +5,9 @@
 class ItemRegistry
 {
 public:
-	static const Item Items[256];
+	static const Item Items[];
+
+	static int GetItemAmount();
 };
 
 enum ItemID

@@ -1,5 +1,6 @@
 #include "Interface.h"
 #include "AtlasManager.h"
+#include "Utils.h"
 
 std::string Interface::fontName = "Assets/font.ttf";
 sf::Font Interface::font;
@@ -63,7 +64,7 @@ void Interface::Initialize(sf::RenderWindow* window)
 	Interface::window = window;
 }
 
-void Interface::DrawText(unsigned char textID)
+void Interface::DrawText(uchar textID)
 {
 	if (textID >= Interface::uiTextCount || textID < 0) return;
 	window->draw(Interface::textDeclarations[textID]);
@@ -71,46 +72,55 @@ void Interface::DrawText(unsigned char textID)
 
 void Interface::DrawUIElement(AtlasID atlasID, const sf::Vector2f& absolutePosition)
 {
-	if (atlasID == AtlasID{0, 0}) // These coordinates are reserved
+	if (atlasID.x == 0 && atlasID.y == 0) // These coordinates are reserved
+	{
 		return;
+	}
 
-
-	sf::Sprite s = sf::Sprite(Interface::uiTexture, sf::IntRect(atlasID.x * UI_ICON_WIDTH, atlasID.y * UI_ICON_HEIGHT, UI_ICON_WIDTH, UI_ICON_HEIGHT));
+	sf::Sprite* s = new sf::Sprite(Interface::uiTexture, sf::IntRect(atlasID.x * UI_ICON_WIDTH, atlasID.y * UI_ICON_HEIGHT, UI_ICON_WIDTH, UI_ICON_HEIGHT));
 
 	Interface::uiIconBackground.setPosition(absolutePosition);
 	Interface::uiIconBackground.setScale(TEXTURE_SCALE, TEXTURE_SCALE);
 
-	s.setPosition(absolutePosition);
-	s.setScale(TEXTURE_SCALE, TEXTURE_SCALE);
+	s->setPosition(absolutePosition);
+	s->setScale(TEXTURE_SCALE, TEXTURE_SCALE);
 
 	window->draw(Interface::uiIconBackground);
-	window->draw(s);
+	window->draw(*s);
+
+	delete s;
 }
 
 void Interface::DrawUIElementNormalized(AtlasID atlasID, const sf::Vector2f& normalizedPosition, const bool adjustHorizontally)
 {
-	if (atlasID == AtlasID{ 0, 0 }) // These coordinates are reserved, don't use them
+	if (atlasID.x == 0 && atlasID.y == 0) // These coordinates are reserved, don't use them
+	{
+		Utils::Log("hehehe");
 		return;
+	}
 
 
-	sf::Sprite s = sf::Sprite(Interface::uiTexture, sf::IntRect(atlasID.x * UI_ICON_WIDTH, atlasID.y * UI_ICON_HEIGHT, UI_ICON_WIDTH, UI_ICON_HEIGHT));
+	sf::Sprite* s = new sf::Sprite(Interface::uiTexture, sf::IntRect(atlasID.x * UI_ICON_WIDTH, atlasID.y * UI_ICON_HEIGHT, UI_ICON_WIDTH, UI_ICON_HEIGHT));
 
 	v2f absolutePosition = { normalizedPosition.x * WINDOW_WIDTH, normalizedPosition.y * WINDOW_HEIGHT };
 
 	if (adjustHorizontally)
 	{
-		absolutePosition -= v2f((s.getGlobalBounds().width * TEXTURE_SCALE) / 2, 0);
+		absolutePosition -= v2f((s->getGlobalBounds().width * TEXTURE_SCALE) / 2, 0);
 	}
 
 	Interface::uiIconBackground.setPosition(absolutePosition);
 	Interface::uiIconBackground.setScale(TEXTURE_SCALE, TEXTURE_SCALE);
 
-	s.setPosition(absolutePosition);
-	s.setScale(TEXTURE_SCALE, TEXTURE_SCALE);
+	s->setPosition(absolutePosition);
+	s->setScale(TEXTURE_SCALE, TEXTURE_SCALE);
 
 	window->draw(Interface::uiIconBackground);
-	window->draw(s);
+	window->draw(*s);
+
+	delete s;
 }
+
 void Interface::Dispose()
 {
 

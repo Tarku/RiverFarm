@@ -144,10 +144,10 @@
     <ClCompile Include="AtlasManager.cpp" />
     <ClCompile Include="Entities\ItemEntity.cpp" />
     <ClCompile Include="Entities\PlayerEntity.cpp" />
+    <ClCompile Include="Interface.cpp" />
     <ClCompile Include="Inventory\Inventory.cpp" />
     <ClCompile Include="Inventory\ItemRegistry.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Interface.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Tools\AxeTool.cpp" />
     <ClCompile Include="Tools\HoeTool.cpp" />
@@ -159,6 +159,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AtlasManager.h" />
+    <ClInclude Include="Entities\EntityDeclarations.h" />
+    <ClInclude Include="Entities\EntityRegistry.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Includes\PerlinNoise.hpp" />
     <ClInclude Include="Interface.h" />

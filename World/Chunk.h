@@ -5,6 +5,8 @@
 class Chunk
 {
 private:
+	static sf::Sprite m_tileSprite;
+
 	uchar m_tiles[MAP_LEVELS][CHUNK_WIDTH][CHUNK_HEIGHT];
 	v2f m_position;
 

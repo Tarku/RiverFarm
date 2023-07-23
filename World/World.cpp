@@ -25,6 +25,57 @@ void World::ResetWorld()
 
 }
 
+void World::AddDecorations()
+{
+	for (int i = 0; i < 150; i++)
+	{
+		int rx = Utils::RandInt(0, MAP_WIDTH);
+		int ry = Utils::RandInt(0, MAP_HEIGHT);
+
+		int rwidth = Utils::RandInt(3, 18);
+		int rheight = Utils::RandInt(5, 14);
+
+
+		for (int y = 0; y < rheight; y++)
+			for (int x = 0; x < rwidth; x++)
+			{
+
+				SetTile(v2f(x + rx, y + ry), 0, TileID::WoodWall);
+
+				if (x == 0 || y == 0 || x == rwidth - 1 || y == rheight - 1)
+				{
+
+					SetTile(v2f(x + rx, y + ry), 1, TileID::WoodWall);
+				}
+				else {
+
+					SetTile(v2f(x + rx, y + ry), 1, TileID::Air);
+				}
+
+			}
+		int doorx = 1 + (rand() % (rwidth - 1));
+		int doory = 1 + (rand() % (rheight - 1));
+
+		int randDoorDir = Utils::RandInt(0, 4);
+
+		switch (randDoorDir)
+		{
+		case 0:
+			SetTile(v2f(rx + doorx, ry + rheight), 1, TileID::Air);
+			break;
+		case 1:
+			SetTile(v2f(rx + rwidth, ry + doory), 1, TileID::Air);
+			break;
+		case 2:
+			SetTile(v2f(rx, ry + doory), 1, TileID::Air);
+			break;
+		case 3:
+			SetTile(v2f(rx + doorx, ry), 1, TileID::Air);
+			break;
+		}
+	}
+}
+
 void World::DoWorldGen()
 {
 	ResetWorld();
@@ -53,14 +104,18 @@ void World::DoWorldGen()
 			perlinValue -= perlinValue4 / 20;
 
 
-			if (perlinValue < 0.5)
+			if (perlinValue < 0.4)
 			{
 				SetTile(Vector2f(x, y), 0, TileID::Water);
 			}
-			else if (perlinValue >= 0.5 && perlinValue < 0.56)
+			else if (perlinValue >= 0.4 && perlinValue < 0.46)
 			{
 
-				SetTile(Vector2f(x, y), 0, TileID::Sand);
+				if (erosionValue > 0.7)
+					SetTile(v2f(x, y), 0, TileID::Gravel);
+				else
+
+					SetTile(Vector2f(x, y), 0, TileID::Sand);
 			}
 			else
 			{
@@ -73,17 +128,19 @@ void World::DoWorldGen()
 				{
 
 
-					if (rand() % 8 == 0)
+					if (Utils::RandInt(0, 8) == 0)
 						SetTile(Vector2f(x, y), 1, TileID::Shrub);
 
-					if (rand() % 8 == 0)
-						SetTile(Vector2f(x, y), 0, TileID::GrassWithFlowers);
+					if (Utils::RandInt(0, 8) == 1)
+						SetTile(Vector2f(x, y), 1, TileID::Flowers);
 				}
 			}
 
 
 		}
 	}
+
+	AddDecorations();
 
 	time_t worldgenEndTime = Utils::getTimestamp();
 	time_t worldgenTotalTime = worldgenEndTime - worldgenStartTime;
@@ -111,16 +168,41 @@ void World::AttemptSpreadWater(const v2f& position)
 int World::DrawChunks(RenderWindow* window, const v2f& cameraPosition)
 {
 	int chunksDrawn = 0;
+	Vertex vertices[4] = {};
 
-	for (int y = 0; y < MAP_HEIGHT / CHUNK_HEIGHT; y++)
+	v2f cameraChunkPosition = v2f((cameraPosition.x / SCALED_TILE_SIZE) / CHUNK_WIDTH, (cameraPosition.y / SCALED_TILE_SIZE) / CHUNK_HEIGHT);
+
+	for (int yOffset = -1; yOffset < 2; yOffset++)
 	{
-		for (int x = 0; x < MAP_WIDTH / CHUNK_WIDTH; x++)
+		for (int xOffset = -1; xOffset < 2; xOffset++)
 		{
-			if (m_map[y][x]->CanBeRendered(cameraPosition))
+			int chunkY = (int)(cameraChunkPosition.y + yOffset);
+			int chunkX = (int)(cameraChunkPosition.x + xOffset);
+
+			if (chunkY < 0 || chunkX < 0 || chunkY >= (MAP_HEIGHT / CHUNK_HEIGHT) || chunkX >= (MAP_WIDTH / CHUNK_WIDTH))
+				continue;
+
+			if (m_map[chunkY][chunkX]->CanBeRendered(cameraPosition))
 			{
 
-				m_map[y][x]->Draw(window, cameraPosition);
+				m_map[chunkY][chunkX]->Draw(window, cameraPosition);
 				chunksDrawn++;
+			}
+
+			if (Game::showChunkBorders)
+			{
+
+				vertices[0] = Vertex(v2f(chunkX * SCALED_TILE_SIZE * CHUNK_WIDTH, chunkY * SCALED_TILE_SIZE * CHUNK_WIDTH) - cameraPosition);
+				vertices[1] = Vertex(v2f((chunkX + 1) * SCALED_TILE_SIZE * CHUNK_WIDTH, chunkY * SCALED_TILE_SIZE * CHUNK_WIDTH) - cameraPosition);
+
+				window->draw(vertices, 2, sf::Lines);
+
+
+
+				vertices[0] = Vertex(v2f(chunkX * SCALED_TILE_SIZE * CHUNK_WIDTH, chunkY * SCALED_TILE_SIZE * CHUNK_WIDTH) - cameraPosition);
+				vertices[1] = Vertex(v2f(chunkX * SCALED_TILE_SIZE * CHUNK_WIDTH, (chunkY + 1) * SCALED_TILE_SIZE * CHUNK_WIDTH) - cameraPosition);
+
+				window->draw(vertices, 2, sf::Lines);
 			}
 		}
 	}
@@ -129,35 +211,52 @@ int World::DrawChunks(RenderWindow* window, const v2f& cameraPosition)
 	// printf("%d chunks drawn.\n", chunksDrawn);
 }
 
-void World::Update()
+void World::Update(const v2f& cameraPosition)
 {
-	for (int y = 0; y < MAP_HEIGHT; y++)
+
+	v2f cameraChunkPosition = v2f((cameraPosition.x / SCALED_TILE_SIZE) / CHUNK_WIDTH, (cameraPosition.y / SCALED_TILE_SIZE) / CHUNK_HEIGHT);
+
+	for (int yOffset = -1; yOffset < 2; yOffset++)
 	{
-		for (int x = 0; x < MAP_WIDTH; x++)
+		for (int xOffset = -1; xOffset < 2; xOffset++)
 		{
-			if (TileAt(Vector2f(x, y), 0) == TileID::TilledSoil)
-				for (auto neighbor : neighbors)
-				{
-					if (TileAt(Vector2f(x, y) + neighbor, 0) == TileID::Water)
-					{
-						SetTile(Vector2f(x, y), 0, TileID::WateredTilledSoil);
-						break;
-					}
-				}
+			int chunkY = (int)(cameraChunkPosition.y + yOffset);
+			int chunkX = (int)(cameraChunkPosition.x + xOffset);
 
-			if (TileAt(Vector2f(x, y), 0) == TileID::Air)
+			if (chunkY < 0 || chunkX < 0 || chunkY >= (MAP_HEIGHT / CHUNK_HEIGHT) || chunkX >= (MAP_WIDTH / CHUNK_WIDTH))
+				continue;
+
+			for (int y = 0; y < CHUNK_HEIGHT; y++)
 			{
-
-				for (auto neighbor : neighbors)
+				for (int x = 0; x < CHUNK_WIDTH; x++)
 				{
-					if (TileAt(Vector2f(x, y) + neighbor, 0) == TileID::Water)
+					v2f positionInChunk = Vector2f(chunkX * CHUNK_WIDTH + x, chunkY * CHUNK_HEIGHT + y);
+					if (TileAt(positionInChunk, 0) == TileID::TilledSoil)
+						for (auto neighbor : neighbors)
+						{
+							if (TileAt(positionInChunk + neighbor, 0) == TileID::Water)
+							{
+								SetTile(positionInChunk, 0, TileID::WateredTilledSoil);
+								break;
+							}
+						}
+
+					if (TileAt(positionInChunk, 0) == TileID::Air)
 					{
-						SetTile(Vector2f(x, y), 0, TileID::Water);
+
+						for (auto neighbor : neighbors)
+						{
+							if (TileAt(positionInChunk + neighbor, 0) == TileID::Water)
+							{
+								SetTile(positionInChunk, 0, TileID::Water);
+							}
+						}
 					}
 				}
 			}
 		}
 	}
+	
 }
 
 bool World::InBounds(const v2f& position, int layer)
@@ -178,6 +277,19 @@ unsigned char World::TileAt(const v2f& position, int layer)
     return m_map[(int) chunkY][(int) chunkX]->TileAt(v2f(chunkPosX, chunkPosY), layer);
 }
 
+unsigned char World::TileAt(int x, int y, int layer)
+{
+	if (!InBounds(Vector2f(x, y), layer)) return -1;
+
+	float chunkY = y / (float)CHUNK_HEIGHT;
+	float chunkX = x / (float)CHUNK_WIDTH;
+
+	int chunkPosX = (chunkX - (int)chunkX) * CHUNK_WIDTH;
+	int chunkPosY = (chunkY - (int)chunkY) * CHUNK_HEIGHT;
+
+	return m_map[(int)chunkY][(int)chunkX]->TileAt(v2f(chunkPosX, chunkPosY), layer);
+}
+
 void World::SetTile(const v2f& position, int layer, unsigned char tileID)
 {
     if (!InBounds(position, layer)) return;
@@ -191,6 +303,19 @@ void World::SetTile(const v2f& position, int layer, unsigned char tileID)
 
 
     m_map[(int)chunkY][(int)chunkX]->SetTile(v2f(chunkPosX, chunkPosY), layer, tileID);
+}
+
+void World::AddItemEntity(const v2f& position, ItemID itemID)
+{
+	ItemEntity* newEntity = new ItemEntity(position, itemID);
+
+	WorldEntities.push_back(newEntity);
+}
+
+void World::RemoveEntity(Entity* entity)
+{
+	if (World::WorldEntities.size() != 0)
+		World::WorldEntities.erase(std::remove(World::WorldEntities.begin(), World::WorldEntities.end(), entity), World::WorldEntities.end());
 }
 
 bool World::IsEmptyAt(const v2f& position, int layer)

@@ -1,16 +1,18 @@
 #include "TileRegistry.h"
 
-const Tile TileRegistry::Tiles[] = {
-	Tile("Air", {0, 0}, TileCategory::NonDirtLike),
-	Tile("Dirt", {1, 0}, TileCategory::DirtLike, ItemID::ItemDirt),
-	Tile("Tilled Soil", {2, 0}, TileCategory::DirtLike, ItemID::ItemDirt),
-	Tile("Grass", {3, 0}, TileCategory::DirtLike, ItemID::ItemDirt),
-	Tile("Shrub", {0, 1}, TileCategory::NonDirtLike, ItemID::ItemWood),
-	Tile("Water", {1, 1}, TileCategory::NonDirtLike),
-	Tile("Watered Tilled Soil", {2, 1}, TileCategory::DirtLike, ItemID::ItemDirt),
-	Tile("Sand", {3, 1}, TileCategory::DirtLike, ItemID::ItemSand),
+Tile TileRegistry::Tiles[] = {
+	Tile("Air", AtlasID(0, 0), ItemID::ItemAir, TileProperties()),
+	Tile("Dirt", AtlasID(1, 0), ItemID::ItemDirt, TileProperties(true, true, false, true)),
+	Tile("Tilled Soil", AtlasID(2, 0), ItemID::ItemDirt, TileProperties(false, true, false, true)),
+	Tile("Grass", AtlasID(3, 0), ItemID::ItemDirt, TileProperties(true, true, false, true)),
+	Tile("Mushrub", AtlasID(0, 1), ItemID::ItemWood, TileProperties(false, false, true, true)),
+	Tile("Water", AtlasID(1, 1), ItemID::ItemAir, TileProperties(false, false, false, true)),
+	Tile("Watered Tilled Soil", AtlasID(2, 1), ItemID::ItemDirt, TileProperties(false, true, false, true)),
+	Tile("Sand", AtlasID(3, 1), ItemID::ItemSand, TileProperties(false, true, false, true)),
 
-	Tile("Stone", {1, 2}, TileCategory::NonDirtLike, ItemID::ItemSand),
-	Tile("Gravel", {2, 2}, TileCategory::DirtLike, ItemID::ItemSand),
-	Tile("Grass with flowers", {3, 2}, TileCategory::DirtLike, ItemID::ItemDirt),
+	Tile("Stone", AtlasID(1, 2), ItemID::ItemSand, TileProperties(false, false, false, true)),
+	Tile("Gravel", AtlasID(2, 2), ItemID::ItemSand, TileProperties(false, true, false, true)),
+	Tile("Flowers", AtlasID(3, 2), ItemID::ItemDirt, TileProperties(true, true, false, false)),
+
+	Tile("Wood Wall", std::make_tuple(AtlasID(0, 3), AtlasID(1, 3)), ItemID::ItemWood, TileProperties(false, false, true, true))
 };

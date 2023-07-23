@@ -1,6 +1,6 @@
 #include "Inventory.h"
 
-std::array<amount_t, 256> Inventory::m_inventoryItems = std::array<amount_t, MAX_ITEMS>();
+std::array<amount_t, Inventory::m_inventorySize> Inventory::m_inventoryItems = std::array<amount_t, Inventory::m_inventorySize>();
 
 void Inventory::Initialize()
 {
@@ -38,7 +38,9 @@ void Inventory::ShowContents()
 {
 	printf("Content of Inventory:\n");
 
-	for (int itemID = 0; itemID < MAX_ITEMS; itemID++)
+	int itemAmount = ItemRegistry::GetItemAmount();
+
+	for (int itemID = 0; itemID < itemAmount; itemID++)
 	{
 		printf(" - ID: %d | Item: %s | Amount: %d\n", itemID, ItemRegistry::Items[itemID].name.c_str(), m_inventoryItems[itemID]);
 	}

@@ -5,7 +5,7 @@
 class TileRegistry
 {
 public:
-	const static Tile Tiles[MAX_TILES];
+	static Tile Tiles[];
 };
 
 enum TileID
@@ -20,5 +20,6 @@ enum TileID
 	Sand,
 	Stone,
 	Gravel,
-	GrassWithFlowers
+	Flowers,
+	WoodWall
 };

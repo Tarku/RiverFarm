@@ -3,12 +3,12 @@
 AxeTool::AxeTool()
 {
 	name = "Axe";
-	uiIcon = { 1, 0 };
+	uiIcon = AtlasID( 1, 0 );
 }
 
 bool AxeTool::CanBeUsedHere(World* world, const sf::Vector2f& position)
 {
-	return (world->TileAt(position, 1) == TileID::Shrub);
+	return TileRegistry::Tiles[world->TileAt(position, 1)].tileProperties.isChoppable;
 }
 
 void AxeTool::OnUse(World* world, const sf::Vector2f& position)

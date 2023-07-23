@@ -28,27 +28,33 @@ constexpr int MAP_LEVELS = 2;
 
 constexpr float TEXTURE_SCALE = 2.f;
 
-constexpr unsigned int WINDOW_WIDTH = (TILE_SIZE * CHUNK_WIDTH * 2);
-constexpr unsigned int WINDOW_HEIGHT = (TILE_SIZE * CHUNK_HEIGHT * 2);
+constexpr int SCALED_TILE_SIZE = (int)(TEXTURE_SCALE * TILE_SIZE);
 
-typedef sf::Vector3f v3f; // shorthand
-typedef sf::Vector2f v2f; // shorthand
-typedef unsigned char uchar;
+constexpr unsigned int WINDOW_WIDTH = (int) (TILE_SIZE * CHUNK_WIDTH * 2);
+constexpr unsigned int WINDOW_HEIGHT = (int) (TILE_SIZE * CHUNK_HEIGHT * 2);
 
-const sf::Vector2f neighbors[8] = {
-		sf::Vector2f(-1, -1), sf::Vector2f(0, -1),  sf::Vector2f(1, -1),
-		sf::Vector2f(-1, 0),						sf::Vector2f(1, 0),
-		sf::Vector2f(-1, 1), sf::Vector2f(0, 1),    sf::Vector2f(1, 1)
+// Just a bunch of shorthands for my lazy brain
+
+using v3f = sf::Vector3f;
+using v2f = sf::Vector2f;
+using uchar = unsigned char;
+using uint = unsigned int;
+
+const v2f neighbors[8] = {
+	v2f(-1, -1), v2f(0, -1),  v2f(1, -1),
+	v2f(-1, 0),						v2f(1, 0),
+	v2f(-1, 1), v2f(0, 1),    v2f(1, 1)
 };
 
 // This is pretty much a 2d vector but idc at least it has a more fitting name
+
 struct AtlasID
 {
 	int x;
 	int y;
 
-	bool operator==(const AtlasID& at)
+	bool operator==(const AtlasID& other)
 	{
-		return x == at.x && y == at.y;
+		return x == other.x && y == other.y;
 	}
 };

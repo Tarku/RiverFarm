@@ -2,6 +2,7 @@
 #include "Tile.h"
 #include "TileRegistry.h"
 
+sf::Sprite Chunk::m_tileSprite = Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Tiles), IntRect(0, 0, 16, 16));
 
 Chunk::Chunk(const v2f& position)
 {
@@ -31,34 +32,34 @@ bool Chunk::CanBeRendered(const v2f& cameraPosition)
 
 void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 {
-	Sprite* s = new Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Tiles), IntRect(0, 0, 16, 16));
 	for (int z = 0; z < MAP_LEVELS; z++)
 	{
 		for (int y = 0; y < CHUNK_HEIGHT; y++)
 		{
+
 			for (int x = 0; x < CHUNK_WIDTH; x++)
 			{
-
-				Tile m_currentTile = TileRegistry::Tiles[TileAt(v2f(x, y), z)];
+				uchar tileID = TileAt(v2f(x, y), z);
+				Tile currentTile = TileRegistry::Tiles[tileID];
 				int scaledTileSize = TILE_SIZE * TEXTURE_SCALE;
 
-				s->setTextureRect(IntRect(m_currentTile.id.x * 16, m_currentTile.id.y * 16, 16, 16));
+				AtlasID tileAtlasId = (z == 0) ? currentTile.groundId : currentTile.textureId;
 
-				s->setPosition(
+				m_tileSprite.setTextureRect(IntRect(tileAtlasId.x * TILE_SIZE, tileAtlasId.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
+
+				m_tileSprite.setPosition(
 					v2f(
 						(m_position.x + x) * scaledTileSize,
 						(m_position.y + y) * scaledTileSize
 					) - (v2f) cameraPosition
 				);
 
-				s->setScale(TEXTURE_SCALE, TEXTURE_SCALE);
+				m_tileSprite.setScale(TEXTURE_SCALE, TEXTURE_SCALE);
 
-				window->draw(*s);
+				window->draw(m_tileSprite);
 			}
 		}
 	}
-	delete s;
-
 }
 
 void Chunk::SetTile(const v2f& position, int layer, uchar tileID)

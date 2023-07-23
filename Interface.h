@@ -24,12 +24,11 @@ public:
 
 
 	static void CreateText(const std::string& text, const v2f& position, const sf::Color& color = sf::Color::White, const float scale = 1.f);
-	static void CreateNormalizedText(const std::string& text, const sf::Vector2f& normalizedPosition, const sf::Color& color = sf::Color::White, const float scale = 1.f, const bool adjustHorizontally = true);
+	static void CreateNormalizedText(const std::string& stringToDraw, const sf::Vector2f& normalizedPosition, const sf::Color& color = sf::Color::White, const float scale = 1.f, const bool adjustHorizontally = true);
 
 	static void SetTextString(uchar textID, const std::string& newString);
 
-	static void DrawText(unsigned char textID);
-	static void DrawTextNormalized();
+	static void DrawText(uchar textID);
 	
 	static void DrawUIElement(AtlasID atlasId, const sf::Vector2f& absolutePosition);
 	static void DrawUIElementNormalized(AtlasID atlasId, const sf::Vector2f& normalizedPosition, const bool adjustHorizontally = true);

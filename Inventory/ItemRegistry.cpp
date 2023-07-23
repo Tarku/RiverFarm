@@ -6,3 +6,8 @@ const Item ItemRegistry::Items[] = {
 	Item("Dirt", {2, 0}),
 	Item("Sand", {1, 0})
 };
+
+int ItemRegistry::GetItemAmount()
+{
+	return sizeof(Items) / sizeof(Item);
+}

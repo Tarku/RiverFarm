@@ -28,8 +28,6 @@ private:
 	Interface m_interface;
 
 	Image m_iconImage;
-
-	PlayerEntity m_player = PlayerEntity(v2f(0.0f, 0.0f));
 	
 
 	Clock m_clock;
@@ -43,13 +41,16 @@ private:
 
 	World m_world;
 public:
+
+	static PlayerEntity player;
 	static time_t Seed;
-	static AgriculturalTool* m_tools[15];
+	static AgriculturalTool* m_tools[];
+	static bool showChunkBorders;
 
 	Game();
 
 
-	v2f ScreenToWorld(v2f& position);
+	v2f ScreenToWorld(const v2f& position);
 
 	void HandleEvents();
 	void Update(float timeElapsed);

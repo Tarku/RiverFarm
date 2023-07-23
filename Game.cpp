@@ -3,6 +3,9 @@
 
 using namespace sf;
 
+PlayerEntity Game::player = PlayerEntity(v2f(0.0f, 0.0f));
+bool Game::showChunkBorders = false;
+
 AgriculturalTool* Game::m_tools[] = {
 	new AxeTool(),
 	new HoeTool(),
@@ -24,8 +27,8 @@ Game::Game()
 	m_window.setFramerateLimit(60);
 	m_window.setIcon(m_iconImage.getSize().x, m_iconImage.getSize().y, m_iconImage.getPixelsPtr());
 
-	Inventory::Initialize();
 	Interface::Initialize(&m_window);
+	Inventory::Initialize();
 
 	const int totalMapSprites = MAP_HEIGHT* MAP_WIDTH* MAP_LEVELS;
 
@@ -36,9 +39,9 @@ Game::Game()
 	Interface::CreateNormalizedText(std::format("Camera X, Y: {}, {}", m_cameraPosition.x, m_cameraPosition.y), v2f(0.f, 0.1f), sf::Color::White, 1.0F, false);
 }
 
-v2f Game::ScreenToWorld(v2f& position)
+v2f Game::ScreenToWorld(const v2f& position)
 {
-	v2f output = position - m_cameraPosition;
+	v2f output = position + m_cameraPosition;
 
 	output.x /= (float)TILE_SIZE * TEXTURE_SCALE;
 	output.y /= (float)TILE_SIZE * TEXTURE_SCALE;
@@ -54,11 +57,6 @@ void Game::HandleEvents()
 
 		m_mousePosition = v2f( (float) m.x, (float) m.y ) ;
 
-		for (auto& entity : World::WorldEntities)
-		{
-			entity->HandleEvents(&m_curEvent);
-		}
-
 		if (m_curEvent.type == Event::Closed)
 			m_window.close();
 
@@ -66,20 +64,32 @@ void Game::HandleEvents()
 		{
 			if (m_curEvent.key.code == Keyboard::R)
 				m_world.DoWorldGen();
+			if (m_curEvent.key.code == Keyboard::I)
+			{
+				Inventory::ShowContents();
+			}
+			if (m_curEvent.key.code == Keyboard::G)
+			{
+				Game::showChunkBorders = !Game::showChunkBorders;
+			}
 
-			if (m_curEvent.key.code == Keyboard::Left)
+		}
+
+		if (m_curEvent.type == Event::MouseWheelScrolled)
+		{
+			//Utils::Log(std::format("{}", m_curEvent.mouseWheelScroll.delta));
+
+			if (m_curEvent.mouseWheelScroll.delta < 0)
 				m_currentToolIndex--;
 
-			if (m_curEvent.key.code == Keyboard::Right)
+			if (m_curEvent.mouseWheelScroll.delta > 0)
 				m_currentToolIndex++;
 
 			if (m_currentToolIndex < 0)
-				m_currentToolIndex = sizeof(m_tools) / sizeof(AgriculturalTool);
+				m_currentToolIndex = sizeof(m_tools) / sizeof(m_tools[0]) - 1;
 
-			if (m_currentToolIndex > sizeof(m_tools) / sizeof(AgriculturalTool))
+			if (m_currentToolIndex >= sizeof(m_tools) / sizeof(m_tools[0]))
 				m_currentToolIndex = 0;
-
-			m_currentTool = m_tools[m_currentToolIndex];
 		}
 
 		if (m_curEvent.type == Event::MouseButtonPressed)
@@ -96,6 +106,15 @@ void Game::HandleEvents()
 				}
 			}
 		}
+
+
+		player.HandleEvents(&m_curEvent);
+
+		for (auto& entity : World::WorldEntities)
+		{
+			entity->HandleEvents(&m_curEvent);
+		}
+
 	}
 }
 
@@ -103,19 +122,23 @@ void Game::Update(float timeElapsed)
 {
 	HandleEvents();
 
+	m_currentTool = m_tools[m_currentToolIndex];
+
+	player.Update(&m_world, timeElapsed);
+
 	for (auto& entity : World::WorldEntities)
 	{
 		entity->Update(&m_world, timeElapsed);
 	}
 
 	if (m_ticks % 20 == 0)
-		m_world.Update();
+		m_world.Update(m_cameraPosition);
 
 	m_fps = 1.f / timeElapsed;
 
 	Interface::SetTextString(0, m_currentTool->name);
 	Interface::SetTextString(1, std::format("FPS: {}", (int)m_fps));
-	Interface::SetTextString(2, std::format("Player X, Y: {}, {}", (int) m_player.position.x / TILE_SIZE, (int)m_player.position.y / TILE_SIZE));
+	Interface::SetTextString(2, std::format("Player X, Y: {}, {}", (int) player.position.x, (int)player.position.y));
 
 
 	m_ticks++;
@@ -125,15 +148,17 @@ void Game::Draw()
 {
 	m_window.clear();
 
-	m_cameraPosition = m_player.position + v2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+	m_cameraPosition = player.position * (float) SCALED_TILE_SIZE - v2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 
 	int chunksRendered = m_world.DrawChunks(&m_window, m_cameraPosition);
 
-	m_window.setTitle(std::format("River Farm - {} chunks rendered", chunksRendered));
+	m_window.setTitle(std::format("River Farm - {} chunks rendered {}", chunksRendered, m_currentToolIndex));
+
+	player.Draw(&m_window, m_cameraPosition);
 
 	for (auto& entity : World::WorldEntities)
 	{
-		entity->Draw(&m_window);
+		entity->Draw(&m_window, m_cameraPosition);
 	}
 
 	Interface::DrawUIElementNormalized(m_currentTool->uiIcon, v2f(0.5f, 0));
@@ -148,9 +173,8 @@ void Game::Draw()
 
 void Game::Dispose()
 {
-	delete m_currentTool;
-	delete[] &m_tools;
-
+	//delete m_currentTool;
+	//delete[] &m_tools;
 	Interface::Dispose();
 	m_world.Dispose();
 
