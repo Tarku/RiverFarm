@@ -18,26 +18,19 @@ PlayerEntity::PlayerEntity(const v2f& _position)
 
 void PlayerEntity::HandleEvents(Event* event)
 {
-	switch (event->type)
-	{
-	case sf::Event::KeyPressed:
-		if (event->key.code == Keyboard::Z)
-			velocity.y = -1;
+	if (sf::Keyboard::isKeyPressed(Keyboard::Z)) velocity.y = -1;
 
-		if (event->key.code == Keyboard::S)
-			velocity.y = 1;
+	if (sf::Keyboard::isKeyPressed(Keyboard::S)) velocity.y = 1;
 
-		if (event->key.code == Keyboard::Q)
-			velocity.x = -1;
+	if (sf::Keyboard::isKeyPressed(Keyboard::Q)) velocity.x = -1;
 
-		if (event->key.code == Keyboard::D)
-			velocity.x = 1;
-	}
+	if (sf::Keyboard::isKeyPressed(Keyboard::D)) velocity.x = 1;
 }
 
 void PlayerEntity::Update(World* world, float dt)
 {
 	bool doesCollide = false;
+	m_inWater = (world->TileAt(position.x, position.y + 12.f * (1.f / 16.f), 0) == TileID::Water);
 
 	for (int yOffset = -1; yOffset < 2; yOffset++)
 	{
@@ -46,7 +39,6 @@ void PlayerEntity::Update(World* world, float dt)
 			if (position.x + xOffset < 0 || position.y + yOffset < 0 || position.x + xOffset >= MAP_WIDTH || position.y + yOffset >= MAP_HEIGHT)
 				continue;
 
-			m_inWater = (world->TileAt(position.x + xOffset, position.y + yOffset, 0) == TileID::Water);
 
 			if (!(TileRegistry::Tiles[world->TileAt(position.x + xOffset, position.y + yOffset, 1)].tileProperties.isSolid))
 				continue;
@@ -65,7 +57,7 @@ void PlayerEntity::Update(World* world, float dt)
 		position -= velocity * dt * m_speed;
 	else
 		position += velocity * dt * m_speed;
-	velocity = v2f(0, 0);
+	velocity /= 2.f;
 
 	m_didCollide = doesCollide;
 }

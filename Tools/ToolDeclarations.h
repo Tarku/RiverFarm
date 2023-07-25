@@ -9,7 +9,8 @@
 class AgriculturalTool
 {
 public:
-	std::string name = "Base Tool";
+	std::string name;
+	std::string description;
 	AtlasID uiIcon;
 
 	virtual inline bool CanBeUsedHere(World* world, const sf::Vector2f& position) { return false; };
@@ -20,6 +21,15 @@ class AxeTool : public AgriculturalTool
 {
 public:
 	AxeTool();
+
+	virtual bool CanBeUsedHere(World* world, const sf::Vector2f& position) override;
+	virtual void OnUse(World* world, const sf::Vector2f& position) override;
+};
+
+class ScytheTool : public AgriculturalTool
+{
+public:
+	ScytheTool();
 
 	virtual bool CanBeUsedHere(World* world, const sf::Vector2f& position) override;
 	virtual void OnUse(World* world, const sf::Vector2f& position) override;

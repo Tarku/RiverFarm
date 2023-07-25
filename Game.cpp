@@ -6,12 +6,6 @@ using namespace sf;
 PlayerEntity Game::player = PlayerEntity(v2f(0.0f, 0.0f));
 bool Game::showChunkBorders = false;
 
-AgriculturalTool* Game::m_tools[] = {
-	new AxeTool(),
-	new HoeTool(),
-	new ShovelTool()
-};
-
 time_t Game::Seed = Utils::getTimestamp();
 
 Game::Game()
@@ -86,9 +80,9 @@ void Game::HandleEvents()
 				m_currentToolIndex++;
 
 			if (m_currentToolIndex < 0)
-				m_currentToolIndex = sizeof(m_tools) / sizeof(m_tools[0]) - 1;
+				m_currentToolIndex = ToolRegistry::ToolCount() - 1;
 
-			if (m_currentToolIndex >= sizeof(m_tools) / sizeof(m_tools[0]))
+			if (m_currentToolIndex >= ToolRegistry::ToolCount())
 				m_currentToolIndex = 0;
 		}
 
@@ -122,7 +116,7 @@ void Game::Update(float timeElapsed)
 {
 	HandleEvents();
 
-	m_currentTool = m_tools[m_currentToolIndex];
+	m_currentTool = ToolRegistry::Tools[m_currentToolIndex];
 
 	player.Update(&m_world, timeElapsed);
 

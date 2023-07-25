@@ -7,7 +7,7 @@
 #include "World/World.h"
 
 #include "Entities/EntityDeclarations.h"
-#include "Tools/ToolDeclarations.h"
+#include "Tools/ToolRegistry.h"
 #include "Inventory/Inventory.h"
 #include "Shared.h"
 #include "Interface.h"
@@ -20,7 +20,7 @@ class Game
 {
 private:
 	short m_currentToolIndex = 0;
-	AgriculturalTool* m_currentTool = m_tools[m_currentToolIndex];
+	AgriculturalTool* m_currentTool = ToolRegistry::Tools[m_currentToolIndex];
 
 	v2f m_cameraPosition = v2f(0, 0);
 	v2f m_mousePosition;
@@ -44,7 +44,6 @@ public:
 
 	static PlayerEntity player;
 	static time_t Seed;
-	static AgriculturalTool* m_tools[];
 	static bool showChunkBorders;
 
 	Game();

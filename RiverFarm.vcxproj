@@ -151,7 +151,9 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Tools\AxeTool.cpp" />
     <ClCompile Include="Tools\HoeTool.cpp" />
+    <ClCompile Include="Tools\ScytheTool.cpp" />
     <ClCompile Include="Tools\ShovelTool.cpp" />
+    <ClCompile Include="Tools\ToolRegistry.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="World\Chunk.cpp" />
     <ClCompile Include="World\TileRegistry.cpp" />
@@ -169,6 +171,7 @@
     <ClInclude Include="Inventory\ItemRegistry.h" />
     <ClInclude Include="Shared.h" />
     <ClInclude Include="Tools\ToolDeclarations.h" />
+    <ClInclude Include="Tools\ToolRegistry.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="World\Chunk.h" />
     <ClInclude Include="World\Tile.h" />
