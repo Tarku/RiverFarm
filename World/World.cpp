@@ -4,7 +4,8 @@
 #include "TileRegistry.h"
 #include "../Utils.h"
 
-std::vector<Entity*> World::WorldEntities = std::vector<Entity*>();
+std::list<Entity*> World::WorldEntities;
+std::list<Entity*> World::EntitiesToDelete;
 
 World::World()
 {
@@ -25,9 +26,21 @@ void World::ResetWorld()
 
 }
 
+std::tuple<v2f, v2f> World::WorldToChunkPosition(const v2f& worldPosition)
+{
+
+	float chunkY = worldPosition.y / (float)CHUNK_HEIGHT;
+	float chunkX = worldPosition.x / (float)CHUNK_WIDTH;
+
+	int chunkPosX = (chunkX - (int)chunkX) * CHUNK_WIDTH;
+	int chunkPosY = (chunkY - (int)chunkY) * CHUNK_HEIGHT;
+
+	return std::make_tuple(v2f(chunkX, chunkY), v2f(chunkPosX, chunkPosY));
+}
+
 void World::AddDecorations()
 {
-	for (int i = 0; i < 150; i++)
+	for (int i = 0; i < 350; i++)
 	{
 		int rx = Utils::RandInt(0, MAP_WIDTH);
 		int ry = Utils::RandInt(0, MAP_HEIGHT);
@@ -53,18 +66,18 @@ void World::AddDecorations()
 				}
 
 			}
-		int doorx = 1 + (rand() % (rwidth - 1));
-		int doory = 1 + (rand() % (rheight - 1));
+		int doorx = 1 + (rand() % (rwidth));
+		int doory = 1 + (rand() % (rheight));
 
 		int randDoorDir = Utils::RandInt(0, 4);
 
 		switch (randDoorDir)
 		{
 		case 0:
-			SetTile(v2f(rx + doorx, ry + rheight), 1, TileID::Air);
+			SetTile(v2f(rx + doorx, ry + rheight - 1), 1, TileID::Air);
 			break;
 		case 1:
-			SetTile(v2f(rx + rwidth, ry + doory), 1, TileID::Air);
+			SetTile(v2f(rx + rwidth - 1, ry + doory), 1, TileID::Air);
 			break;
 		case 2:
 			SetTile(v2f(rx, ry + doory), 1, TileID::Air);
@@ -80,10 +93,12 @@ void World::DoWorldGen()
 {
 	ResetWorld();
 
-	Game::Seed = Utils::getTimestamp();
+	printf("Size of chunk : %d bytes\n", sizeof(Chunk));
+
+	Game::Seed = Utils::GetTimestamp();
 	m_perlin.reseed((unsigned int) Game::Seed);
 
-	time_t worldgenStartTime = Utils::getTimestamp();
+	time_t worldgenStartTime = Utils::GetTimestamp();
 
 	for (int y = 0; y < MAP_HEIGHT; y++)
 	{
@@ -142,7 +157,7 @@ void World::DoWorldGen()
 
 	AddDecorations();
 
-	time_t worldgenEndTime = Utils::getTimestamp();
+	time_t worldgenEndTime = Utils::GetTimestamp();
 	time_t worldgenTotalTime = worldgenEndTime - worldgenStartTime;
 
 	printf("World generation time: %d microseconds.\n", (int) worldgenTotalTime);
@@ -211,14 +226,14 @@ int World::DrawChunks(RenderWindow* window, const v2f& cameraPosition)
 	// printf("%d chunks drawn.\n", chunksDrawn);
 }
 
-void World::Update(const v2f& cameraPosition)
+void World::Update(const v2f& cameraPosition, float dt)
 {
 
 	v2f cameraChunkPosition = v2f((cameraPosition.x / SCALED_TILE_SIZE) / CHUNK_WIDTH, (cameraPosition.y / SCALED_TILE_SIZE) / CHUNK_HEIGHT);
 
-	for (int yOffset = -1; yOffset < 2; yOffset++)
+	for (int yOffset = 0; yOffset < 1; yOffset++)
 	{
-		for (int xOffset = -1; xOffset < 2; xOffset++)
+		for (int xOffset = 0; xOffset < 1; xOffset++)
 		{
 			int chunkY = (int)(cameraChunkPosition.y + yOffset);
 			int chunkX = (int)(cameraChunkPosition.x + xOffset);
@@ -226,11 +241,15 @@ void World::Update(const v2f& cameraPosition)
 			if (chunkY < 0 || chunkX < 0 || chunkY >= (MAP_HEIGHT / CHUNK_HEIGHT) || chunkX >= (MAP_WIDTH / CHUNK_WIDTH))
 				continue;
 
+			m_map[chunkY][chunkX]->Update(dt);
+
 			for (int y = 0; y < CHUNK_HEIGHT; y++)
 			{
 				for (int x = 0; x < CHUNK_WIDTH; x++)
 				{
 					v2f positionInChunk = Vector2f(chunkX * CHUNK_WIDTH + x, chunkY * CHUNK_HEIGHT + y);
+					//m_map[y][x]->Update(dt);
+					/*
 					if (TileAt(positionInChunk, 0) == TileID::TilledSoil)
 						for (auto neighbor : neighbors)
 						{
@@ -251,12 +270,17 @@ void World::Update(const v2f& cameraPosition)
 								SetTile(positionInChunk, 0, TileID::Water);
 							}
 						}
-					}
+					}*/
 				}
 			}
 		}
 	}
 	
+}
+
+Chunk* World::GetChunk(const v2f& position)
+{
+	return m_map[(int) position.y][(int) position.x];
 }
 
 bool World::InBounds(const v2f& position, int layer)
@@ -268,54 +292,51 @@ unsigned char World::TileAt(const v2f& position, int layer)
 {
     if (!InBounds(position, layer)) return -1;
 
-	float chunkY = position.y / (float) CHUNK_HEIGHT;
-	float chunkX = position.x / (float) CHUNK_WIDTH;
+	auto chunkPosition = std::get<0>(WorldToChunkPosition(position));
+	auto chunkPositionOffset = std::get<1>(WorldToChunkPosition(position));
 
-	int chunkPosX = (chunkX - (int)chunkX) * CHUNK_WIDTH;
-	int chunkPosY = (chunkY - (int)chunkY) * CHUNK_HEIGHT;
-
-    return m_map[(int) chunkY][(int) chunkX]->TileAt(v2f(chunkPosX, chunkPosY), layer);
+    return m_map[(int)chunkPosition.y][(int)chunkPosition.x]->TileAt(chunkPositionOffset, layer);
 }
 
 unsigned char World::TileAt(int x, int y, int layer)
 {
 	if (!InBounds(Vector2f(x, y), layer)) return -1;
 
-	float chunkY = y / (float)CHUNK_HEIGHT;
-	float chunkX = x / (float)CHUNK_WIDTH;
+	auto chunkPosition = std::get<0>(WorldToChunkPosition(v2f(x, y)));
+	auto chunkPositionOffset = std::get<1>(WorldToChunkPosition(v2f(x, y)));
 
-	int chunkPosX = (chunkX - (int)chunkX) * CHUNK_WIDTH;
-	int chunkPosY = (chunkY - (int)chunkY) * CHUNK_HEIGHT;
-
-	return m_map[(int)chunkY][(int)chunkX]->TileAt(v2f(chunkPosX, chunkPosY), layer);
+	return m_map[(int)chunkPosition.y][(int)chunkPosition.x]->TileAt(chunkPositionOffset, layer);
 }
 
 void World::SetTile(const v2f& position, int layer, unsigned char tileID)
 {
     if (!InBounds(position, layer)) return;
 
-	float chunkY = position.y / (float)CHUNK_HEIGHT;
-	float chunkX = position.x / (float)CHUNK_WIDTH;
+	auto chunkPosition = std::get<0>(WorldToChunkPosition(position));
+	auto chunkPositionOffset = std::get<1>(WorldToChunkPosition(position));
 
 
-	int chunkPosX = (chunkX - (int)chunkX) * CHUNK_WIDTH;
-	int chunkPosY = (chunkY - (int)chunkY) * CHUNK_HEIGHT;
-
-
-    m_map[(int)chunkY][(int)chunkX]->SetTile(v2f(chunkPosX, chunkPosY), layer, tileID);
+    m_map[(int)chunkPosition.y][(int)chunkPosition.x]->SetTile(chunkPositionOffset, layer, tileID);
 }
 
-void World::AddItemEntity(const v2f& position, ItemID itemID)
+void World::AddItemEntity(const v2f& position, ItemID itemID, int amount)
 {
-	ItemEntity* newEntity = new ItemEntity(position, itemID);
+	for (int i = 0; i < amount; i++)
+	{
 
-	WorldEntities.push_back(newEntity);
+		ItemEntity* newEntity = new ItemEntity(position, itemID);
+
+		WorldEntities.push_back(newEntity);
+
+	}
 }
 
 void World::RemoveEntity(Entity* entity)
 {
 	if (World::WorldEntities.size() != 0)
-		World::WorldEntities.erase(std::remove(World::WorldEntities.begin(), World::WorldEntities.end(), entity), World::WorldEntities.end());
+	{
+		World::WorldEntities.remove(entity);
+	}
 }
 
 bool World::IsEmptyAt(const v2f& position, int layer)
@@ -330,16 +351,6 @@ void World::Dispose()
 	// Dispose entities
 
 	WorldEntities.clear();
-
-	// Dispose of the map's chunks
-
-	for (int y = 0; y < MAP_HEIGHT / CHUNK_HEIGHT; y++)
-	{
-		for (int x = 0; x < MAP_WIDTH / CHUNK_WIDTH; x++)
-		{
-			delete m_map[y][x];
-		}
-	}
 
 	Utils::Log("World disposed.");
 }

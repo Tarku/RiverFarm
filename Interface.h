@@ -1,12 +1,11 @@
 #pragma once
 
 #include "Shared.h"
+#include "Inventory/Inventory.h"
 
 class Interface
 {
 private:
-	static std::string fontName;
-	static sf::Font font;
 	static sf::RenderWindow* window;
 	static sf::Texture uiTexture;
 	static sf::Sprite uiIconBackground;
@@ -15,6 +14,8 @@ private:
 
 	static uchar uiTextCount;
 public:
+	static std::string fontName;
+	static sf::Font font;
 	enum InterfaceState
 	{
 		MainGame
@@ -29,6 +30,8 @@ public:
 	static void SetTextString(uchar textID, const std::string& newString);
 
 	static void DrawText(uchar textID);
+
+	static void ShowInventoryOverlay();
 	
 	static void DrawUIElement(AtlasID atlasId, const sf::Vector2f& absolutePosition);
 	static void DrawUIElementNormalized(AtlasID atlasId, const sf::Vector2f& normalizedPosition, const bool adjustHorizontally = true);

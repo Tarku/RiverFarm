@@ -19,15 +19,18 @@ protected:
 
 public:
 	Entity() {};
+	virtual ~Entity()
+	{
+	};
 
 	v2f position;
 	v2f velocity;
 
 	AtlasID atlasID = { 0, 0 };
 
-	virtual void HandleEvents(Event* event) = 0;
-	virtual void Update(World* world, float dt) = 0;
-	virtual void Draw(RenderWindow* window, v2f cameraPosition) = 0;
+	virtual void HandleEvents(Event* event) abstract;
+	virtual void Update(World* world, float dt) abstract;
+	virtual void Draw(RenderWindow* window, v2f cameraPosition) abstract;
 
 
 	inline virtual FloatRect GetRectangle()
@@ -67,7 +70,7 @@ private:
 
 public:
 	ItemEntity(const v2f& position, ItemID itemID);
-	~ItemEntity();
+	virtual ~ItemEntity() override;
 
 	void HandleEvents(Event* event) override;
 	void Update(World* world, float dt) override;

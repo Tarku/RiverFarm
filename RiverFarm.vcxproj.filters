@@ -93,6 +93,15 @@
     <ClCompile Include="Tools\ToolRegistry.cpp">
       <Filter>Source Files\Tools</Filter>
     </ClCompile>
+    <ClCompile Include="World\Crop.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
+    <ClCompile Include="Inventory\SeedItem.cpp">
+      <Filter>Source Files\Inventory</Filter>
+    </ClCompile>
+    <ClCompile Include="World\CropRegistry.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -145,6 +154,15 @@
     </ClInclude>
     <ClInclude Include="Tools\ToolRegistry.h">
       <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="World\Crop.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="World\CropRegistry.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="Inventory\ItemID.h">
+      <Filter>Header Files\Inventory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

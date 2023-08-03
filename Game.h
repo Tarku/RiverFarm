@@ -33,8 +33,10 @@ private:
 	Clock m_clock;
 
 	float m_fps = 0;
+	float m_gameTime = 0;
 
 	long m_ticks = 0;
+	
 
 	RenderWindow m_window = RenderWindow(VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "River Farm", Style::Titlebar | Style::Close);
 	Event m_curEvent = Event();

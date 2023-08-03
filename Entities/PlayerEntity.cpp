@@ -11,7 +11,6 @@ PlayerEntity::PlayerEntity(const v2f& _position)
 
 	atlasID = { 0, 0 };
 
-	World::WorldEntities.push_back(this);
 
 	printf("Player was added.\n");
 }

@@ -3,10 +3,10 @@
 
 using namespace sf;
 
-PlayerEntity Game::player = PlayerEntity(v2f(0.0f, 0.0f));
+PlayerEntity Game::player = PlayerEntity(v2f(MAP_WIDTH / 2, MAP_HEIGHT / 2));
 bool Game::showChunkBorders = false;
 
-time_t Game::Seed = Utils::getTimestamp();
+time_t Game::Seed = Utils::GetTimestamp();
 
 Game::Game()
 {
@@ -23,10 +23,6 @@ Game::Game()
 
 	Interface::Initialize(&m_window);
 	Inventory::Initialize();
-
-	const int totalMapSprites = MAP_HEIGHT* MAP_WIDTH* MAP_LEVELS;
-
-	printf("Size of %dx%dx%d sprites: %d bytes.\n", MAP_HEIGHT, MAP_WIDTH, MAP_LEVELS, (int) (totalMapSprites * sizeof(Sprite)));
 
 	Interface::CreateNormalizedText(m_currentTool->name, v2f(0.5f, 0.075f));
 	Interface::CreateNormalizedText(std::format("FPS: {}", (int)m_fps), v2f(0.0f, 0.00f), sf::Color::Yellow, 1.0F, false);
@@ -120,13 +116,18 @@ void Game::Update(float timeElapsed)
 
 	player.Update(&m_world, timeElapsed);
 
-	for (auto& entity : World::WorldEntities)
+	for (auto entity : World::WorldEntities)
 	{
 		entity->Update(&m_world, timeElapsed);
 	}
+	for (auto entity : World::EntitiesToDelete)
+	{
+		m_world.RemoveEntity(entity);
 
-	if (m_ticks % 20 == 0)
-		m_world.Update(m_cameraPosition);
+	}
+	
+	m_world.Update(m_cameraPosition, timeElapsed);
+
 
 	m_fps = 1.f / timeElapsed;
 
@@ -134,7 +135,7 @@ void Game::Update(float timeElapsed)
 	Interface::SetTextString(1, std::format("FPS: {}", (int)m_fps));
 	Interface::SetTextString(2, std::format("Player X, Y: {}, {}", (int) player.position.x, (int)player.position.y));
 
-
+	m_gameTime += timeElapsed;
 	m_ticks++;
 }
 
@@ -146,7 +147,7 @@ void Game::Draw()
 
 	int chunksRendered = m_world.DrawChunks(&m_window, m_cameraPosition);
 
-	m_window.setTitle(std::format("River Farm - {} chunks rendered {}", chunksRendered, m_currentToolIndex));
+	m_window.setTitle(std::format("River Farm - {} chunks rendered", chunksRendered));
 
 	player.Draw(&m_window, m_cameraPosition);
 
@@ -160,6 +161,8 @@ void Game::Draw()
 	Interface::DrawText(0);
 	Interface::DrawText(1);
 	Interface::DrawText(2);
+
+	Interface::ShowInventoryOverlay();
 
 	m_window.display();
 

@@ -1,19 +1,34 @@
 #pragma once
 
 #include "../Shared.h"
+#include <vector>
+
+class Crop;
 
 class Chunk
 {
 private:
 	static sf::Sprite m_tileSprite;
 
-	uchar m_tiles[MAP_LEVELS][CHUNK_WIDTH][CHUNK_HEIGHT];
-	v2f m_position;
+	uchar m_tiles[MAP_LEVELS][CHUNK_HEIGHT][CHUNK_WIDTH];
+	Crop* m_crops[CHUNK_HEIGHT][CHUNK_WIDTH];
+
 
 public:
+	Chunk() = delete;
 	Chunk(const v2f& position);
 
+	v2f position;
+
 	bool CanBeRendered(const v2f& cameraPosition);
+
+	void Update(float dt);
+
+	void AddCrop(const v2f& position, Crop* crop);
+	void RemoveCrop(const v2f& position);
+
+	bool IsCrop(const v2f& position);
+	Crop* CropAt(const v2f& position);
 
 	void Draw(sf::RenderWindow* window, const v2f& cameraPosition);
 

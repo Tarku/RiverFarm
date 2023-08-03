@@ -1,10 +1,13 @@
 #include "ItemRegistry.h"
 
-const Item ItemRegistry::Items[] = {
-	Item("Air", {4, 4}),
-	Item("Wood", {0, 0}),
-	Item("Dirt", {2, 0}),
-	Item("Sand", {1, 0})
+std::vector<Item*> ItemRegistry::Items {
+	new Item("Wood", {0, 0}),
+	new Item("Dirt", {2, 0}),
+	new Item("Sand", {1, 0}),
+	new Item("Straw", {3, 0}),
+	new Item("Flowers", {0, 1}),
+	new Item("Barley", {3, 1}),
+	new SeedItem("Barley Seeds", {3, 0}, CropID::CropBarley)
 };
 
 int ItemRegistry::GetItemAmount()

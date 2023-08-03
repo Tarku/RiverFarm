@@ -3,6 +3,8 @@
 #ifndef WORLD_H
 #define WORLD_H
 
+#include <list>
+
 #include "../Shared.h"
 #include "../Includes/PerlinNoise.hpp"
 #include "../Entities/EntityDeclarations.h"
@@ -12,17 +14,25 @@
 class World
 {
 private:
-	Chunk* m_map[MAP_HEIGHT / CHUNK_HEIGHT][MAP_WIDTH / CHUNK_WIDTH] = {};
+	Chunk* m_map[MAP_HEIGHT / CHUNK_HEIGHT][MAP_WIDTH / CHUNK_WIDTH];
 
-	siv::PerlinNoise m_perlin{};
+	siv::PerlinNoise m_perlin {};
 
 public:
 	World();
 
-	static std::vector<Entity*> WorldEntities;
+	static constexpr float BaseHumidity = 0.3f;
+
+	static std::list<Entity*> WorldEntities;
+	static std::list<Entity*> EntitiesToDelete;
+
+
+	std::tuple<v2f, v2f> WorldToChunkPosition(const v2f& worldPosition);
+
+	Chunk* GetChunk(const v2f& position);
 
 	void ResetWorld();
-	void Update(const v2f& cameraPosition);
+	void Update(const v2f& cameraPosition, float dt);
 
 	void Dispose();
 	void AddDecorations();
@@ -38,7 +48,7 @@ public:
 
 	void SetTile(const v2f& position, int layer, unsigned char tileID);
 
-	void AddItemEntity(const v2f& position, ItemID itemID);
+	void AddItemEntity(const v2f& position, ItemID itemID, int amount = 1);
 
 	void RemoveEntity(Entity* entity);
 

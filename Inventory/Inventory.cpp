@@ -38,11 +38,11 @@ void Inventory::ShowContents()
 {
 	printf("Content of Inventory:\n");
 
-	int itemAmount = ItemRegistry::GetItemAmount();
+	int itemAmount = ItemRegistry::Items.size();
 
 	for (int itemID = 0; itemID < itemAmount; itemID++)
 	{
-		printf(" - ID: %d | Item: %s | Amount: %d\n", itemID, ItemRegistry::Items[itemID].name.c_str(), m_inventoryItems[itemID]);
+		printf(" - ID: %d | Item: %s | Amount: %d\n", itemID, ItemRegistry::Items[itemID]->name.c_str(), m_inventoryItems[itemID]);
 	}
 }
 

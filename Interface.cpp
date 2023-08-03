@@ -70,6 +70,42 @@ void Interface::DrawText(uchar textID)
 	window->draw(Interface::textDeclarations[textID]);
 }
 
+void Interface::ShowInventoryOverlay()
+{
+	sf::Sprite itemIconSprite = sf::Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Items), sf::IntRect(0, 0, 16, 16));
+
+	for (int i = 0; i < ItemRegistry::Items.size(); i++)
+	{
+		Item* item = ItemRegistry::Items[i];
+
+		itemIconSprite.setTextureRect(sf::IntRect(item->atlasID.x * TILE_SIZE, item->atlasID.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
+		itemIconSprite.setScale(2, 2);
+
+		itemIconSprite.setPosition(
+			v2f(
+				WINDOW_WIDTH - TILE_SIZE * 2,
+				i * TILE_SIZE * 2 + 4
+			)
+		);
+
+		window->draw(itemIconSprite);
+
+		sf::Text text = sf::Text(std::format("{}", Inventory::GetAmount((ItemID) i)), font);
+
+		text.setFillColor(sf::Color(255, 255, 255));
+		text.setScale(1, 1);
+
+		text.setPosition(
+			v2f(
+				WINDOW_WIDTH - TILE_SIZE * 2 - text.getGlobalBounds().width - 4,
+				i * TILE_SIZE * 2
+			)
+		);
+
+		window->draw(text);
+	}
+}
+
 void Interface::DrawUIElement(AtlasID atlasID, const sf::Vector2f& absolutePosition)
 {
 	if (atlasID.x == 0 && atlasID.y == 0) // These coordinates are reserved

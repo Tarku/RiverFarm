@@ -1,4 +1,5 @@
 #include "ToolDeclarations.h"
+#include "../World/Crop.h"
 
 ScytheTool::ScytheTool()
 {
@@ -10,11 +11,31 @@ ScytheTool::ScytheTool()
 
 bool ScytheTool::CanBeUsedHere(World* world, const sf::Vector2f& position)
 {
-	return world->TileAt(position, 1) == TileID::Flowers;
+	auto chunkPositionTuple = world->WorldToChunkPosition(position);
+
+	auto chunkPosition = std::get<0>(chunkPositionTuple);
+	auto chunkPositionOffset = std::get<1>(chunkPositionTuple);
+
+	return world->TileAt(position, 1) == TileID::Flowers || world->GetChunk(chunkPosition)->IsCrop(chunkPositionOffset);
 }
 
 void ScytheTool::OnUse(World* world, const sf::Vector2f& position)
 {
-	TileRegistry::Tiles[world->TileAt(position, 1)].OnTileBreak(position, world, 1);
-	world->SetTile(position, 1, TileID::Air);
+	auto chunkPositionTuple = world->WorldToChunkPosition(position);
+
+	auto chunkPosition = std::get<0>(chunkPositionTuple);
+	auto chunkPositionOffset = std::get<1>(chunkPositionTuple);
+
+	Crop* crop = world->GetChunk(chunkPosition)->CropAt(chunkPositionOffset);
+
+	if (crop != nullptr && !crop->isGrowing)
+	{
+		crop->OnDestroy(chunkPositionOffset, world->GetChunk(chunkPosition), world);
+	}
+	else
+	{
+
+		TileRegistry::Tiles[world->TileAt(position, 1)].OnTileBreak(position, world, 1);
+		world->SetTile(position, 1, TileID::Air);
+	}
 }

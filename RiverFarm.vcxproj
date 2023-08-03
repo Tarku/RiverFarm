@@ -148,6 +148,7 @@
     <ClCompile Include="Inventory\Inventory.cpp" />
     <ClCompile Include="Inventory\ItemRegistry.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Inventory\SeedItem.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Tools\AxeTool.cpp" />
     <ClCompile Include="Tools\HoeTool.cpp" />
@@ -156,6 +157,8 @@
     <ClCompile Include="Tools\ToolRegistry.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="World\Chunk.cpp" />
+    <ClCompile Include="World\Crop.cpp" />
+    <ClCompile Include="World\CropRegistry.cpp" />
     <ClCompile Include="World\TileRegistry.cpp" />
     <ClCompile Include="World\World.cpp" />
   </ItemGroup>
@@ -168,12 +171,15 @@
     <ClInclude Include="Interface.h" />
     <ClInclude Include="Inventory\Inventory.h" />
     <ClInclude Include="Inventory\Item.h" />
+    <ClInclude Include="Inventory\ItemID.h" />
     <ClInclude Include="Inventory\ItemRegistry.h" />
     <ClInclude Include="Shared.h" />
     <ClInclude Include="Tools\ToolDeclarations.h" />
     <ClInclude Include="Tools\ToolRegistry.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="World\Chunk.h" />
+    <ClInclude Include="World\Crop.h" />
+    <ClInclude Include="World\CropRegistry.h" />
     <ClInclude Include="World\Tile.h" />
     <ClInclude Include="World\TileRegistry.h" />
     <ClInclude Include="World\World.h" />

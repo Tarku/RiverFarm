@@ -2,6 +2,7 @@
 
 #include "../Shared.h"
 #include "World.h"
+#include "../Inventory/ItemID.h"
 
 struct TileProperties
 {
@@ -30,10 +31,11 @@ struct TileProperties
 
 struct Tile
 {
+
 	std::string name = "Unknown";
 	AtlasID textureId = { 0, 0 };
 
-	ItemID itemDrop;
+	ItemID itemDrop = (ItemID) -1;
 
 	TileProperties tileProperties;
 
@@ -63,6 +65,7 @@ struct Tile
 	{
 		world->SetTile(position, layer, 0);
 
-		world->AddItemEntity(v2f((int)position.x, (int)position.y), itemDrop);
+		if (itemDrop != -1)
+			world->AddItemEntity(v2f((int)position.x, (int)position.y), itemDrop);
 	}
 };
