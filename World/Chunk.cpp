@@ -47,7 +47,7 @@ void Chunk::Update(float dt)
 		for (int x = 0; x < CHUNK_WIDTH; x++)
 		{
 			if (m_crops[y][x] != nullptr)
-				m_crops[y][x]->OnUpdate(this, dt);
+				m_crops[y][x]->OnUpdate(v2f(x, y), this, dt);
 		}
 	}
 }
@@ -126,19 +126,6 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 
 			m_tileSprite.setScale(TEXTURE_SCALE * currentCrop->growth, TEXTURE_SCALE * currentCrop->growth);
 			window->draw(m_tileSprite);
-
-			/*
-			sf::Text text = sf::Text(std::format("{}%", (int) (currentCrop->growth * 100)), Interface::font);
-
-			text.setPosition(
-				v2f(
-					(position.x + x) * SCALED_TILE_SIZE,
-					(position.y + y) * SCALED_TILE_SIZE
-				) - (v2f)cameraPosition
-			);
-			text.setScale(1, 1);
-
-			window->draw(text);*/
 		}
 	}
 }

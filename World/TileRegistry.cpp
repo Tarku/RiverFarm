@@ -16,3 +16,8 @@ Tile TileRegistry::Tiles[] = {
 
 	Tile("Wood Wall", std::make_tuple(AtlasID(0, 3), AtlasID(1, 3)), ItemID::ItemWood, TileProperties(false, false, true, true))
 };
+
+int TileRegistry::TileCount()
+{
+	return sizeof(Tiles) / sizeof(Tile);
+}

@@ -5,7 +5,12 @@
 class ToolRegistry
 {
 public:
-	static AgriculturalTool* Tools[];
+	inline static AgriculturalTool* Tools[4] = {
+		new AxeTool(),
+		new HoeTool(),
+		new ShovelTool(),
+		new ScytheTool()
+	};
 
 	static int ToolCount();
 };

@@ -9,9 +9,6 @@ std::list<Entity*> World::EntitiesToDelete;
 
 World::World()
 {
-	Utils::Log("World created.");
-
-	DoWorldGen();
 }
 
 void World::ResetWorld()
@@ -42,48 +39,50 @@ void World::AddDecorations()
 {
 	for (int i = 0; i < 350; i++)
 	{
-		int rx = Utils::RandInt(0, MAP_WIDTH);
-		int ry = Utils::RandInt(0, MAP_HEIGHT);
+		int roomX = Utils::RandInt(0, MAP_WIDTH);
+		int roomY = Utils::RandInt(0, MAP_HEIGHT);
 
-		int rwidth = Utils::RandInt(3, 18);
-		int rheight = Utils::RandInt(5, 14);
+		int roomWidth = Utils::RandInt(3, 18);
+		int roomHeight = Utils::RandInt(5, 14);
 
-
-		for (int y = 0; y < rheight; y++)
-			for (int x = 0; x < rwidth; x++)
+		for (int y = 0; y < roomHeight; y++)
+		{
+			for (int x = 0; x < roomWidth; x++)
 			{
+				// Set the flooring
+				SetTile(v2f(x + roomX, y + roomY), 0, TileID::WoodWall);
 
-				SetTile(v2f(x + rx, y + ry), 0, TileID::WoodWall);
-
-				if (x == 0 || y == 0 || x == rwidth - 1 || y == rheight - 1)
+				if (x == 0 || y == 0 || x == roomWidth - 1 || y == roomHeight - 1)
 				{
 
-					SetTile(v2f(x + rx, y + ry), 1, TileID::WoodWall);
+					SetTile(v2f(x + roomX, y + roomY), 1, TileID::WoodWall);
 				}
 				else {
 
-					SetTile(v2f(x + rx, y + ry), 1, TileID::Air);
+					SetTile(v2f(x + roomX, y + roomY), 1, TileID::Air);
 				}
 
 			}
-		int doorx = 1 + (rand() % (rwidth));
-		int doory = 1 + (rand() % (rheight));
+		}
 
-		int randDoorDir = Utils::RandInt(0, 4);
+		int doorX = Utils::RandInt(1, roomWidth);
+		int doorY = Utils::RandInt(1, roomHeight);
 
-		switch (randDoorDir)
+		int randomSide = Utils::RandInt(0, 4);
+
+		switch (randomSide)
 		{
 		case 0:
-			SetTile(v2f(rx + doorx, ry + rheight - 1), 1, TileID::Air);
+			SetTile(v2f(roomX + doorX, roomY + roomHeight - 1), 1, TileID::Air);
 			break;
 		case 1:
-			SetTile(v2f(rx + rwidth - 1, ry + doory), 1, TileID::Air);
+			SetTile(v2f(roomX + roomWidth - 1, roomY + doorY), 1, TileID::Air);
 			break;
 		case 2:
-			SetTile(v2f(rx, ry + doory), 1, TileID::Air);
+			SetTile(v2f(roomX, roomY + doorY), 1, TileID::Air);
 			break;
 		case 3:
-			SetTile(v2f(rx + doorx, ry), 1, TileID::Air);
+			SetTile(v2f(roomX + doorX, roomY), 1, TileID::Air);
 			break;
 		}
 	}
@@ -93,9 +92,8 @@ void World::DoWorldGen()
 {
 	ResetWorld();
 
-	printf("Size of chunk : %d bytes\n", sizeof(Chunk));
-
 	Game::Seed = Utils::GetTimestamp();
+
 	m_perlin.reseed((unsigned int) Game::Seed);
 
 	time_t worldgenStartTime = Utils::GetTimestamp();
@@ -136,8 +134,9 @@ void World::DoWorldGen()
 			{
 				SetTile(Vector2f(x, y), 0, TileID::Grass);
 
-				
-				if (erosionValue > 0.8)
+				if (erosionValue > 0.65 && erosionValue < 0.85)
+					SetTile(v2f(x, y), 0, TileID::Dirt);
+				else if (erosionValue >= 0.85)
 					SetTile(v2f(x, y), 0, TileID::Stone);
 				else
 				{
@@ -204,7 +203,7 @@ int World::DrawChunks(RenderWindow* window, const v2f& cameraPosition)
 				chunksDrawn++;
 			}
 
-			if (Game::showChunkBorders)
+			if (GameScene::showChunkBorders)
 			{
 
 				vertices[0] = Vertex(v2f(chunkX * SCALED_TILE_SIZE * CHUNK_WIDTH, chunkY * SCALED_TILE_SIZE * CHUNK_WIDTH) - cameraPosition);

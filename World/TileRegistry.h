@@ -6,6 +6,8 @@ class TileRegistry
 {
 public:
 	static Tile Tiles[];
+
+	static int TileCount();
 };
 
 enum TileID
