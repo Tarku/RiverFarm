@@ -23,9 +23,10 @@ public:
 	float growth = 0.0f;
 	float actualGrowthRate;
 
+	bool isFullyGrown = false;
 	bool isGrowing = true;
 
-	virtual void OnUpdate(Chunk* chunk, float dt);
+	virtual void OnUpdate(const v2f& position, Chunk* parentChunk, float dt);
 
 	virtual void OnDestroy(const v2f& position, Chunk* parentChunk, World* world);
 };

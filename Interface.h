@@ -10,32 +10,30 @@ private:
 	static sf::Texture uiTexture;
 	static sf::Sprite uiIconBackground;
 
-	static sf::Text textDeclarations[32];
+	static sf::Texture uiElementsBackground;
+
+	std::map<std::string, sf::Text> textDeclarations;
 
 	static uchar uiTextCount;
 public:
 	static std::string fontName;
 	static sf::Font font;
-	enum InterfaceState
-	{
-		MainGame
-	};
-
 	static void Initialize(sf::RenderWindow* window);
 
+	Interface() {};
 
-	static void CreateText(const std::string& text, const v2f& position, const sf::Color& color = sf::Color::White, const float scale = 1.f);
-	static void CreateNormalizedText(const std::string& stringToDraw, const sf::Vector2f& normalizedPosition, const sf::Color& color = sf::Color::White, const float scale = 1.f, const bool adjustHorizontally = true);
+	void CreateText(const std::string& tag, const std::string& text, const v2f& position, const sf::Color& color = sf::Color::White, const float scale = 1.f);
+	void CreateNormalizedText(const std::string& tag, const std::string& stringToDraw, const sf::Vector2f& normalizedPosition, const sf::Color& color = sf::Color::White, const float scale = 1.f, const bool adjustHorizontally = true);
 
-	static void SetTextString(uchar textID, const std::string& newString);
+	void SetTextString(const std::string& tag, const std::string& newString);
 
-	static void DrawText(uchar textID);
+	void DrawText(const std::string& tag);
 
-	static void ShowInventoryOverlay();
+	void ShowInventoryOverlay();
 	
-	static void DrawUIElement(AtlasID atlasId, const sf::Vector2f& absolutePosition);
-	static void DrawUIElementNormalized(AtlasID atlasId, const sf::Vector2f& normalizedPosition, const bool adjustHorizontally = true);
+	void DrawUIElement(AtlasID atlasId, const sf::Vector2f& absolutePosition);
+	void DrawUIElementNormalized(AtlasID atlasId, const sf::Vector2f& normalizedPosition, const bool adjustHorizontally = true);
 
-	static void Dispose();
+	void Dispose();
 };
 

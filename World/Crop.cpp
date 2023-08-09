@@ -1,19 +1,33 @@
 #include "Crop.h"
 #include "Chunk.h"
 #include "World.h"
+#include "Tile.h"
+#include "TileRegistry.h"
 #include "../Inventory/Inventory.h"
 #include "../Inventory/ItemID.h"
 
 
-void Crop::OnUpdate(Chunk* chunk, float dt)
+void Crop::OnUpdate(const v2f& position, Chunk* parentChunk, float dt)
 {
 	actualGrowthRate = baseGrowthRate;
 
-	if (growth >= 1)
+	uchar groundTileId = parentChunk->TileAt(position, 0);
+
+	if (groundTileId != TileID::TilledSoil)
+	{
 		isGrowing = false;
+		return;
+	}
+
+	if (growth >= 1 && isGrowing == true)
+	{
+
+		isGrowing = false;
+		isFullyGrown = true;
+	}
 
 
-	if (isGrowing)
+	if (isGrowing && !isFullyGrown)
 		growth += actualGrowthRate * dt * 2;
 	else
 		growth = 1.f;
@@ -48,7 +62,7 @@ void CerealCrop::OnDestroy(const v2f& position, Chunk* parentChunk, World* world
 BarleyCrop::BarleyCrop () {
 	this->name = std::string("Barley");
 
-	this->baseGrowthRate = 0.01f;
+	this->baseGrowthRate = 0.05f;
 
 	this->itemDrop = ItemID::ItemBarley;
 	this->seedItemDrop = ItemID::ItemBarleySeeds;

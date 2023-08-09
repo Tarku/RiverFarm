@@ -8,7 +8,7 @@ Texture* Entity::itemsAtlas = AtlasManager::GetAtlas(AtlasTextureID::Items);
 
 ItemEntity::ItemEntity(const v2f& _position, ItemID itemID) : m_itemID(itemID)
 {
-	position = _position + v2f(Utils::RandInt(-100, 101) / 100.f, Utils::RandInt(-100, 101) / 100.f);
+	position = _position + v2f(Utils::RandInt(-10, 10) / 100.f, Utils::RandInt(-10, 10) / 100.f);
 	printf("ItemEntity (item: %s) was added.\n", ItemRegistry::Items[itemID]->name.c_str());
 
 }
@@ -19,9 +19,11 @@ ItemEntity::~ItemEntity()
 
 void ItemEntity::Update(World* world, float dt)
 {
+	if (m_angle > TWO_PI) m_angle = 0;
+
 	bool hasToBeRemoved = false;
 
-	if (Game::player.GetRectangle().intersects(this->GetRectangle()))
+	if (GameScene::player.GetRectangle().intersects(this->GetRectangle()))
 	{
 		Inventory::Add((ItemID) m_itemID, 1);
 		hasToBeRemoved = true;
@@ -36,7 +38,11 @@ void ItemEntity::Update(World* world, float dt)
 	{
 		World::EntitiesToDelete.push_back(this);
 	}
+	
+	velocity.y = sin(m_angle) / TILE_SIZE;
+
 	position += velocity * dt * 5.0f;
+	m_angle += dt;
 	m_lifetime += dt;
 }
 
@@ -50,7 +56,7 @@ void ItemEntity::Draw(sf::RenderWindow* window, v2f cameraPosition)
 
 
 	s.setPosition(position * static_cast<float> (TILE_SIZE * TEXTURE_SCALE) - cameraPosition);
-	s.setScale(TEXTURE_SCALE, TEXTURE_SCALE);
+	s.setScale(TEXTURE_SCALE / (abs(velocity.y) * 30 + 0.0000001f), TEXTURE_SCALE / (abs(velocity.y) * 30 + 0.0000001f));
 
 	window->draw(s);
 }

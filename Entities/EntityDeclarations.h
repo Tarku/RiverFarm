@@ -62,6 +62,7 @@ public:
 class ItemEntity : public Entity
 {
 private:
+	float m_angle = 0.f;
 	uchar m_itemID = -1;
 	bool m_inPlayerRange = false;
 

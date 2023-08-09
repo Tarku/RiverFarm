@@ -28,6 +28,9 @@ constexpr int MAP_LEVELS = 2;
 
 constexpr float TEXTURE_SCALE = 2.f;
 
+constexpr float PI = 3.141592654f;
+constexpr float TWO_PI = PI * 2;
+
 constexpr int SCALED_TILE_SIZE = (int)(TEXTURE_SCALE * TILE_SIZE);
 
 constexpr unsigned int WINDOW_WIDTH = (int) (TILE_SIZE * CHUNK_WIDTH * 2);

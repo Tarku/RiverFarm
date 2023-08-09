@@ -150,6 +150,9 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Inventory\SeedItem.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Scenes\GameScene.cpp" />
+    <ClCompile Include="Scenes\MainMenuScene.cpp" />
+    <ClCompile Include="Scenes\SceneManager.cpp" />
     <ClCompile Include="Tools\AxeTool.cpp" />
     <ClCompile Include="Tools\HoeTool.cpp" />
     <ClCompile Include="Tools\ScytheTool.cpp" />
@@ -173,6 +176,9 @@
     <ClInclude Include="Inventory\Item.h" />
     <ClInclude Include="Inventory\ItemID.h" />
     <ClInclude Include="Inventory\ItemRegistry.h" />
+    <ClInclude Include="Scenes\Scene.h" />
+    <ClInclude Include="Scenes\SceneDeclarations.h" />
+    <ClInclude Include="Scenes\SceneManager.h" />
     <ClInclude Include="Shared.h" />
     <ClInclude Include="Tools\ToolDeclarations.h" />
     <ClInclude Include="Tools\ToolRegistry.h" />
