@@ -28,7 +28,7 @@ void ScytheTool::OnUse(World* world, const sf::Vector2f& position)
 
 	Crop* crop = world->GetChunk(chunkPosition)->CropAt(chunkPositionOffset);
 
-	if (crop != nullptr && crop->isFullyGrown)
+	if (crop != nullptr &&  crop->isFullyGrown)
 	{
 		crop->OnDestroy(chunkPositionOffset, world->GetChunk(chunkPosition), world);
 	}
