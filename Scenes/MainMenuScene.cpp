@@ -28,22 +28,51 @@ void MainMenuScene::HandleEvents()
 void MainMenuScene::Update(float dt)
 {
 	HandleEvents();
+
+	m_angle += dt;
+
+	if (m_angle > TWO_PI)
+		m_angle = 0;
+
+
+	m_tileChangeTimer += dt;
+
+	if (m_tileChangeTimer > 1)
+	{
+		m_tileChangeTimer = 0;
+		tileId++;
+	}
+
+	if (tileId >= TileRegistry::TileCount())
+		tileId = 0;
+
+	m_blockPosition.x += 5 * dt * (m_startingBlockPosition.x * sinf(m_angle) - m_startingBlockPosition.y * cosf(m_angle));
+	m_blockPosition.y += 5 * dt * (m_startingBlockPosition.x * cosf(m_angle) + m_startingBlockPosition.y * sinf(m_angle));
+
+	Utils::Log(std::format("bx : {}; by : {}", roundf(m_blockPosition.x), roundf(m_blockPosition.y)));
 }
 void MainMenuScene::Draw() 
 {
 
 	sf::Sprite tileBackgroundSprite = sf::Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Tiles), sf::IntRect(0, 0, TILE_SIZE, TILE_SIZE));
-	int tileId = 0;
+	
+	const float scale = 2.f;
 
-	int scale = 2;
+	v2f transformedBlockPosition = (m_blockPosition) + v2f(16.f, 16.f);
 
-	for (int y = 0; y < (WINDOW_HEIGHT / TILE_SIZE) / scale; y++)
+	const int horizontalSquares = (WINDOW_WIDTH / TILE_SIZE) / scale;
+	const int verticalSquares = (WINDOW_HEIGHT / TILE_SIZE) / scale;
+
+	int totalSquares = horizontalSquares * verticalSquares;
+
+
+	for (int y = 0; y < verticalSquares; y++)
 	{
-		for (int x = 0; x < (WINDOW_WIDTH / TILE_SIZE) / scale; x++)
+		for (int x = 0; x < horizontalSquares; x++)
 		{
-			Tile t = TileRegistry::Tiles[TileID::Grass];
-
-			tileBackgroundSprite.setTextureRect(sf::IntRect(t.textureId.x * TILE_SIZE, t.textureId.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
+			Tile* t = TileRegistry::Tiles[tileId];
+			
+			tileBackgroundSprite.setTextureRect(sf::IntRect(t->textureId.x * TILE_SIZE, t->textureId.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
 			tileBackgroundSprite.setPosition(v2f(x * TILE_SIZE * scale, y * TILE_SIZE * scale));
 
 			tileBackgroundSprite.setScale(scale, scale);

@@ -1,8 +1,10 @@
 #pragma once
 
 #include "../Shared.h"
+
 #include <vector>
 
+class World;
 class Crop;
 
 class Chunk
@@ -13,10 +15,12 @@ private:
 	uchar m_tiles[MAP_LEVELS][CHUNK_HEIGHT][CHUNK_WIDTH];
 	Crop* m_crops[CHUNK_HEIGHT][CHUNK_WIDTH];
 
+	World* m_world;
+
 
 public:
 	Chunk() = delete;
-	Chunk(const v2f& position);
+	Chunk(const v2f& position, World* world);
 
 	v2f position;
 
@@ -24,7 +28,7 @@ public:
 
 	void Update(float dt);
 
-	void AddCrop(const v2f& position, Crop* crop);
+	void AddCrop(const v2f& inChunkPosition, Crop* crop);
 	void RemoveCrop(const v2f& position);
 
 	bool IsCrop(const v2f& position);

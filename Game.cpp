@@ -3,20 +3,22 @@
 
 using namespace sf;
 
-time_t Game::Seed = Utils::GetTimestamp();
-
 Game::Game()
 {
 	srand((unsigned int) Game::Seed);
 
 	bool atlasesLoaded = AtlasManager::LoadAtlases();
 
-	if (!atlasesLoaded) Utils::Log("Couldn't load atlases!");
+	if (!atlasesLoaded)
+	{
+		Utils::Log("Couldn't load atlases!");
+	}
 
-	m_iconImage.loadFromFile("Assets/icon.png");
+	Image iconImage;
+	iconImage.loadFromFile("Assets/icon.png");
 
 	m_window.setFramerateLimit(60);
-	m_window.setIcon(m_iconImage.getSize().x, m_iconImage.getSize().y, m_iconImage.getPixelsPtr());
+	m_window.setIcon(iconImage.getSize().x, iconImage.getSize().y, iconImage.getPixelsPtr());
 
 	Interface::Initialize(&m_window);
 
@@ -34,7 +36,6 @@ void Game::Draw()
 	m_window.clear();
 	SceneManager::currentScene->Draw();
 	m_window.display();
-
 }
 
 void Game::Dispose()
@@ -45,6 +46,9 @@ void Game::Dispose()
 
 void Game::Run()
 {
+	time_t gameStartTime = Utils::GetTimestamp();
+	Utils::Log("Game started.");
+
 	while (m_window.isOpen())
 	{
 		sf::Time elapsed = m_clock.restart();
@@ -52,6 +56,14 @@ void Game::Run()
 		Update(elapsed.asSeconds());
 		Draw();
 	}
+
+	time_t gameEndTime = Utils::GetTimestamp();
+
+	time_t gameTotalTime = gameEndTime - gameStartTime;
+
+	Utils::Log(
+		std::format("Game ended. Game time: {} seconds", static_cast<double>(gameTotalTime) / 1000000.0)
+	);
 
 	Dispose();
 }

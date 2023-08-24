@@ -28,6 +28,7 @@ public:
 
 
 	std::tuple<v2f, v2f> WorldToChunkPosition(const v2f& worldPosition);
+	v2f ChunkToWorldPosition(const v2f& chunkPosition, const v2f& inChunkPosition);
 
 	Chunk* GetChunk(const v2f& position);
 

@@ -1,4 +1,10 @@
 #include "ToolDeclarations.h"
+#include "../Interface.h"
+
+void AgriculturalTool::Draw(Interface* inter)
+{
+	inter->DrawUIElementNormalized(this->uiIcon, v2f(.5f, 0.f), true);
+}
 
 AxeTool::AxeTool()
 {
@@ -8,10 +14,10 @@ AxeTool::AxeTool()
 
 bool AxeTool::CanBeUsedHere(World* world, const sf::Vector2f& position)
 {
-	return TileRegistry::Tiles[world->TileAt(position, 1)].tileProperties.isChoppable;
+	return TileRegistry::Tiles[world->TileAt(position, 1)]->tileProperties.isChoppable;
 }
 
 void AxeTool::OnUse(World* world, const sf::Vector2f& position)
 {
-	TileRegistry::Tiles[world->TileAt(position, 1)].OnTileBreak(position, world, 1);
+	TileRegistry::Tiles[world->TileAt(position, 1)]->OnTileBreak(position, world, 1);
 }

@@ -3,6 +3,10 @@
 #include "../Shared.h"
 #include "Crop.h"
 
+enum CropID
+{
+	CropBarley
+};
 
 class CropRegistry
 {
@@ -10,9 +14,6 @@ public:
 	static Crop* crops[];
 
 	static int CropAmount();
-};
 
-enum CropID
-{
-	CropBarley
+	static Crop* GetInstance(CropID& cropId);
 };

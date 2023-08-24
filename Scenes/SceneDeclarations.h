@@ -46,6 +46,15 @@ public:
 
 class MainMenuScene : public IScene
 {
+private:
+	const v2f m_startingBlockPosition { 1, 0 };
+	v2f m_blockPosition = m_startingBlockPosition;
+	
+	float tileId = 0;
+
+	float m_tileChangeTimer = 0;
+
+	float m_angle = 0;
 public:
 	inline MainMenuScene() {};
 

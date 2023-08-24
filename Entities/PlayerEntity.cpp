@@ -1,6 +1,6 @@
 #include "EntityDeclarations.h"
 #include "../World/World.h"
-#include "../World/TileRegistry.h"
+#include "../World/Tiles/TileRegistry.h"
 #include "../Utils.h"
 
 Texture* Entity::entitiesAtlas = AtlasManager::GetAtlas(AtlasTextureID::Entities);
@@ -17,55 +17,91 @@ PlayerEntity::PlayerEntity(const v2f& _position)
 
 void PlayerEntity::HandleEvents(Event* event)
 {
-	if (sf::Keyboard::isKeyPressed(Keyboard::Z)) velocity.y = -1;
 
-	if (sf::Keyboard::isKeyPressed(Keyboard::S)) velocity.y = 1;
-
-	if (sf::Keyboard::isKeyPressed(Keyboard::Q)) velocity.x = -1;
-
-	if (sf::Keyboard::isKeyPressed(Keyboard::D)) velocity.x = 1;
 }
+
+bool Entity::WillCollideWithBlock(const v2f& velocity, World* world)
+{
+	const float fifteenSixteenths = 15.f / 16.f;
+
+	return
+		TileRegistry::Tiles[world->TileAt(position.x + velocity.x, position.y + velocity.y, 1)]->tileProperties.isSolid
+		|| TileRegistry::Tiles[world->TileAt(position.x + velocity.x + fifteenSixteenths, position.y + velocity.y, 1)]->tileProperties.isSolid
+		|| TileRegistry::Tiles[world->TileAt(position.x + velocity.x, position.y + velocity.y + fifteenSixteenths, 1)]->tileProperties.isSolid
+		|| TileRegistry::Tiles[world->TileAt(position.x + velocity.x + fifteenSixteenths, position.y + velocity.y + fifteenSixteenths, 1)]->tileProperties.isSolid;
+}
+
 
 void PlayerEntity::Update(World* world, float dt)
 {
-	bool doesCollide = false;
-	m_inWater = (world->TileAt(position.x, position.y + 12.f * (1.f / 16.f), 0) == TileID::Water);
 
-	for (int yOffset = -1; yOffset < 2; yOffset++)
+	if (sf::Keyboard::isKeyPressed(Keyboard::Z))
 	{
-		for (int xOffset = -1; xOffset < 2; xOffset++)
+		if (WillCollideWithBlock(dt * v2f(0, -1) * 2.f, world))
 		{
-			if (position.x + xOffset < 0 || position.y + yOffset < 0 || position.x + xOffset >= MAP_WIDTH || position.y + yOffset >= MAP_HEIGHT)
-				continue;
-
-
-			if (!(TileRegistry::Tiles[world->TileAt(position.x + xOffset, position.y + yOffset, 1)].tileProperties.isSolid))
-				continue;
-
-			if (FloatRect(position.x + 0.5f, position.y + 0.5f, .5f, .5f).intersects(FloatRect((position.x) + xOffset, (position.y) + yOffset, .5f, .5f)))
-			{
-				doesCollide = true;
-			}
+			velocity.y *= 0.1f;
+		}
+		else
+		{
+			velocity.y--;
 		}
 	}
 
-	m_speed = m_inWater ? 1.5f : 4.f;
-	atlasID = m_inWater ? AtlasID(0, 1) : AtlasID(0, 0);
+	if (sf::Keyboard::isKeyPressed(Keyboard::S))
+	{
+		if (WillCollideWithBlock(dt * v2f(0, 1) * 4.f, world))
+		{
+			velocity.y *= 0.1f;
+		}
+		else
+		{
+			velocity.y++;
+		}
+	}
 
-	if (doesCollide)
-		position -= velocity * dt * m_speed;
-	else
-		position += velocity * dt * m_speed;
-	velocity /= 2.f;
+	if (sf::Keyboard::isKeyPressed(Keyboard::Q))
+	{
+		if (WillCollideWithBlock(dt * v2f(-1, 0) * 4.f, world))
+		{
+			velocity.x *= 0.1f;
+		}
+		else
+		{
+			velocity.x--;
+		}
+	}
 
-	m_didCollide = doesCollide;
+	if (sf::Keyboard::isKeyPressed(Keyboard::D))
+	{
+		if (WillCollideWithBlock(dt * v2f(1, 0) * 4.f, world))
+		{
+			velocity.x *= 0.1f;
+		}
+		else
+		{
+			velocity.x++;
+		}
+	}
+
+	if (sf::Keyboard::isKeyPressed(Keyboard::P))
+	{
+		World::WorldEntities.push_back(new CowEntity(position));
+	}
+
+	inWater = (world->TileAt(position.x + .5f, position.y + .5f, 0) == TileID::Water);
+
+	speed = inWater ? 1.5f : 4.f;
+	atlasID = inWater ? AtlasID(0, 1) : AtlasID(0, 0);
+
+	position += velocity * dt * speed;
+
+	velocity *= 0.2f;
 }
 
 void PlayerEntity::Draw(sf::RenderWindow* window, v2f cameraPosition)
 {
 	Sprite s = Sprite(*Entity::entitiesAtlas, IntRect(atlasID.x * TILE_SIZE, atlasID.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
 
-	//s.setPosition(v2f(0, 0));
 	s.setPosition(v2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
 	s.setScale(TEXTURE_SCALE, TEXTURE_SCALE);
 

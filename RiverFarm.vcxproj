@@ -142,7 +142,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AtlasManager.cpp" />
+    <ClCompile Include="Entities\CowEntity.cpp" />
     <ClCompile Include="Entities\ItemEntity.cpp" />
+    <ClCompile Include="Entities\MovingEntity.cpp" />
     <ClCompile Include="Entities\PlayerEntity.cpp" />
     <ClCompile Include="Interface.cpp" />
     <ClCompile Include="Inventory\Inventory.cpp" />
@@ -156,13 +158,15 @@
     <ClCompile Include="Tools\AxeTool.cpp" />
     <ClCompile Include="Tools\HoeTool.cpp" />
     <ClCompile Include="Tools\ScytheTool.cpp" />
+    <ClCompile Include="Tools\SeedBagTool.cpp" />
     <ClCompile Include="Tools\ShovelTool.cpp" />
-    <ClCompile Include="Tools\ToolRegistry.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="World\Chunk.cpp" />
     <ClCompile Include="World\Crop.cpp" />
     <ClCompile Include="World\CropRegistry.cpp" />
-    <ClCompile Include="World\TileRegistry.cpp" />
+    <ClCompile Include="World\Tiles\AirTile.cpp" />
+    <ClCompile Include="World\Tiles\Tile.cpp" />
+    <ClCompile Include="World\Tiles\TilledSoilTile.cpp" />
     <ClCompile Include="World\World.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -186,8 +190,10 @@
     <ClInclude Include="World\Chunk.h" />
     <ClInclude Include="World\Crop.h" />
     <ClInclude Include="World\CropRegistry.h" />
-    <ClInclude Include="World\Tile.h" />
-    <ClInclude Include="World\TileRegistry.h" />
+    <ClInclude Include="World\Tiles\AirTile.h" />
+    <ClInclude Include="World\Tiles\Tile.h" />
+    <ClInclude Include="World\Tiles\TileRegistry.h" />
+    <ClInclude Include="World\Tiles\TilledSoilTile.h" />
     <ClInclude Include="World\World.h" />
   </ItemGroup>
   <ItemGroup>

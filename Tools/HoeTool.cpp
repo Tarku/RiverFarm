@@ -8,7 +8,7 @@ HoeTool::HoeTool()
 
 bool HoeTool::CanBeUsedHere(World* world, const Vector2f& position)
 {
-	return TileRegistry::Tiles[world->TileAt(position, 0)].tileProperties.isArable && world->IsEmptyAt(position, 1);
+	return TileRegistry::Tiles[world->TileAt(position, 0)]->tileProperties.isArable && world->IsEmptyAt(position, 1);
 }
 
 void HoeTool::OnUse(World* world, const Vector2f& position)

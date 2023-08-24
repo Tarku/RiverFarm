@@ -34,6 +34,6 @@ void ScytheTool::OnUse(World* world, const sf::Vector2f& position)
 	}
 	else
 	{
-		TileRegistry::Tiles[world->TileAt(position, 1)].OnTileBreak(position, world, 1);
+		TileRegistry::Tiles[world->TileAt(position, 1)]->OnTileBreak(position, world, 1);
 	}
 }

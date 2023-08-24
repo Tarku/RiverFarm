@@ -26,11 +26,17 @@ public:
 	v2f position;
 	v2f velocity;
 
+	bool inWater = false;
+
 	AtlasID atlasID = { 0, 0 };
+
+	float speed = 4.f;
 
 	virtual void HandleEvents(Event* event) abstract;
 	virtual void Update(World* world, float dt) abstract;
 	virtual void Draw(RenderWindow* window, v2f cameraPosition) abstract;
+
+	bool WillCollideWithBlock(const v2f& velocity, World* world);
 
 
 	inline virtual FloatRect GetRectangle()
@@ -47,9 +53,7 @@ public:
 class PlayerEntity : public Entity
 {
 private:
-	float m_speed = 16;
 	bool m_didCollide = false;
-	bool m_inWater = false;
 
 public:
 	PlayerEntity(const v2f& position);
@@ -62,6 +66,8 @@ public:
 class ItemEntity : public Entity
 {
 private:
+	float m_scale = 1.f;
+
 	float m_angle = 0.f;
 	uchar m_itemID = -1;
 	bool m_inPlayerRange = false;
@@ -76,6 +82,34 @@ public:
 	void HandleEvents(Event* event) override;
 	void Update(World* world, float dt) override;
 	void Draw(sf::RenderWindow* window, v2f cameraPosition) override;
+};
+
+class MovingEntity : public Entity
+{
+protected:
+	const float MaxMoveTimer = 3.0f;
+
+	float m_moveTimer = 0;
+
+public:
+	inline MovingEntity() {};
+
+	inline void HandleEvents(Event* event) {};
+
+	virtual void Update(World* world, float dt) override;
+	virtual void OnMoveTimer() abstract;
+
+	virtual void Draw(sf::RenderWindow* window, v2f cameraPosition) override;
+};
+
+class CowEntity : public MovingEntity
+{
+public:
+	CowEntity(const v2f& position);
+
+	void OnMoveTimer() override;
+
+	void Update(World* world, float dt) override;
 };
 
 #endif

@@ -2,11 +2,12 @@
 
 #include "Shared.h"
 #include "Inventory/Inventory.h"
+#include "AtlasManager.h"
+
 
 class Interface
 {
 private:
-	static sf::RenderWindow* window;
 	static sf::Texture uiTexture;
 	static sf::Sprite uiIconBackground;
 
@@ -16,6 +17,7 @@ private:
 
 	static uchar uiTextCount;
 public:
+	static sf::RenderWindow* window;
 	static std::string fontName;
 	static sf::Font font;
 	static void Initialize(sf::RenderWindow* window);
@@ -31,8 +33,8 @@ public:
 
 	void ShowInventoryOverlay();
 	
-	void DrawUIElement(AtlasID atlasId, const sf::Vector2f& absolutePosition);
-	void DrawUIElementNormalized(AtlasID atlasId, const sf::Vector2f& normalizedPosition, const bool adjustHorizontally = true);
+	void DrawUIElement(AtlasID atlasId, const sf::Vector2f& absolutePosition, AtlasTextureID textureAtlas = AtlasTextureID::UI);
+	void DrawUIElementNormalized(AtlasID atlasId, const sf::Vector2f& normalizedPosition, const bool adjustHorizontally = true, AtlasTextureID textureAtlas = AtlasTextureID::UI);
 
 	void Dispose();
 };

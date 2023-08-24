@@ -7,10 +7,10 @@ std::vector<Item*> ItemRegistry::Items {
 	new Item("Straw", {3, 0}),
 	new Item("Flowers", {0, 1}),
 	new Item("Barley", {3, 1}),
-	new SeedItem("Barley Seeds", {3, 0}, CropID::CropBarley)
+	new SeedItem("Barley Seeds", {2, 1}, CropID::CropBarley)
 };
 
 int ItemRegistry::GetItemAmount()
 {
-	return sizeof(Items) / sizeof(Item);
+	return ItemRegistry::Items.size();
 }

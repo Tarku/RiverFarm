@@ -46,6 +46,12 @@
     <Filter Include="Source Files\Scenes">
       <UniqueIdentifier>{a83887c7-9948-4ef1-a837-8f827bcbd7f6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\World\Tiles">
+      <UniqueIdentifier>{f21ef3b0-0ac8-495d-9506-5eeaa507076e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\World\Tiles">
+      <UniqueIdentifier>{a7b9ac87-ccc5-4054-a000-d03b3a0fbac5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -78,9 +84,6 @@
     <ClCompile Include="World\Chunk.cpp">
       <Filter>Source Files\World</Filter>
     </ClCompile>
-    <ClCompile Include="World\TileRegistry.cpp">
-      <Filter>Source Files\World</Filter>
-    </ClCompile>
     <ClCompile Include="World\World.cpp">
       <Filter>Source Files\World</Filter>
     </ClCompile>
@@ -94,9 +97,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tools\ScytheTool.cpp">
-      <Filter>Source Files\Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="Tools\ToolRegistry.cpp">
       <Filter>Source Files\Tools</Filter>
     </ClCompile>
     <ClCompile Include="World\Crop.cpp">
@@ -117,6 +117,24 @@
     <ClCompile Include="Scenes\MainMenuScene.cpp">
       <Filter>Source Files\Scenes</Filter>
     </ClCompile>
+    <ClCompile Include="World\Tiles\AirTile.cpp">
+      <Filter>Source Files\World\Tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="World\Tiles\Tile.cpp">
+      <Filter>Source Files\World\Tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="World\Tiles\TilledSoilTile.cpp">
+      <Filter>Source Files\World\Tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\SeedBagTool.cpp">
+      <Filter>Source Files\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\CowEntity.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\MovingEntity.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -132,12 +150,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="World\Chunk.h">
-      <Filter>Header Files\World</Filter>
-    </ClInclude>
-    <ClInclude Include="World\Tile.h">
-      <Filter>Header Files\World</Filter>
-    </ClInclude>
-    <ClInclude Include="World\TileRegistry.h">
       <Filter>Header Files\World</Filter>
     </ClInclude>
     <ClInclude Include="World\World.h">
@@ -187,6 +199,18 @@
     </ClInclude>
     <ClInclude Include="Scenes\SceneManager.h">
       <Filter>Header Files\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="World\Tiles\Tile.h">
+      <Filter>Header Files\World\Tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="World\Tiles\TileRegistry.h">
+      <Filter>Header Files\World\Tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="World\Tiles\AirTile.h">
+      <Filter>Header Files\World\Tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="World\Tiles\TilledSoilTile.h">
+      <Filter>Header Files\World\Tiles</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

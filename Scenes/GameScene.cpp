@@ -18,7 +18,7 @@ void GameScene::Initialize(RenderWindow* window)
 
 	p_interface.CreateNormalizedText(std::string("ui_tool_name_text"), "", v2f(0.5f, 0.075f));
 	p_interface.CreateNormalizedText(std::string("fps_text"), "", v2f(0.0f, 0.00f), sf::Color::Yellow, 1.0F, false);
-	p_interface.CreateNormalizedText(std::string("position_text"), "", v2f(0.f, 0.1f), sf::Color::White, 1.0F, false);
+	p_interface.CreateNormalizedText(std::string("position_text"), "", v2f(0.f, 0.1f), sf::Color::White, 1.0F, true);
 
 	Utils::Log("World created.");
 
@@ -50,6 +50,9 @@ void GameScene::HandleEvents()
 		{
 			switch (p_event.key.code)
 			{
+			case Keyboard::T:
+				AtlasManager::LoadAtlases();
+				break;
 			case Keyboard::R:
 				m_world.DoWorldGen();
 				break;
@@ -77,18 +80,13 @@ void GameScene::HandleEvents()
 				m_currentToolIndex = 0;
 		}
 
-		if (p_event.type == Event::MouseButtonPressed)
+		if (Mouse::isButtonPressed(Mouse::Left))
 		{
-			if (p_event.mouseButton.button == Mouse::Left)
+			v2f mousePosition = ScreenToWorld(m_mousePosition);
+
+			if (m_world.InBounds(mousePosition, 0) && m_currentTool->CanBeUsedHere(&m_world, mousePosition))
 			{
-
-				v2f mousePosition = ScreenToWorld(m_mousePosition);
-
-				if (m_world.InBounds(mousePosition, 0))
-				{
-					if (m_currentTool->CanBeUsedHere(&m_world, mousePosition))
-						m_currentTool->OnUse(&m_world, mousePosition);
-				}
+				m_currentTool->OnUse(&m_world, mousePosition);
 			}
 		}
 
@@ -107,7 +105,7 @@ void GameScene::Update(float dt)
 {
 	HandleEvents();
 
-	m_currentTool = ToolRegistry::Tools[m_currentToolIndex];
+	m_currentTool = ToolRegistry::Tools.at(m_currentToolIndex);
 
 	player.Update(&m_world, dt);
 
@@ -152,7 +150,7 @@ void GameScene::Draw()
 	}
 
 	if (m_currentTool != nullptr)
-		p_interface.DrawUIElementNormalized(m_currentTool->uiIcon, v2f(0.5f, 0));
+		m_currentTool->Draw(&p_interface);
 
 	p_interface.DrawText(std::string("position_text"));
 	p_interface.DrawText(std::string("fps_text"));

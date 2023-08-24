@@ -20,19 +20,6 @@ void Interface::CreateText(const std::string& tag, const std::string& stringToDr
 	text.setScale(scale, scale);
 
 	Interface::textDeclarations[tag] = text;
-
-
-	Interface::uiTextCount++;
-}
-
-
-void Interface::SetTextString(const std::string& tag, const std::string& newString)
-{
-
-	if (!Interface::textDeclarations.contains(tag)) std::cerr << "Trying to set text of an inexistant text with tag '" << tag << "'.\n";
-	if (Interface::textDeclarations[tag].getString() == newString) return;
-
-	Interface::textDeclarations[tag].setString(newString);
 }
 
 // This uses normalized coordinates like (0.0f, 0.5f)
@@ -47,14 +34,28 @@ void Interface::CreateNormalizedText(const std::string& tag, const std::string& 
 
 	text.setFillColor(color);
 	text.setPosition(absolutePosition);
-
-	text.setFillColor(color);
 	text.setScale(scale, scale);
 
 	Interface::textDeclarations[tag] = text;
-
-	Interface::uiTextCount++;
 }
+
+void Interface::SetTextString(const std::string& tag, const std::string& newString)
+{
+
+	if (!Interface::textDeclarations.contains(tag))
+	{
+		std::cerr << "Trying to set text of an inexistant text with tag '" << tag << "\'." << std::endl;
+		return;
+	};
+
+	if (Interface::textDeclarations[tag].getString() == newString)
+	{
+		return;
+	}
+
+	Interface::textDeclarations[tag].setString(newString);
+}
+
 
 void Interface::Initialize(sf::RenderWindow* window)
 {
@@ -85,7 +86,7 @@ void Interface::DrawText(const std::string& tag)
 
 void Interface::ShowInventoryOverlay()
 {
-	int itemsAmount = ItemRegistry::Items.size();
+	int itemsAmount = static_cast<int>(ItemRegistry::Items.size());
 
 	sf::Sprite itemIconSprite = sf::Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Items), sf::IntRect(0, 0, 16, 16));
 	sf::Sprite uiBackgroundSprite = sf::Sprite(Interface::uiElementsBackground);
@@ -93,9 +94,9 @@ void Interface::ShowInventoryOverlay()
 	for (int i = 0; i < itemsAmount; i++)
 	{
 
-		Item* item = ItemRegistry::Items[i];
+		Item item = *ItemRegistry::Items[i];
 
-		itemIconSprite.setTextureRect(sf::IntRect(item->atlasID.x * TILE_SIZE, item->atlasID.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
+		itemIconSprite.setTextureRect(sf::IntRect(item.atlasID.x * TILE_SIZE, item.atlasID.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
 		itemIconSprite.setScale(2, 2);
 
 		itemIconSprite.setPosition(
@@ -113,14 +114,14 @@ void Interface::ShowInventoryOverlay()
 
 		text.setPosition(
 			v2f(
-				WINDOW_WIDTH - SCALED_TILE_SIZE - text.getGlobalBounds().width - 4,
-				i * SCALED_TILE_SIZE
+				WINDOW_WIDTH - 2 * TILE_SIZE - text.getGlobalBounds().width - 4.f,
+				i * 2 * TILE_SIZE * 1.f
 			)
 		);
 
 
-		uiBackgroundSprite.setPosition(v2f(WINDOW_WIDTH - SCALED_TILE_SIZE - text.getGlobalBounds().width - 8, i * SCALED_TILE_SIZE + 1));
-		uiBackgroundSprite.setScale(SCALED_TILE_SIZE + text.getGlobalBounds().width + 8, SCALED_TILE_SIZE - 2);
+		uiBackgroundSprite.setPosition(v2f(WINDOW_WIDTH - 2 * TILE_SIZE - text.getGlobalBounds().width - 8, i * 2 * TILE_SIZE + 1));
+		uiBackgroundSprite.setScale(SCALED_TILE_SIZE + text.getGlobalBounds().width + 8, 2 * TILE_SIZE - 2);
 
 		window->draw(uiBackgroundSprite);
 		window->draw(itemIconSprite);
@@ -128,57 +129,42 @@ void Interface::ShowInventoryOverlay()
 	}
 }
 
-void Interface::DrawUIElement(AtlasID atlasID, const sf::Vector2f& absolutePosition)
+void Interface::DrawUIElement(AtlasID atlasID, const sf::Vector2f& absolutePosition, AtlasTextureID textureAtlas)
 {
-	if (atlasID.x == 0 && atlasID.y == 0) // These coordinates are reserved
-	{
-		return;
-	}
-
-	sf::Sprite* s = new sf::Sprite(Interface::uiTexture, sf::IntRect(atlasID.x * UI_ICON_WIDTH, atlasID.y * UI_ICON_HEIGHT, UI_ICON_WIDTH, UI_ICON_HEIGHT));
-
+	sf::Sprite uiElementSprite = sf::Sprite(*AtlasManager::GetAtlas(textureAtlas), sf::IntRect(atlasID.x * UI_ICON_WIDTH, atlasID.y * UI_ICON_HEIGHT, UI_ICON_WIDTH, UI_ICON_HEIGHT));
+	
 	Interface::uiIconBackground.setPosition(absolutePosition);
 	Interface::uiIconBackground.setScale(TEXTURE_SCALE, TEXTURE_SCALE);
 
-	s->setPosition(absolutePosition);
-	s->setScale(TEXTURE_SCALE, TEXTURE_SCALE);
+	uiElementSprite.setPosition(absolutePosition);
+	uiElementSprite.setScale(TEXTURE_SCALE, TEXTURE_SCALE);
 
 	window->draw(Interface::uiIconBackground);
-	window->draw(*s);
-
-	delete s;
+	window->draw(uiElementSprite);
 }
 
-void Interface::DrawUIElementNormalized(AtlasID atlasID, const sf::Vector2f& normalizedPosition, const bool adjustHorizontally)
+void Interface::DrawUIElementNormalized(AtlasID atlasID, const sf::Vector2f& normalizedPosition, const bool adjustHorizontally, AtlasTextureID textureAtlas)
 {
-	if (atlasID.x == 0 && atlasID.y == 0) // These coordinates are reserved, don't use them
-	{
-		Utils::Log("hehehe");
-		return;
-	}
-
-
-	sf::Sprite* s = new sf::Sprite(Interface::uiTexture, sf::IntRect(atlasID.x * UI_ICON_WIDTH, atlasID.y * UI_ICON_HEIGHT, UI_ICON_WIDTH, UI_ICON_HEIGHT));
+	sf::Sprite uiElementSprite = sf::Sprite(*AtlasManager::GetAtlas(textureAtlas), sf::IntRect(atlasID.x * UI_ICON_WIDTH, atlasID.y * UI_ICON_HEIGHT, UI_ICON_WIDTH, UI_ICON_HEIGHT));
 
 	v2f absolutePosition = { normalizedPosition.x * WINDOW_WIDTH, normalizedPosition.y * WINDOW_HEIGHT };
 
 	if (adjustHorizontally)
 	{
-		absolutePosition -= v2f((s->getGlobalBounds().width * TEXTURE_SCALE) / 2, 0);
+		absolutePosition -= v2f((uiElementSprite.getGlobalBounds().width * TEXTURE_SCALE) / 2, 0);
 	}
 
 	Interface::uiIconBackground.setPosition(absolutePosition);
 	Interface::uiIconBackground.setScale(TEXTURE_SCALE, TEXTURE_SCALE);
 
-	s->setPosition(absolutePosition);
-	s->setScale(TEXTURE_SCALE, TEXTURE_SCALE);
+	uiElementSprite.setPosition(absolutePosition);
+	uiElementSprite.setScale(TEXTURE_SCALE, TEXTURE_SCALE);
 
 	window->draw(Interface::uiIconBackground);
-	window->draw(*s);
-
-	delete s;
+	window->draw(uiElementSprite);
 }
 
 void Interface::Dispose()
 {
+
 }

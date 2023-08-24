@@ -2,9 +2,9 @@
 
 int main()
 {
-	Game g;
+	Game game;
 
-	g.Run();
+	game.Run();
 
 	return 0;
 }

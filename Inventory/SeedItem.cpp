@@ -3,6 +3,7 @@
 #include "../World/Chunk.h"
 #include "../World/Crop.h"
 
+/*
 void SeedItem::OnUse(const v2f& position, Chunk* chunk, World* world)
 {
 	auto positionTuple = world->WorldToChunkPosition(position);
@@ -14,4 +15,4 @@ void SeedItem::OnUse(const v2f& position, Chunk* chunk, World* world)
 		return;
 
 	chunk->AddCrop(chunkPositionOffset, CropRegistry::crops[m_cropType]);
-}
+}*/

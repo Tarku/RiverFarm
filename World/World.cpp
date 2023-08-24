@@ -1,7 +1,7 @@
 #include "World.h"
-#include "Tile.h"
+#include "Tiles/Tile.h"
 #include "../Game.h"
-#include "TileRegistry.h"
+#include "Tiles/TileRegistry.h"
 #include "../Utils.h"
 
 std::list<Entity*> World::WorldEntities;
@@ -17,7 +17,7 @@ void World::ResetWorld()
 	{
 		for (int x = 0; x < MAP_WIDTH / CHUNK_WIDTH; x++)
 		{
-			m_map[y][x] = new Chunk(v2f(x * CHUNK_WIDTH, y * CHUNK_HEIGHT));
+			m_map[y][x] = new Chunk(v2f(x * CHUNK_WIDTH, y * CHUNK_HEIGHT), this);
 		}
 	}
 
@@ -34,6 +34,15 @@ std::tuple<v2f, v2f> World::WorldToChunkPosition(const v2f& worldPosition)
 
 	return std::make_tuple(v2f(chunkX, chunkY), v2f(chunkPosX, chunkPosY));
 }
+v2f World::ChunkToWorldPosition(const v2f& chunkPosition, const v2f& inChunkPosition)
+{
+
+	int worldY = static_cast<int>(chunkPosition.y + inChunkPosition.y);
+	int worldX = static_cast<int>(chunkPosition.x + inChunkPosition.x);
+
+	return v2f(worldX, worldY);
+}
+
 
 void World::AddDecorations()
 {
@@ -230,9 +239,9 @@ void World::Update(const v2f& cameraPosition, float dt)
 
 	v2f cameraChunkPosition = v2f((cameraPosition.x / SCALED_TILE_SIZE) / CHUNK_WIDTH, (cameraPosition.y / SCALED_TILE_SIZE) / CHUNK_HEIGHT);
 
-	for (int yOffset = 0; yOffset < 1; yOffset++)
+	for (int yOffset = -1; yOffset < 2; yOffset++)
 	{
-		for (int xOffset = 0; xOffset < 1; xOffset++)
+		for (int xOffset = -1; xOffset < 2; xOffset++)
 		{
 			int chunkY = (int)(cameraChunkPosition.y + yOffset);
 			int chunkX = (int)(cameraChunkPosition.x + xOffset);
@@ -241,37 +250,6 @@ void World::Update(const v2f& cameraPosition, float dt)
 				continue;
 
 			m_map[chunkY][chunkX]->Update(dt);
-
-			for (int y = 0; y < CHUNK_HEIGHT; y++)
-			{
-				for (int x = 0; x < CHUNK_WIDTH; x++)
-				{
-					v2f positionInChunk = Vector2f(chunkX * CHUNK_WIDTH + x, chunkY * CHUNK_HEIGHT + y);
-					//m_map[y][x]->Update(dt);
-					/*
-					if (TileAt(positionInChunk, 0) == TileID::TilledSoil)
-						for (auto neighbor : neighbors)
-						{
-							if (TileAt(positionInChunk + neighbor, 0) == TileID::Water)
-							{
-								SetTile(positionInChunk, 0, TileID::WateredTilledSoil);
-								break;
-							}
-						}
-
-					if (TileAt(positionInChunk, 0) == TileID::Air)
-					{
-
-						for (auto neighbor : neighbors)
-						{
-							if (TileAt(positionInChunk + neighbor, 0) == TileID::Water)
-							{
-								SetTile(positionInChunk, 0, TileID::Water);
-							}
-						}
-					}*/
-				}
-			}
 		}
 	}
 	
@@ -316,6 +294,8 @@ void World::SetTile(const v2f& position, int layer, unsigned char tileID)
 
 
     m_map[(int)chunkPosition.y][(int)chunkPosition.x]->SetTile(chunkPositionOffset, layer, tileID);
+
+	TileRegistry::Tiles[tileID]->OnUpdate(position, this, layer);
 }
 
 void World::AddItemEntity(const v2f& position, ItemID itemID, int amount)

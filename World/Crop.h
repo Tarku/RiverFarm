@@ -10,6 +10,7 @@ class World;
 class Crop
 {
 protected:
+	uint m_uuid = Utils::RandInt(1, 0x0FFFFFFF);
 	Crop() {};
 
 public:

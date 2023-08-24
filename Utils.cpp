@@ -17,13 +17,18 @@ v2f Utils::vector2fSqrt(const v2f& value)
 	return v2f(sqrtf(value.x), sqrtf(value.y));
 }
 
-
+/// <summary>
+/// Returns a random integer between min and max
+/// </summary>
 int Utils::RandInt(int min, int max)
 {
 	auto distrib = std::uniform_int_distribution<int>(min, max);
 	return distrib(m_rng);
 }
 
+/// <summary>
+/// Returns the Euclidian distance between two vectors
+/// </summary>
 float Utils::Distance(const v2f& first, const v2f& second)
 {
 	float dx = second.x - first.x;
@@ -32,10 +37,14 @@ float Utils::Distance(const v2f& first, const v2f& second)
 	return sqrtf(dx * dx + dy * dy);
 }
 
+/// <summary>
+/// Returns the length of a vector
+/// </summary>
 float Utils::Length(const v2f& value)
 {
 	return sqrtf(value.x * value.x + value.y * value.y);
 }
+
 float Utils::LengthSquared(const v2f& value)
 {
 	return value.x * value.x + value.y * value.y;

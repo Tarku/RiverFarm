@@ -1,8 +1,8 @@
 #include "Crop.h"
 #include "Chunk.h"
 #include "World.h"
-#include "Tile.h"
-#include "TileRegistry.h"
+#include "Tiles/Tile.h"
+#include "Tiles/TileRegistry.h"
 #include "../Inventory/Inventory.h"
 #include "../Inventory/ItemID.h"
 
@@ -37,7 +37,6 @@ void Crop::OnDestroy(const v2f& position, Chunk* parentChunk, World* world)
 {
 	float worldX = parentChunk->position.x + position.x;
 	float worldY = parentChunk->position.y  + position.y;
-	printf("crop x : %f, crop y : %f\n", worldX, worldY);
 
 	world->AddItemEntity(v2f(worldX, worldY), itemDrop);
 	
@@ -54,7 +53,7 @@ void CerealCrop::OnDestroy(const v2f& position, Chunk* parentChunk, World* world
 
 	Crop::OnDestroy(position, parentChunk, world);
 
-	for (int i = 0; i < Utils::RandInt(3, 5); i++)
+	for (int i = 0; i < Utils::RandInt(1, 3); i++)
 		world->AddItemEntity(v2f(worldX, worldY), ItemID::ItemStraw);
 };
 

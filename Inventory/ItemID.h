@@ -2,6 +2,7 @@
 
 enum ItemID
 {
+	Null = -1,
 	ItemWood,
 	ItemDirt,
 	ItemSand,

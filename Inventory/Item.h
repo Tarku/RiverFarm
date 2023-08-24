@@ -24,15 +24,14 @@ public:
 class SeedItem : public Item
 {
 private:
-	CropID m_cropType;
 public:
-
+	CropID cropType;
 	SeedItem(const std::string& name, AtlasID atlasID, CropID cropType)
 	{
 		this->name = name;
 		this->atlasID = atlasID;
-		this->m_cropType = cropType;
+		this->cropType = cropType;
 	}
-	void OnUse(const v2f& position, Chunk* chunk, World* world);
+	//void OnUse(const v2f& position, Chunk* chunk, World* world);
 };
 

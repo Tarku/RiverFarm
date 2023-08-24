@@ -8,6 +8,7 @@ Texture* Entity::itemsAtlas = AtlasManager::GetAtlas(AtlasTextureID::Items);
 
 ItemEntity::ItemEntity(const v2f& _position, ItemID itemID) : m_itemID(itemID)
 {
+	m_scale = 2 * Utils::RandInt(80, 120) / 100.f;
 	position = _position + v2f(Utils::RandInt(-10, 10) / 100.f, Utils::RandInt(-10, 10) / 100.f);
 	printf("ItemEntity (item: %s) was added.\n", ItemRegistry::Items[itemID]->name.c_str());
 
@@ -56,7 +57,7 @@ void ItemEntity::Draw(sf::RenderWindow* window, v2f cameraPosition)
 
 
 	s.setPosition(position * static_cast<float> (TILE_SIZE * TEXTURE_SCALE) - cameraPosition);
-	s.setScale(TEXTURE_SCALE / (abs(velocity.y) * 30 + 0.0000001f), TEXTURE_SCALE / (abs(velocity.y) * 30 + 0.0000001f));
+	s.setScale(m_scale, m_scale);
 
 	window->draw(s);
 }
