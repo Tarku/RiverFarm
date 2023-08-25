@@ -47,7 +47,7 @@ public:
 	unsigned char TileAt(const v2f& position, int layer);
 	unsigned char TileAt(int x, int y, int layer);
 
-	void SetTile(const v2f& position, int layer, unsigned char tileID);
+	void SetTile(const v2f& position, int layer, unsigned char tileID, bool updateBlocks = false);
 
 	void AddItemEntity(const v2f& position, ItemID itemID, int amount = 1);
 

@@ -1,12 +1,12 @@
 #include "CropRegistry.h"
 
-Crop* CropRegistry::crops[] = {
+std::vector<Crop*> CropRegistry::Crops = {
 	new BarleyCrop()
 };
 
 int CropRegistry::CropAmount()
 {
-	return sizeof(CropRegistry::crops) / sizeof(Crop*);
+	return static_cast<int>(Crops.size());
 }
 
 Crop* CropRegistry::GetInstance(CropID& cropId)
@@ -15,6 +15,5 @@ Crop* CropRegistry::GetInstance(CropID& cropId)
 	{
 	case CropBarley:
 		return new BarleyCrop();
-		break;
 	}
 }

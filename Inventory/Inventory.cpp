@@ -16,6 +16,7 @@ amount_t Inventory::GetAmount(ItemID item)
 	return IsIDInBounds(item) ? m_inventoryItems[item] : -1;
 }
 
+
 void Inventory::Add(ItemID item, amount_t amount)
 {
 	if (!IsIDInBounds(item)) return;

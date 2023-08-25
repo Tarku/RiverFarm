@@ -63,7 +63,7 @@ public:
 class SeedBagTool : public AgriculturalTool
 {
 private:
-	SeedItem* m_currentSeedItem = nullptr;
+	ItemID m_currentSeedItem = ItemBarleySeeds;
 
 public:
 	SeedBagTool();

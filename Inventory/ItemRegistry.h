@@ -8,5 +8,5 @@ class ItemRegistry
 public:
 	static std::vector<Item*> Items;
 
-	static int GetItemAmount();
+	static int ItemAmount();
 };

@@ -85,11 +85,11 @@ Crop* Chunk::CropAt(const v2f& position)
 
 void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 {
-	for (int z = 0; z < MAP_LEVELS; z++)
+	for (float z = 0; z < MAP_LEVELS; z++)
 	{
-		for (int y = 0; y < CHUNK_HEIGHT; y++)
+		for (float y = 0; y < CHUNK_HEIGHT; y++)
 		{
-			for (int x = 0; x < CHUNK_WIDTH; x++)
+			for (float x = 0; x < CHUNK_WIDTH; x++)
 			{
 				uchar tileID = TileAt(v2f(x, y), z);
 
@@ -98,7 +98,7 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 
 				Tile* currentTile = TileRegistry::Tiles[tileID];
 
-				AtlasID tileAtlasId = (z == 0) ? currentTile->groundId : currentTile->textureId;
+				AtlasID tileAtlasId = ((int) z == 0) ? currentTile->groundId : currentTile->textureId;
 
 				m_tileSprite.setTextureRect(IntRect(tileAtlasId.x * TILE_SIZE, tileAtlasId.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
 
@@ -132,8 +132,8 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 
 			m_tileSprite.setPosition(
 				v2f(
-					(position.x + x + (0.5f * g)) * SCALED_TILE_SIZE,
-					(position.y + y + (0.5f * g)) * SCALED_TILE_SIZE
+					(position.x + x + (0.5f * (1 - g))) * SCALED_TILE_SIZE,
+					(position.y + y + (0.5f * (1 - g))) * SCALED_TILE_SIZE
 				) - (v2f)cameraPosition
 			);
 

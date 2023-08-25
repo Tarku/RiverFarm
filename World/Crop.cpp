@@ -13,7 +13,7 @@ void Crop::OnUpdate(const v2f& position, Chunk* parentChunk, float dt)
 
 	uchar groundTileId = parentChunk->TileAt(position, 0);
 
-	if (groundTileId != TileID::TilledSoil)
+	if (groundTileId != TileID::TilledSoil && groundTileId != TileID::WateredTilledSoil)
 	{
 		isGrowing = false;
 		return;
@@ -39,9 +39,19 @@ void Crop::OnDestroy(const v2f& position, Chunk* parentChunk, World* world)
 	float worldY = parentChunk->position.y  + position.y;
 
 	world->AddItemEntity(v2f(worldX, worldY), itemDrop);
-	
-	for (int i = 0; i < Utils::RandInt(1, 3); i++)
+
+	world->AddItemEntity(v2f(worldX, worldY), seedItemDrop);
+
+	if (Utils::RandInt(0, 99) < 20)
+	{
+
 		world->AddItemEntity(v2f(worldX, worldY), seedItemDrop);
+
+		if (Utils::RandInt(0, 99) < 5)
+		{
+			world->AddItemEntity(v2f(worldX, worldY), seedItemDrop);
+		}
+	}
 
 	parentChunk->RemoveCrop(position);
 }

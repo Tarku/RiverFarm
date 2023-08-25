@@ -60,8 +60,8 @@ void MainMenuScene::Draw()
 
 	v2f transformedBlockPosition = (m_blockPosition) + v2f(16.f, 16.f);
 
-	const int horizontalSquares = (WINDOW_WIDTH / TILE_SIZE) / scale;
-	const int verticalSquares = (WINDOW_HEIGHT / TILE_SIZE) / scale;
+	const int horizontalSquares = (int) ( (WINDOW_WIDTH / TILE_SIZE) / scale ) ;
+	const int verticalSquares = (int) ( (WINDOW_HEIGHT / TILE_SIZE) / scale );
 
 	int totalSquares = horizontalSquares * verticalSquares;
 

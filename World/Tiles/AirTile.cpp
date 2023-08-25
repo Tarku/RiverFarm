@@ -17,7 +17,7 @@ void AirTile::OnUpdate(const v2f& position, World* world, int layer)
 	{
 		if (world->TileAt(position + neighbor, layer) == TileID::Water)
 		{
-			world->SetTile(position, layer, TileID::Water);
+			world->SetTile(position, layer, TileID::Water, true);
 		}
 	}
 }

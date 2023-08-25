@@ -10,7 +10,7 @@ std::vector<Item*> ItemRegistry::Items {
 	new SeedItem("Barley Seeds", {2, 1}, CropID::CropBarley)
 };
 
-int ItemRegistry::GetItemAmount()
+int ItemRegistry::ItemAmount()
 {
-	return ItemRegistry::Items.size();
+	return static_cast<int>(ItemRegistry::Items.size());
 }

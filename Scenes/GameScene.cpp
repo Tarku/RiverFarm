@@ -53,12 +53,23 @@ void GameScene::HandleEvents()
 			case Keyboard::T:
 				AtlasManager::LoadAtlases();
 				break;
+
 			case Keyboard::R:
 				m_world.DoWorldGen();
 				break;
+
 			case Keyboard::G:
 				GameScene::showChunkBorders = !GameScene::showChunkBorders;
 				break;
+
+			case Keyboard::P:
+				World::WorldEntities.push_back(
+					new CowEntity(
+						ScreenToWorld(m_mousePosition)
+					)
+				);
+				break;
+
 			case Keyboard::Escape:
 				SceneManager::ChangeScene(SceneManager::mainMenuScene);
 				break;

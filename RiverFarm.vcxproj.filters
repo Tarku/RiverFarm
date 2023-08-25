@@ -135,6 +135,9 @@
     <ClCompile Include="Entities\MovingEntity.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
+    <ClCompile Include="World\Tiles\WaterTile.cpp">
+      <Filter>Source Files\World\Tiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -210,6 +213,9 @@
       <Filter>Header Files\World\Tiles</Filter>
     </ClInclude>
     <ClInclude Include="World\Tiles\TilledSoilTile.h">
+      <Filter>Header Files\World\Tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="World\Tiles\WaterTile.h">
       <Filter>Header Files\World\Tiles</Filter>
     </ClInclude>
   </ItemGroup>

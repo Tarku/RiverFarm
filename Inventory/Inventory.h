@@ -14,7 +14,7 @@ class ItemRegistry;
 class Inventory
 {
 private:
-	static const int m_inventorySize = 256;
+	static const size_t m_inventorySize = static_cast<size_t>(MAX_ITEMS);
 	static std::array<amount_t, m_inventorySize> m_inventoryItems;
 
 public:

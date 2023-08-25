@@ -167,6 +167,7 @@
     <ClCompile Include="World\Tiles\AirTile.cpp" />
     <ClCompile Include="World\Tiles\Tile.cpp" />
     <ClCompile Include="World\Tiles\TilledSoilTile.cpp" />
+    <ClCompile Include="World\Tiles\WaterTile.cpp" />
     <ClCompile Include="World\World.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -194,6 +195,7 @@
     <ClInclude Include="World\Tiles\Tile.h" />
     <ClInclude Include="World\Tiles\TileRegistry.h" />
     <ClInclude Include="World\Tiles\TilledSoilTile.h" />
+    <ClInclude Include="World\Tiles\WaterTile.h" />
     <ClInclude Include="World\World.h" />
   </ItemGroup>
   <ItemGroup>

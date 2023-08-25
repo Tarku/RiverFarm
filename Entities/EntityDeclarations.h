@@ -47,6 +47,7 @@ public:
 	inline static void DisposeEntityResources()
 	{
 		delete entitiesAtlas;
+		delete itemsAtlas;
 	}
 };
 

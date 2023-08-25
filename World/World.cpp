@@ -285,7 +285,7 @@ unsigned char World::TileAt(int x, int y, int layer)
 	return m_map[(int)chunkPosition.y][(int)chunkPosition.x]->TileAt(chunkPositionOffset, layer);
 }
 
-void World::SetTile(const v2f& position, int layer, unsigned char tileID)
+void World::SetTile(const v2f& position, int layer, unsigned char tileID, bool updateBlocks )
 {
     if (!InBounds(position, layer)) return;
 
@@ -295,7 +295,8 @@ void World::SetTile(const v2f& position, int layer, unsigned char tileID)
 
     m_map[(int)chunkPosition.y][(int)chunkPosition.x]->SetTile(chunkPositionOffset, layer, tileID);
 
-	TileRegistry::Tiles[tileID]->OnUpdate(position, this, layer);
+	if (updateBlocks)
+		TileRegistry::Tiles[tileID]->OnUpdate(position, this, layer);
 }
 
 void World::AddItemEntity(const v2f& position, ItemID itemID, int amount)

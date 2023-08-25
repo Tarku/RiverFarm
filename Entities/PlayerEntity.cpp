@@ -83,11 +83,6 @@ void PlayerEntity::Update(World* world, float dt)
 		}
 	}
 
-	if (sf::Keyboard::isKeyPressed(Keyboard::P))
-	{
-		World::WorldEntities.push_back(new CowEntity(position));
-	}
-
 	inWater = (world->TileAt(position.x + .5f, position.y + .5f, 0) == TileID::Water);
 
 	speed = inWater ? 1.5f : 4.f;

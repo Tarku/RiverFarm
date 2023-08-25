@@ -3,6 +3,7 @@
 #include "Tile.h"
 #include "AirTile.h"
 #include "TilledSoilTile.h"
+#include "WaterTile.h"
 
 #include <vector>
 
@@ -15,7 +16,7 @@ public:
 		new TilledSoilTile(),
 		new Tile("Grass", AtlasID(3, 0), ItemID::ItemDirt, TileProperties(true, true, false, true)),
 		new Tile("Mushrub", AtlasID(0, 1), ItemID::ItemWood, TileProperties(false, false, true, true)),
-		new Tile("Water", AtlasID(1, 1), (ItemID)(-1), TileProperties(false, false, false, true)),
+		new WaterTile(),
 		new Tile("Watered Tilled Soil", AtlasID(2, 1), ItemID::ItemDirt, TileProperties(false, true, false, true)),
 		new Tile("Sand", AtlasID(3, 1), ItemID::ItemSand, TileProperties(true, true, false, true)),
 
@@ -28,7 +29,7 @@ public:
 
 	inline static int TileCount()
 	{
-		return Tiles.size();
+		return static_cast<int>(Tiles.size());
 	};
 };
 

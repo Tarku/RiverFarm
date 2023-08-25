@@ -11,7 +11,7 @@ enum CropID
 class CropRegistry
 {
 public:
-	static Crop* crops[];
+	static std::vector<Crop*> Crops;
 
 	static int CropAmount();
 

@@ -8,6 +8,7 @@ Texture* Entity::itemsAtlas = AtlasManager::GetAtlas(AtlasTextureID::Items);
 
 ItemEntity::ItemEntity(const v2f& _position, ItemID itemID) : m_itemID(itemID)
 {
+	m_angle = Utils::RandInt(0, TWO_PI * 1000000) / 1000000.f;
 	m_scale = 2 * Utils::RandInt(80, 120) / 100.f;
 	position = _position + v2f(Utils::RandInt(-10, 10) / 100.f, Utils::RandInt(-10, 10) / 100.f);
 	printf("ItemEntity (item: %s) was added.\n", ItemRegistry::Items[itemID]->name.c_str());
@@ -39,7 +40,8 @@ void ItemEntity::Update(World* world, float dt)
 	{
 		World::EntitiesToDelete.push_back(this);
 	}
-	
+
+	velocity.x = (cos(m_angle) / TILE_SIZE) / 5;
 	velocity.y = sin(m_angle) / TILE_SIZE;
 
 	position += velocity * dt * 5.0f;

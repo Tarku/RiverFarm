@@ -28,7 +28,7 @@ Tile::Tile(const std::string& name, const std::tuple<AtlasID, AtlasID>& textureI
 
 void Tile::OnTileBreak(const v2f& position, World* world, int layer)
 {
-	world->SetTile(position, layer, TileID::Air);
+	world->SetTile(position, layer, TileID::Air, true);
 	TileRegistry::Tiles[TileID::Air]->OnUpdate(position, world, layer);
 
 	for (auto& neighbor : neighbors)
