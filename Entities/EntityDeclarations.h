@@ -55,6 +55,7 @@ class PlayerEntity : public Entity
 {
 private:
 	bool m_didCollide = false;
+	AtlasID m_directionalSpriteID = { 0, 0 };
 
 public:
 	PlayerEntity(const v2f& position);
