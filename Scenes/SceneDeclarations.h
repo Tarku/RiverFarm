@@ -18,6 +18,11 @@ private:
 	
 	long m_ticks = 0;
 
+	const float MAX_TOOL_COOLDOWN = 0.25f;
+	float m_toolCooldown = 0;
+
+	sf::Texture m_daynightCycleOverlay;
+
 	AgriculturalTool* m_currentTool;
 
 	v2f m_cameraPosition = v2f(0, 0);

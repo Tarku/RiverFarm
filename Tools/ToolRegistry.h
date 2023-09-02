@@ -11,7 +11,8 @@ public:
 		new HoeTool(),
 		new ShovelTool(),
 		new ScytheTool(),
-		new SeedBagTool()
+		new SeedBagTool(),
+		new MilkPailTool()
 	};
 
 	inline static int ToolCount()

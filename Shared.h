@@ -31,10 +31,22 @@ constexpr float TEXTURE_SCALE = 2.f;
 constexpr float PI = 3.141592654f;
 constexpr float TWO_PI = PI * 2.f;
 
+constexpr float RADIAN = PI / 180.f;
+
 constexpr int SCALED_TILE_SIZE = (int)(TEXTURE_SCALE * TILE_SIZE);
 
 constexpr unsigned int WINDOW_WIDTH = SCALED_TILE_SIZE * CHUNK_WIDTH;
 constexpr unsigned int WINDOW_HEIGHT = SCALED_TILE_SIZE * CHUNK_HEIGHT;
+
+namespace TimeConstants
+{
+	constexpr int TICKS_PER_MINUTE = 60;
+	constexpr int MINUTES_PER_HOUR = 60;
+	constexpr int HOURS_PER_DAY = 24;
+	constexpr int DAYS_PER_WEEK = 7;
+	constexpr int WEEKS_PER_MONTH = 4;
+	constexpr int MONTHS_PER_YEAR = 12;
+}
 
 // Just a bunch of shorthands for my lazy brain
 

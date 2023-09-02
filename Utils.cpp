@@ -1,6 +1,20 @@
 #include "Utils.h"
 
 std::mt19937 Utils::m_rng;
+sf::RenderWindow* Utils::m_window;
+
+void Utils::Initialize(sf::RenderWindow* window)
+{
+	m_window = window;
+}
+
+v2f Utils::GetMousePosition()
+{
+	if (m_window == nullptr)
+		return v2f(0, 0);
+
+	return v2f(sf::Mouse::getPosition(*m_window));
+}
 
 time_t Utils::GetTimestamp()
 {
@@ -18,13 +32,10 @@ v2f Utils::vector2fSqrt(const v2f& value)
 }
 
 /// <summary>
-/// Returns a random integer between min and max
+/// Returns a random number of type T between min and max
 /// </summary>
-int Utils::RandInt(int min, int max)
-{
-	auto distrib = std::uniform_int_distribution<int>(min, max);
-	return distrib(m_rng);
-}
+/// 
+
 
 /// <summary>
 /// Returns the Euclidian distance between two vectors

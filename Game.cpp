@@ -21,6 +21,7 @@ Game::Game()
 	m_window.setIcon(iconImage.getSize().x, iconImage.getSize().y, iconImage.getPixelsPtr());
 
 	Interface::Initialize(&m_window);
+	Utils::Initialize(&m_window);
 
 	SceneManager::Initialize(&m_window);
 	SceneManager::ChangeScene(SceneManager::mainMenuScene);

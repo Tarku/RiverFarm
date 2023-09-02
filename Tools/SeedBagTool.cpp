@@ -17,10 +17,7 @@ bool SeedBagTool::CanBeUsedHere(World* world, const sf::Vector2f& position)
 	return
 		!world->GetChunk(chunkPosition)->IsCrop(inChunkOffset)
 		&& Inventory::GetAmount(m_currentSeedItem) > 0
-		&& 
-		(	world->TileAt(position, 0) == TileID::TilledSoil
-			|| world->TileAt(position, 0) == TileID::WateredTilledSoil
-		);
+		&& TileRegistry::Tiles[world->TileAt(position, 0)]->tileProperties.substrateProperties.isPlantable;
 }
 
 void SeedBagTool::OnUse(World* world, const sf::Vector2f& position)

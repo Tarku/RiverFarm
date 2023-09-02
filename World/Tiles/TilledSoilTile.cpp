@@ -6,7 +6,9 @@ TilledSoilTile::TilledSoilTile()
 	this->name = "Tilled Soil";
 	this->textureId = AtlasID(2, 0);
 	this->itemDrop = ItemID::ItemDirt;
-	this->tileProperties = TileProperties(false, true, false, true);
+	this->tileProperties = TileProperties(false, true, false, true, PlantSubstrateProperties(true, 0.15f));
+
+
 
 	this->groundId = textureId;
 }

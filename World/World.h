@@ -10,6 +10,7 @@
 #include "../Entities/EntityDeclarations.h"
 
 #include "Chunk.h"
+#include "WorldTime.h"
 
 class World
 {
@@ -20,6 +21,8 @@ private:
 
 public:
 	World();
+
+	WorldTime worldTime;
 
 	static constexpr float BaseHumidity = 0.3f;
 
@@ -51,6 +54,7 @@ public:
 
 	void AddItemEntity(const v2f& position, ItemID itemID, int amount = 1);
 
+	void AddEntity(Entity* entity);
 	void RemoveEntity(Entity* entity);
 
 	bool IsEmptyAt(const v2f& position, int layer);

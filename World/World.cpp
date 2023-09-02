@@ -46,13 +46,14 @@ v2f World::ChunkToWorldPosition(const v2f& chunkPosition, const v2f& inChunkPosi
 
 void World::AddDecorations()
 {
-	for (int i = 0; i < 350; i++)
+	for (int i = 0; i < 600; i++)
 	{
-		int roomX = Utils::RandInt(0, MAP_WIDTH);
-		int roomY = Utils::RandInt(0, MAP_HEIGHT);
 
-		int roomWidth = Utils::RandInt(3, 18);
+		int roomWidth = Utils::RandInt(5, 14);
 		int roomHeight = Utils::RandInt(5, 14);
+
+		int roomX = Utils::RandInt(0, MAP_WIDTH - roomWidth);
+		int roomY = Utils::RandInt(0, MAP_HEIGHT - roomHeight);
 
 		for (int y = 0; y < roomHeight; y++)
 		{
@@ -74,25 +75,38 @@ void World::AddDecorations()
 			}
 		}
 
-		int doorX = Utils::RandInt(1, roomWidth);
-		int doorY = Utils::RandInt(1, roomHeight);
+		int doorAmount = Utils::RandInt(1, 3);
+		int lastRandomSide = -1;
 
-		int randomSide = Utils::RandInt(0, 4);
-
-		switch (randomSide)
+		for (int doorId = 0; doorId < doorAmount; doorId++)
 		{
-		case 0:
-			SetTile(v2f(roomX + doorX, roomY + roomHeight - 1), 1, TileID::Air);
-			break;
-		case 1:
-			SetTile(v2f(roomX + roomWidth - 1, roomY + doorY), 1, TileID::Air);
-			break;
-		case 2:
-			SetTile(v2f(roomX, roomY + doorY), 1, TileID::Air);
-			break;
-		case 3:
-			SetTile(v2f(roomX + doorX, roomY), 1, TileID::Air);
-			break;
+			int doorX = Utils::RandInt(1, roomWidth - 2);
+			int doorY = Utils::RandInt(1, roomHeight - 2);
+
+			int randomSide = Utils::RandInt(0, 3);
+
+			while (randomSide == lastRandomSide)
+			{
+				randomSide = Utils::RandInt(0, 3);
+			}
+
+			switch (randomSide)
+			{
+			case 0:
+				SetTile(v2f(roomX + doorX, roomY + roomHeight - 1), 1, TileID::Air);
+				break;
+			case 1:
+				SetTile(v2f(roomX + roomWidth - 1, roomY + doorY), 1, TileID::Air);
+				break;
+			case 2:
+				SetTile(v2f(roomX, roomY + doorY), 1, TileID::Air);
+				break;
+			case 3:
+				SetTile(v2f(roomX + doorX, roomY), 1, TileID::Air);
+				break;
+			}
+
+			lastRandomSide = randomSide;
 		}
 	}
 }
@@ -100,6 +114,8 @@ void World::AddDecorations()
 void World::DoWorldGen()
 {
 	ResetWorld();
+
+	v2f playerSpawnCoords = { MAP_WIDTH / 2.f + Utils::RandInt(-CHUNK_WIDTH / 2.f, CHUNK_WIDTH / 2.f), MAP_HEIGHT / 2.f + Utils::RandInt(-CHUNK_HEIGHT / 2.f, CHUNK_HEIGHT / 2.f) };
 
 	Game::Seed = Utils::GetTimestamp();
 
@@ -111,10 +127,16 @@ void World::DoWorldGen()
 	{
 		for (int x = 0; x < MAP_WIDTH; x++)
 		{
-			double perlinValue = m_perlin.octave2D_01(x * (1.f / 8), y * (1.f / 8), 2);
-			double perlinValue2 = m_perlin.octave2D_01(x * (1.f / 16), y * (1.f / 16), 1);
-			double perlinValue3 = m_perlin.octave2D_01(x * (1.f / 32), y * (1.f / 32), 1);
-			double perlinValue4 = m_perlin.octave2D_01(x * (1.f / 64), y * (1.f / 64), 1);
+			double biomeValue = m_perlin.octave2D_01(x * (1.f / 128), y * (1.f / 128), 2);
+			double biomeValue2 = m_perlin.octave2D_01(x * (1.f / 28), y * (1.f / 69), 1);
+			double biomeValue3 = m_perlin.octave2D_01(x * (1.f / 73), y * (1.f / 12), 3);
+
+			double finalBiomeValue = (biomeValue + biomeValue2 * 0.8f + biomeValue3 * 0.6f) / 3.f;
+
+			double perlinValue = m_perlin.octave2D_01(x * (1.f / 16), y * (1.f / 16), 2);
+			double perlinValue2 = m_perlin.octave2D_01(x * (1.f / 32), y * (1.f / 32), 1);
+			double perlinValue3 = m_perlin.octave2D_01(x * (1.f / 64), y * (1.f / 64), 2);
+			double perlinValue4 = m_perlin.octave2D_01(x * (1.f / 128), y * (1.f / 128), 4);
 
 			double erosionValue = m_perlin.octave2D_01(x * (1.f / 8) + x * (1.f / 16), y * (1.f / 16) - y * (1.f / 8), 5);
 
@@ -123,14 +145,14 @@ void World::DoWorldGen()
 
 			perlinValue /= 3;
 
-			perlinValue -= perlinValue4 / 20;
+			perlinValue -= perlinValue4 / 8;
 
 
-			if (perlinValue < 0.4)
+			if (perlinValue < 0.43)
 			{
 				SetTile(Vector2f(x, y), 0, TileID::Water);
 			}
-			else if (perlinValue >= 0.4 && perlinValue < 0.46)
+			else if (perlinValue >= 0.43 && perlinValue < 0.46)
 			{
 
 				if (erosionValue > 0.7)
@@ -141,22 +163,33 @@ void World::DoWorldGen()
 			}
 			else
 			{
-				SetTile(Vector2f(x, y), 0, TileID::Grass);
+				bool isDesert = finalBiomeValue < 0.30;
 
-				if (erosionValue > 0.65 && erosionValue < 0.85)
-					SetTile(v2f(x, y), 0, TileID::Dirt);
-				else if (erosionValue >= 0.85)
-					SetTile(v2f(x, y), 0, TileID::Stone);
-				else
+				if (erosionValue >= 0.85)
 				{
 
-
-					if (Utils::RandInt(0, 8) == 0)
-						SetTile(Vector2f(x, y), 1, TileID::Shrub);
-
-					if (Utils::RandInt(0, 8) == 1)
-						SetTile(Vector2f(x, y), 1, TileID::Flowers);
+					SetTile(v2f(x, y), 0, TileID::Stone);
+					continue;
 				}
+				else if (erosionValue > 0.65 && erosionValue < 0.85)
+				{
+					SetTile(v2f(x, y), 0, isDesert ? TileID::Sand : TileID::Dirt);
+				}
+				else {
+					SetTile(Vector2f(x, y), 0, isDesert ? TileID::Sand : TileID::Grass);
+				}
+
+				
+
+				int chanceForTreeSpawn = finalBiomeValue > 0.94f ? 1 : 8;
+
+				if (Utils::RandInt(0, chanceForTreeSpawn) == 0)
+				{
+					SetTile(Vector2f(x, y), 1, isDesert ? TileID::Cactus : TileID::Shrub);
+				}
+
+				if (Utils::RandInt(0, 8 - chanceForTreeSpawn) == 1 && !isDesert)
+					SetTile(Vector2f(x, y), 1, TileID::Flowers);
 			}
 
 
@@ -165,8 +198,38 @@ void World::DoWorldGen()
 
 	AddDecorations();
 
+	// Add starting room at player spawn
+
+	int spawnRoomHalfWidth = Utils::RandInt(3, 5);
+	int spawnRoomHalfHeight = Utils::RandInt(3, 5);
+
+	for (int yO = -spawnRoomHalfHeight; yO <= spawnRoomHalfHeight; yO++)
+	{
+		for (int xO = -spawnRoomHalfWidth; xO <= spawnRoomHalfWidth; xO++)
+		{
+			SetTile(v2f(playerSpawnCoords.x + xO, playerSpawnCoords.y + yO), 0, TileID::StonebrickWall, false);
+
+			if (yO == -spawnRoomHalfHeight || xO == -spawnRoomHalfWidth || yO == spawnRoomHalfHeight || xO == spawnRoomHalfWidth)
+			{
+				SetTile(v2f(playerSpawnCoords.x + xO, playerSpawnCoords.y + yO), 1, TileID::StonebrickWall, false);
+			}
+			else {
+
+				SetTile(v2f(playerSpawnCoords.x + xO, playerSpawnCoords.y + yO), 1, TileID::Air, false);
+			}
+
+			// Generate air for doorways
+			SetTile(v2f(playerSpawnCoords.x + spawnRoomHalfWidth, playerSpawnCoords.y), 1, TileID::Air);
+			SetTile(v2f(playerSpawnCoords.x - spawnRoomHalfWidth, playerSpawnCoords.y), 1, TileID::Air);
+			SetTile(v2f(playerSpawnCoords.x, playerSpawnCoords.y + spawnRoomHalfHeight), 1, TileID::Air);
+			SetTile(v2f(playerSpawnCoords.x, playerSpawnCoords.y - spawnRoomHalfHeight), 1, TileID::Air);
+		}
+	}
+
 	time_t worldgenEndTime = Utils::GetTimestamp();
 	time_t worldgenTotalTime = worldgenEndTime - worldgenStartTime;
+
+	GameScene::player.position = playerSpawnCoords;
 
 	printf("World generation time: %d microseconds.\n", (int) worldgenTotalTime);
 }
@@ -236,6 +299,7 @@ int World::DrawChunks(RenderWindow* window, const v2f& cameraPosition)
 
 void World::Update(const v2f& cameraPosition, float dt)
 {
+	worldTime.Update();
 
 	v2f cameraChunkPosition = v2f((cameraPosition.x / SCALED_TILE_SIZE) / CHUNK_WIDTH, (cameraPosition.y / SCALED_TILE_SIZE) / CHUNK_HEIGHT);
 

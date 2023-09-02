@@ -8,15 +8,20 @@ Texture* Entity::itemsAtlas = AtlasManager::GetAtlas(AtlasTextureID::Items);
 
 ItemEntity::ItemEntity(const v2f& _position, ItemID itemID) : m_itemID(itemID)
 {
-	m_angle = Utils::RandInt(0, TWO_PI * 1000000) / 1000000.f;
-	m_scale = 2 * Utils::RandInt(80, 120) / 100.f;
-	position = _position + v2f(Utils::RandInt(-10, 10) / 100.f, Utils::RandInt(-10, 10) / 100.f);
-	printf("ItemEntity (item: %s) was added.\n", ItemRegistry::Items[itemID]->name.c_str());
+	m_angle = Utils::RandFloat(0.f, TWO_PI);
+	m_scale = 2 * Utils::RandFloat(0.8f, 1.2f);
+	position = _position + v2f(Utils::RandFloat(-0.15f, 0.15f), Utils::RandFloat(-0.15f, 0.15f));
+	// printf("ItemEntity (item: %s) was added.\n", ItemRegistry::Items[itemID]->name.c_str());
 
 }
 ItemEntity::~ItemEntity()
 {
 	Utils::Log("ItemEntity was deleted");
+}
+
+FloatRect ItemEntity::GetRectangle()
+{
+	return FloatRect(position.x, position.y, 1 * (m_scale - 1), 1 * (m_scale - 1));
 }
 
 void ItemEntity::Update(World* world, float dt)

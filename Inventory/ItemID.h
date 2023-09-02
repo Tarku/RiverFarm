@@ -9,5 +9,7 @@ enum ItemID
 	ItemStraw,
 	ItemFlowers,
 	ItemBarley,
-	ItemBarleySeeds
+	ItemBarleySeeds,
+	ItemMilk,
+	ItemWater
 };

@@ -13,7 +13,24 @@ bool HoeTool::CanBeUsedHere(World* world, const Vector2f& position)
 
 void HoeTool::OnUse(World* world, const Vector2f& position)
 {
-	world->SetTile(position, 0, TileID::TilledSoil, true);
+	uchar currentTileID = world->TileAt(position, 0);
+
+	TileID tilledTile = TileID::Cactus;
+
+	switch (currentTileID)
+	{
+	case TileID::Grass:
+		tilledTile = TileID::TilledSoil;
+		break;
+	case TileID::Dirt:
+		tilledTile = TileID::TilledSoil;
+		break;
+	case TileID::Sand:
+		tilledTile = TileID::TilledSand;
+		break;
+	}
+
+	world->SetTile(position, 0, tilledTile, true);
 
 	if (Utils::RandInt(0, 99) < 4)
 	{

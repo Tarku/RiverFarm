@@ -4,12 +4,35 @@
 #include "../World.h"
 #include "../Inventory/ItemID.h"
 
+struct PlantSubstrateProperties
+{
+	bool isPlantable = false;
+	float cropGrowthFactor = 1.0f;
+
+	PlantSubstrateProperties()
+	{
+			
+	}
+
+	PlantSubstrateProperties(bool isPlantable, float cropGrowthFactor = 1.0f)
+	{
+		this->isPlantable = isPlantable;
+		this->cropGrowthFactor = cropGrowthFactor;
+	}
+};
+
 struct TileProperties
 {
+	// This determines if the tile can be tilled
 	bool isArable = false;
+	// This determines if the tile can be dug
 	bool isDiggable = false;
+	// This determines if the tile can be chopped
 	bool isChoppable = false;
+	// This determines if the tile is solid or not (aka. a wall)
 	bool isSolid = false;
+	// This holds values about the tile's quality as a substrate
+	PlantSubstrateProperties substrateProperties;
 
 	// By default, all properties are set to false.
 	TileProperties()
@@ -18,14 +41,16 @@ struct TileProperties
 		this->isDiggable = false;
 		this->isChoppable = false;
 		this->isSolid = false;
+		this->substrateProperties = PlantSubstrateProperties();
 	}
 
-	TileProperties(bool isArable, bool isDiggable, bool isChoppable, bool isSolid)
+	TileProperties(bool isArable, bool isDiggable, bool isChoppable, bool isSolid, PlantSubstrateProperties substrateProperties = PlantSubstrateProperties())
 	{
 		this->isArable = isArable;
 		this->isDiggable = isDiggable;
 		this->isChoppable = isChoppable;
 		this->isSolid = isSolid;
+		this->substrateProperties = substrateProperties;
 	}
 };
 

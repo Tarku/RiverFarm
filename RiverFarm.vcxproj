@@ -157,6 +157,7 @@
     <ClCompile Include="Scenes\SceneManager.cpp" />
     <ClCompile Include="Tools\AxeTool.cpp" />
     <ClCompile Include="Tools\HoeTool.cpp" />
+    <ClCompile Include="Tools\MilkPailTool.cpp" />
     <ClCompile Include="Tools\ScytheTool.cpp" />
     <ClCompile Include="Tools\SeedBagTool.cpp" />
     <ClCompile Include="Tools\ShovelTool.cpp" />
@@ -166,6 +167,7 @@
     <ClCompile Include="World\CropRegistry.cpp" />
     <ClCompile Include="World\Tiles\AirTile.cpp" />
     <ClCompile Include="World\Tiles\Tile.cpp" />
+    <ClCompile Include="World\Tiles\TilledSandTile.cpp" />
     <ClCompile Include="World\Tiles\TilledSoilTile.cpp" />
     <ClCompile Include="World\Tiles\WaterTile.cpp" />
     <ClCompile Include="World\World.cpp" />
@@ -194,9 +196,11 @@
     <ClInclude Include="World\Tiles\AirTile.h" />
     <ClInclude Include="World\Tiles\Tile.h" />
     <ClInclude Include="World\Tiles\TileRegistry.h" />
+    <ClInclude Include="World\Tiles\TilledSandTile.h" />
     <ClInclude Include="World\Tiles\TilledSoilTile.h" />
     <ClInclude Include="World\Tiles\WaterTile.h" />
     <ClInclude Include="World\World.h" />
+    <ClInclude Include="World\WorldTime.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

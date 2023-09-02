@@ -14,6 +14,8 @@ class World;
 class Entity
 {
 protected:
+	bool p_isHovered = false;
+
 	static Texture* entitiesAtlas;
 	static Texture* itemsAtlas;
 
@@ -34,10 +36,27 @@ public:
 
 	virtual void HandleEvents(Event* event) abstract;
 	virtual void Update(World* world, float dt) abstract;
-	virtual void Draw(RenderWindow* window, v2f cameraPosition) abstract;
+	virtual void Draw(RenderWindow* window, v2f cameraPosition)
+	{
+		p_isHovered = CheckIfHovered(cameraPosition);
+	}
 
 	bool WillCollideWithBlock(const v2f& velocity, World* world);
 
+	inline virtual bool CheckIfHovered(const v2f& cameraPosition)
+	{
+		FloatRect rect = GetRectangle();
+		FloatRect screenRect = FloatRect(
+			rect.left * (float)SCALED_TILE_SIZE - cameraPosition.x,
+			rect.top * (float)SCALED_TILE_SIZE - cameraPosition.y,
+			(float)SCALED_TILE_SIZE,
+			(float)SCALED_TILE_SIZE
+		);
+
+		v2f mouseCoords = Utils::GetMousePosition();
+
+		return screenRect.contains(mouseCoords);
+	}
 
 	inline virtual FloatRect GetRectangle()
 	{
@@ -81,6 +100,8 @@ public:
 	ItemEntity(const v2f& position, ItemID itemID);
 	virtual ~ItemEntity() override;
 
+	FloatRect GetRectangle() override;
+
 	void HandleEvents(Event* event) override;
 	void Update(World* world, float dt) override;
 	void Draw(sf::RenderWindow* window, v2f cameraPosition) override;
@@ -99,19 +120,36 @@ public:
 	inline void HandleEvents(Event* event) {};
 
 	virtual void Update(World* world, float dt) override;
-	virtual void OnMoveTimer() abstract;
+	virtual void RandomizeDirection() abstract;
 
 	virtual void Draw(sf::RenderWindow* window, v2f cameraPosition) override;
 };
 
 class CowEntity : public MovingEntity
 {
+private:
+	float m_hunger = 0;
+
+	enum CowAIState
+	{
+		Wandering,
+		LookingForFood,
+		FoodTargetLocked
+	};
+
+	v2f m_foodTarget;
+
+	CowAIState m_currentAIState = Wandering;
+
 public:
+	float milkFullness = 0;
+	
 	CowEntity(const v2f& position);
 
-	void OnMoveTimer() override;
+	void RandomizeDirection() override;
 
 	void Update(World* world, float dt) override;
+	void Draw(sf::RenderWindow* window, v2f cameraPosition) override;
 };
 
 #endif

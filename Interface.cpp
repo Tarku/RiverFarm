@@ -88,26 +88,39 @@ void Interface::ShowInventoryOverlay()
 {
 	int itemsAmount = static_cast<int>(ItemRegistry::Items.size());
 
-	sf::Sprite itemIconSprite = sf::Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Items), sf::IntRect(0, 0, 16, 16));
+	sf::Sprite itemIconSprite = sf::Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Items));
 	sf::Sprite uiBackgroundSprite = sf::Sprite(Interface::uiElementsBackground);
 
-	for (int i = 0; i < itemsAmount; i++)
+
+	std::vector<int> itemsThatShouldBeShown = std::vector<int>();
+
+	for (int itemId = 0; itemId < itemsAmount; itemId++)
 	{
+		if (Inventory::GetAmount((ItemID) itemId) > 0)
+		{
+			itemsThatShouldBeShown.push_back(itemId);
+		}
+	}
 
-		Item item = *ItemRegistry::Items[i];
+	int itemCounter = 0;
 
-		itemIconSprite.setTextureRect(sf::IntRect(item.atlasID.x * TILE_SIZE, item.atlasID.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
+	for (int shownItemId : itemsThatShouldBeShown)
+	{
+		int itemAmount = Inventory::GetAmount((ItemID) shownItemId);
+		Item* item = ItemRegistry::Items[shownItemId];
+
+		itemIconSprite.setTextureRect(sf::IntRect(item->atlasID.x * TILE_SIZE, item->atlasID.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
 		itemIconSprite.setScale(2, 2);
 
 		itemIconSprite.setPosition(
 			v2f(
 				WINDOW_WIDTH - TILE_SIZE * 2,
-				i * TILE_SIZE * 2 + 4
+				itemCounter * TILE_SIZE * 2 + 4
 			)
 		);
 
 
-		sf::Text text = sf::Text(std::format("{}", Inventory::GetAmount((ItemID) i)), font);
+		sf::Text text = sf::Text(std::format("{}", itemAmount), font);
 
 		text.setFillColor(sf::Color(255, 255, 255));
 		text.setScale(1, 1);
@@ -115,17 +128,20 @@ void Interface::ShowInventoryOverlay()
 		text.setPosition(
 			v2f(
 				WINDOW_WIDTH - 2 * TILE_SIZE - text.getGlobalBounds().width - 4.f,
-				i * 2 * TILE_SIZE * 1.f
+				itemCounter * 2 * TILE_SIZE * 1.f
 			)
 		);
 
 
-		uiBackgroundSprite.setPosition(v2f(WINDOW_WIDTH - 2 * TILE_SIZE - text.getGlobalBounds().width - 8, i * 2 * TILE_SIZE + 1));
+		uiBackgroundSprite.setPosition(v2f(WINDOW_WIDTH - 2 * TILE_SIZE - text.getGlobalBounds().width - 8, itemCounter * 2 * TILE_SIZE + 1));
 		uiBackgroundSprite.setScale(SCALED_TILE_SIZE + text.getGlobalBounds().width + 8, 2 * TILE_SIZE - 2);
 
 		window->draw(uiBackgroundSprite);
 		window->draw(itemIconSprite);
 		window->draw(text);
+
+		itemCounter++;
+
 	}
 }
 

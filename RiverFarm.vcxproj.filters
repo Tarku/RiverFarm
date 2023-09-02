@@ -138,6 +138,12 @@
     <ClCompile Include="World\Tiles\WaterTile.cpp">
       <Filter>Source Files\World\Tiles</Filter>
     </ClCompile>
+    <ClCompile Include="Tools\MilkPailTool.cpp">
+      <Filter>Source Files\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="World\Tiles\TilledSandTile.cpp">
+      <Filter>Source Files\World\Tiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -216,6 +222,12 @@
       <Filter>Header Files\World\Tiles</Filter>
     </ClInclude>
     <ClInclude Include="World\Tiles\WaterTile.h">
+      <Filter>Header Files\World\Tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="World\WorldTime.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="World\Tiles\TilledSandTile.h">
       <Filter>Header Files\World\Tiles</Filter>
     </ClInclude>
   </ItemGroup>

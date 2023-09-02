@@ -73,3 +73,23 @@ public:
 
 	virtual void Draw(Interface* inter) override;
 };
+
+class MilkPailTool : public AgriculturalTool
+{
+private:
+	enum MilkPailAction
+	{
+		None = -1,
+		ActionMilkCow,
+		ActionTakeWater
+	};
+
+	MilkPailAction m_lastPailAction = None;
+	CowEntity* m_lastCowMilked = nullptr;
+
+public:
+	MilkPailTool();
+
+	virtual bool CanBeUsedHere(World* world, const sf::Vector2f& position) override;
+	virtual void OnUse(World* world, const sf::Vector2f& position) override;
+};
