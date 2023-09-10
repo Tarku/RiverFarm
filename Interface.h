@@ -9,11 +9,11 @@ class Interface
 {
 private:
 	static sf::Texture uiTexture;
-	static sf::Sprite uiIconBackground;
+	static sf::Sprite* uiIconBackground;
 
 	static sf::Texture uiElementsBackground;
 
-	std::map<std::string, sf::Text> textDeclarations;
+	std::map<const std::string, sf::Text> textDeclarations;
 
 	static uchar uiTextCount;
 public:

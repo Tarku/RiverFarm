@@ -9,7 +9,9 @@ std::vector<Item*> ItemRegistry::Items {
 	new Item("Barley", {3, 1}),
 	new SeedItem("Barley Seeds", {2, 1}, CropID::CropBarley),
 	new Item("Milk", {1, 1}),
-	new Item("Water", {0, 2})
+	new Item("Water", {0, 2}),
+		new SeedItem("Glasswort Seeds", {1, 2}, CropID::CropGlasswort),
+		new Item("Glasswort", {2, 2})
 };
 
 int ItemRegistry::ItemAmount()

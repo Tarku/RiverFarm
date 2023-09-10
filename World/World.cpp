@@ -229,7 +229,7 @@ void World::DoWorldGen()
 	time_t worldgenEndTime = Utils::GetTimestamp();
 	time_t worldgenTotalTime = worldgenEndTime - worldgenStartTime;
 
-	GameScene::player.position = playerSpawnCoords;
+	GameScene::player->position = playerSpawnCoords;
 
 	printf("World generation time: %d microseconds.\n", (int) worldgenTotalTime);
 }
@@ -281,14 +281,14 @@ int World::DrawChunks(RenderWindow* window, const v2f& cameraPosition)
 				vertices[0] = Vertex(v2f(chunkX * SCALED_TILE_SIZE * CHUNK_WIDTH, chunkY * SCALED_TILE_SIZE * CHUNK_WIDTH) - cameraPosition);
 				vertices[1] = Vertex(v2f((chunkX + 1) * SCALED_TILE_SIZE * CHUNK_WIDTH, chunkY * SCALED_TILE_SIZE * CHUNK_WIDTH) - cameraPosition);
 
-				window->draw(vertices, 2, sf::Lines);
+				window->draw(vertices, 2, sf::PrimitiveType::Lines);
 
 
 
 				vertices[0] = Vertex(v2f(chunkX * SCALED_TILE_SIZE * CHUNK_WIDTH, chunkY * SCALED_TILE_SIZE * CHUNK_WIDTH) - cameraPosition);
 				vertices[1] = Vertex(v2f(chunkX * SCALED_TILE_SIZE * CHUNK_WIDTH, (chunkY + 1) * SCALED_TILE_SIZE * CHUNK_WIDTH) - cameraPosition);
 
-				window->draw(vertices, 2, sf::Lines);
+				window->draw(vertices, 2, sf::PrimitiveType::Lines);
 			}
 		}
 	}

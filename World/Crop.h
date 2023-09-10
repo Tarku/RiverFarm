@@ -14,6 +14,7 @@ protected:
 	Crop() {};
 
 public:
+	bool isHalophyte = false;
 	std::string name;
 
 	float baseGrowthRate;
@@ -45,4 +46,10 @@ class BarleyCrop : public CerealCrop
 public:
 	BarleyCrop();
 
+};
+
+class GlasswortCrop : public Crop
+{
+public:
+	GlasswortCrop();
 };

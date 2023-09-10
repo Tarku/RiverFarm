@@ -32,11 +32,15 @@ void HoeTool::OnUse(World* world, const Vector2f& position)
 
 	world->SetTile(position, 0, tilledTile, true);
 
+	// 1/25 chance to get a seed from tilling the soil
 	if (Utils::RandInt(0, 99) < 4)
 	{
 		CropID randomCropID = static_cast<CropID>(Utils::RandInt(0, CropRegistry::CropAmount() - 1));
-		Crop* randomCrop = CropRegistry::Crops[randomCropID];
+		Crop* randomCrop = CropRegistry::Crops.at(randomCropID);
 
-		world->AddItemEntity(position, randomCrop->seedItemDrop);
+		if (randomCrop != nullptr)
+		{
+			world->AddItemEntity(position, randomCrop->seedItemDrop);
+		}
 	}
 }

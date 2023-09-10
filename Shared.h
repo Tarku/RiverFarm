@@ -3,6 +3,7 @@
 #include <SFML/Main.hpp>
 #include <SFML/Graphics.hpp>
 #include <string>
+#include <map>
 #include <format>
 #include <iostream>
 #include <chrono>
@@ -52,6 +53,9 @@ namespace TimeConstants
 
 using v3f = sf::Vector3f;
 using v2f = sf::Vector2f;
+using v3i = sf::Vector3i;
+using v2i = sf::Vector2i;
+using v2u = sf::Vector2u;
 using uchar = unsigned char;
 using uint = unsigned int;
 

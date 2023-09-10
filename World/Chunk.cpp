@@ -5,7 +5,7 @@
 #include "World.h"
 #include "../Interface.h"
 
-sf::Sprite Chunk::m_tileSprite = Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Tiles), IntRect(0, 0, 16, 16));
+sf::Sprite Chunk::m_tileSprite = Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Tiles));
 
 Chunk::Chunk(const v2f& position, World* world)
 {
@@ -100,7 +100,7 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 
 				AtlasID tileAtlasId = ((int) z == 0) ? currentTile->groundId : currentTile->textureId;
 
-				m_tileSprite.setTextureRect(IntRect(tileAtlasId.x * TILE_SIZE, tileAtlasId.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
+				m_tileSprite.setTextureRect(IntRect(v2i(tileAtlasId.x * TILE_SIZE, tileAtlasId.y * TILE_SIZE), v2i(TILE_SIZE, TILE_SIZE)));
 
 				m_tileSprite.setPosition(
 					v2f(
@@ -109,7 +109,7 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 					) - (v2f)cameraPosition
 				);
 
-				m_tileSprite.setScale(TEXTURE_SCALE, TEXTURE_SCALE);
+				m_tileSprite.setScale(v2f(TEXTURE_SCALE, TEXTURE_SCALE));
 
 				window->draw(m_tileSprite);
 			}
@@ -126,7 +126,7 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 				
 			AtlasID tileAtlasId = currentCrop->textureID;
 
-			m_tileSprite.setTextureRect(IntRect(tileAtlasId.x * TILE_SIZE, tileAtlasId.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
+			m_tileSprite.setTextureRect(IntRect(v2i(tileAtlasId.x * TILE_SIZE, tileAtlasId.y * TILE_SIZE), v2i(TILE_SIZE, TILE_SIZE)));
 
 			float g = currentCrop->growth;
 
@@ -137,7 +137,7 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 				) - (v2f)cameraPosition
 			);
 
-			m_tileSprite.setScale(TEXTURE_SCALE * g, TEXTURE_SCALE * g);
+			m_tileSprite.setScale(v2f(TEXTURE_SCALE * g, TEXTURE_SCALE * g));
 			window->draw(m_tileSprite);
 		}
 	}

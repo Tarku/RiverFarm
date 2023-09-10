@@ -20,8 +20,15 @@ void MainMenuScene::HandleEvents()
 			p_window->close();
 		}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+		{
+			p_window->close();
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+		{
 			SceneManager::ChangeScene(SceneManager::gameScene);
+		}
 	}
 }
 
@@ -54,7 +61,7 @@ void MainMenuScene::Update(float dt)
 void MainMenuScene::Draw() 
 {
 
-	sf::Sprite tileBackgroundSprite = sf::Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Tiles), sf::IntRect(0, 0, TILE_SIZE, TILE_SIZE));
+	sf::Sprite tileBackgroundSprite = sf::Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Tiles), sf::IntRect(v2i(0, 0), v2i(TILE_SIZE, TILE_SIZE)));
 	
 	const float scale = 2.f;
 
@@ -72,10 +79,10 @@ void MainMenuScene::Draw()
 		{
 			Tile* t = TileRegistry::Tiles[tileId];
 			
-			tileBackgroundSprite.setTextureRect(sf::IntRect(t->textureId.x * TILE_SIZE, t->textureId.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
+			tileBackgroundSprite.setTextureRect(sf::IntRect(v2i(t->textureId.x * TILE_SIZE, t->textureId.y * TILE_SIZE), v2i(TILE_SIZE, TILE_SIZE)));
 			tileBackgroundSprite.setPosition(v2f(x * TILE_SIZE * scale, y * TILE_SIZE * scale));
 
-			tileBackgroundSprite.setScale(scale, scale);
+			tileBackgroundSprite.setScale(v2f(scale, scale));
 
 			p_window->draw(tileBackgroundSprite);
 		}

@@ -11,5 +11,7 @@ enum ItemID
 	ItemBarley,
 	ItemBarleySeeds,
 	ItemMilk,
-	ItemWater
+	ItemWater,
+	ItemGlasswortSeeds,
+	ItemGlasswort
 };

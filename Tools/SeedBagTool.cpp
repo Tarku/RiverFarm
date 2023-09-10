@@ -48,10 +48,14 @@ void SeedBagTool::Draw(Interface* inter)
 		sf::Sprite(
 			*AtlasManager::GetAtlas(AtlasTextureID::Items),
 			IntRect(
-				TILE_SIZE * seedItem->atlasID.x,
-				TILE_SIZE * seedItem->atlasID.y,
-				TILE_SIZE,
-				TILE_SIZE
+				v2i(
+					TILE_SIZE * seedItem->atlasID.x,
+					TILE_SIZE * seedItem->atlasID.y
+				),
+				v2i(
+					TILE_SIZE,
+					TILE_SIZE
+				)
 			)
 		);
 

@@ -152,13 +152,21 @@ void CowEntity::Draw(sf::RenderWindow* window, v2f cameraPosition)
 	if (p_isHovered)
 	{
 
-		sf::Text fullnessText = sf::Text(sf::String(std::format("{} {}%", stateString, round(milkFullness * 100))), Interface::font, 14U);
+		sf::Text fullnessText = sf::Text(
+			Interface::font,
+			sf::String(
+				std::format(
+					"{} {}%",
+					stateString,
+					round(milkFullness * 100)
+				)
+			), 14u);
 
 		fullnessText.setFillColor(sf::Color(255, 255, 255, 255));
 		fullnessText.setOutlineColor(sf::Color(0, 0, 0, 255));
 
 		sf::FloatRect textSize = fullnessText.getGlobalBounds();
-		fullnessText.setPosition(position.x * (float)SCALED_TILE_SIZE - cameraPosition.x - textSize.width / 2.f + SCALED_TILE_SIZE / 2, position.y * (float)SCALED_TILE_SIZE - cameraPosition.y - 14);
+		fullnessText.setPosition(v2f(position.x * (float)SCALED_TILE_SIZE - cameraPosition.x - textSize.width / 2.f + SCALED_TILE_SIZE / 2, position.y * (float)SCALED_TILE_SIZE - cameraPosition.y - 14));
 	
 		window->draw(fullnessText);
 	}

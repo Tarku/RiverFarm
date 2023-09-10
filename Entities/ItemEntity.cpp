@@ -21,7 +21,7 @@ ItemEntity::~ItemEntity()
 
 FloatRect ItemEntity::GetRectangle()
 {
-	return FloatRect(position.x, position.y, 1 * (m_scale - 1), 1 * (m_scale - 1));
+	return FloatRect(v2f(position.x, position.y), v2f((m_scale - 1), (m_scale - 1)));
 }
 
 void ItemEntity::Update(World* world, float dt)
@@ -30,7 +30,7 @@ void ItemEntity::Update(World* world, float dt)
 
 	bool hasToBeRemoved = false;
 
-	if (GameScene::player.GetRectangle().intersects(this->GetRectangle()))
+	if (GameScene::player->GetRectangle().findIntersection(this->GetRectangle()) != std::nullopt)
 	{
 		Inventory::Add((ItemID) m_itemID, 1);
 		hasToBeRemoved = true;
@@ -60,11 +60,11 @@ void ItemEntity::Draw(sf::RenderWindow* window, v2f cameraPosition)
 
 	Item i = *ItemRegistry::Items[m_itemID];
 
-	Sprite s = Sprite(*ItemEntity::itemsAtlas, IntRect(i.atlasID.x * TILE_SIZE, i.atlasID.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
+	Sprite s = Sprite(*ItemEntity::itemsAtlas, IntRect(v2i(i.atlasID.x * TILE_SIZE, i.atlasID.y * TILE_SIZE), v2i(TILE_SIZE, TILE_SIZE)));
 
 
 	s.setPosition(position * static_cast<float> (TILE_SIZE * TEXTURE_SCALE) - cameraPosition);
-	s.setScale(m_scale, m_scale);
+	s.setScale(v2f(m_scale, m_scale));
 
 	window->draw(s);
 }

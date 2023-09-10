@@ -47,10 +47,14 @@ public:
 	{
 		FloatRect rect = GetRectangle();
 		FloatRect screenRect = FloatRect(
-			rect.left * (float)SCALED_TILE_SIZE - cameraPosition.x,
-			rect.top * (float)SCALED_TILE_SIZE - cameraPosition.y,
-			(float)SCALED_TILE_SIZE,
-			(float)SCALED_TILE_SIZE
+			v2f(
+				rect.left * (float)SCALED_TILE_SIZE - cameraPosition.x,
+				rect.top * (float)SCALED_TILE_SIZE - cameraPosition.y
+			),
+			v2f(
+				(float)SCALED_TILE_SIZE,
+				(float)SCALED_TILE_SIZE
+			)
 		);
 
 		v2f mouseCoords = Utils::GetMousePosition();
@@ -60,7 +64,7 @@ public:
 
 	inline virtual FloatRect GetRectangle()
 	{
-		return FloatRect(position.x, position.y, 1, 1);
+		return FloatRect(v2f(position.x, position.y), v2f(1, 1));
 	}
 
 	inline static void DisposeEntityResources()

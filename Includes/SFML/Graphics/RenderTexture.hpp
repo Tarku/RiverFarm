@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2017 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2023 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -22,22 +22,26 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef SFML_RENDERTEXTURE_HPP
-#define SFML_RENDERTEXTURE_HPP
+#pragma once
 
 ////////////////////////////////////////////////////////////
 // Headers
 ////////////////////////////////////////////////////////////
 #include <SFML/Graphics/Export.hpp>
-#include <SFML/Graphics/Texture.hpp>
+
 #include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/Texture.hpp>
+
+#include <SFML/Window/ContextSettings.hpp>
+
+#include <memory>
 
 
 namespace sf
 {
 namespace priv
 {
-    class RenderTextureImpl;
+class RenderTextureImpl;
 }
 
 ////////////////////////////////////////////////////////////
@@ -47,7 +51,6 @@ namespace priv
 class SFML_GRAPHICS_API RenderTexture : public RenderTarget
 {
 public:
-
     ////////////////////////////////////////////////////////////
     /// \brief Default constructor
     ///
@@ -63,7 +66,31 @@ public:
     /// \brief Destructor
     ///
     ////////////////////////////////////////////////////////////
-    virtual ~RenderTexture();
+    ~RenderTexture() override;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Deleted copy constructor
+    ///
+    ////////////////////////////////////////////////////////////
+    RenderTexture(const RenderTexture&) = delete;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Deleted copy assignment
+    ///
+    ////////////////////////////////////////////////////////////
+    RenderTexture& operator=(const RenderTexture&) = delete;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Move constructor
+    ///
+    ////////////////////////////////////////////////////////////
+    RenderTexture(RenderTexture&&) noexcept;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Move assignment operator
+    ///
+    ////////////////////////////////////////////////////////////
+    RenderTexture& operator=(RenderTexture&&) noexcept;
 
     ////////////////////////////////////////////////////////////
     /// \brief Create the render-texture
@@ -71,19 +98,26 @@ public:
     /// Before calling this function, the render-texture is in
     /// an invalid state, thus it is mandatory to call it before
     /// doing anything with the render-texture.
-    /// The last parameter, \a depthBuffer, is useful if you want
-    /// to use the render-texture for 3D OpenGL rendering that requires
-    /// a depth buffer. Otherwise it is unnecessary, and you should
-    /// leave this parameter to false (which is its default value).
+    /// The last parameter, \a settings, is useful if you want to enable
+    /// multi-sampling or use the render-texture for OpenGL rendering that
+    /// requires a depth or stencil buffer. Otherwise it is unnecessary, and
+    /// you should leave this parameter at its default value.
     ///
-    /// \param width       Width of the render-texture
-    /// \param height      Height of the render-texture
-    /// \param depthBuffer Do you want this render-texture to have a depth buffer?
+    /// \param size     Width and height of the render-texture
+    /// \param settings Additional settings for the underlying OpenGL texture and context
     ///
     /// \return True if creation has been successful
     ///
     ////////////////////////////////////////////////////////////
-    bool create(unsigned int width, unsigned int height, bool depthBuffer = false);
+    [[nodiscard]] bool create(const Vector2u& size, const ContextSettings& settings = ContextSettings());
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Get the maximum anti-aliasing level supported by the system
+    ///
+    /// \return The maximum anti-aliasing level supported by the system
+    ///
+    ////////////////////////////////////////////////////////////
+    static unsigned int getMaximumAntialiasingLevel();
 
     ////////////////////////////////////////////////////////////
     /// \brief Enable or disable texture smoothing
@@ -145,7 +179,7 @@ public:
     /// \return True if mipmap generation was successful, false if unsuccessful
     ///
     ////////////////////////////////////////////////////////////
-    bool generateMipmap();
+    [[nodiscard]] bool generateMipmap();
 
     ////////////////////////////////////////////////////////////
     /// \brief Activate or deactivate the render-texture for rendering
@@ -162,7 +196,7 @@ public:
     /// \return True if operation was successful, false otherwise
     ///
     ////////////////////////////////////////////////////////////
-    bool setActive(bool active = true);
+    [[nodiscard]] bool setActive(bool active = true) override;
 
     ////////////////////////////////////////////////////////////
     /// \brief Update the contents of the target texture
@@ -184,7 +218,19 @@ public:
     /// \return Size in pixels
     ///
     ////////////////////////////////////////////////////////////
-    virtual Vector2u getSize() const;
+    Vector2u getSize() const override;
+
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Tell if the render-texture will use sRGB encoding when drawing on it
+    ///
+    /// You can request sRGB encoding for a render-texture
+    /// by having the sRgbCapable flag set for the context parameter of create() method
+    ///
+    /// \return True if the render-texture use sRGB encoding, false otherwise
+    ///
+    ////////////////////////////////////////////////////////////
+    bool isSrgb() const override;
 
     ////////////////////////////////////////////////////////////
     /// \brief Get a read-only reference to the target texture
@@ -203,31 +249,14 @@ public:
     const Texture& getTexture() const;
 
 private:
-
-    ////////////////////////////////////////////////////////////
-    /// \brief Activate the target for rendering
-    ///
-    /// This function is called by the base class
-    /// everytime it's going to use OpenGL calls.
-    ///
-    /// \param active True to make the target active, false to deactivate it
-    ///
-    /// \return True if the function succeeded
-    ///
-    ////////////////////////////////////////////////////////////
-    virtual bool activate(bool active);
-
     ////////////////////////////////////////////////////////////
     // Member data
     ////////////////////////////////////////////////////////////
-    priv::RenderTextureImpl* m_impl;    ///< Platform/hardware specific implementation
-    Texture                  m_texture; ///< Target texture to draw on
+    std::unique_ptr<priv::RenderTextureImpl> m_impl;    //!< Platform/hardware specific implementation
+    Texture                                  m_texture; //!< Target texture to draw on
 };
 
 } // namespace sf
-
-
-#endif // SFML_RENDERTEXTURE_HPP
 
 
 ////////////////////////////////////////////////////////////
@@ -250,11 +279,11 @@ private:
 ///
 /// \code
 /// // Create a new render-window
-/// sf::RenderWindow window(sf::VideoMode(800, 600), "SFML window");
+/// sf::RenderWindow window(sf::VideoMode({800, 600}), "SFML window");
 ///
 /// // Create a new render-texture
 /// sf::RenderTexture texture;
-/// if (!texture.create(500, 500))
+/// if (!texture.create({500, 500}))
 ///     return -1;
 ///
 /// // The main loop

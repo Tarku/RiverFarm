@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2017 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2023 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -22,41 +22,66 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef SFML_RENDERTARGET_HPP
-#define SFML_RENDERTARGET_HPP
+#pragma once
 
 ////////////////////////////////////////////////////////////
 // Headers
 ////////////////////////////////////////////////////////////
 #include <SFML/Graphics/Export.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Rect.hpp>
-#include <SFML/Graphics/View.hpp>
-#include <SFML/Graphics/Transform.hpp>
+
 #include <SFML/Graphics/BlendMode.hpp>
-#include <SFML/Graphics/RenderStates.hpp>
+#include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/Vertex.hpp>
-#include <SFML/System/NonCopyable.hpp>
+#include <SFML/Graphics/View.hpp>
+
+#include <cstddef>
 
 
 namespace sf
 {
 class Drawable;
+class VertexBuffer;
+class Transform;
 
 ////////////////////////////////////////////////////////////
 /// \brief Base class for all render targets (window, texture, ...)
 ///
 ////////////////////////////////////////////////////////////
-class SFML_GRAPHICS_API RenderTarget : NonCopyable
+class SFML_GRAPHICS_API RenderTarget
 {
 public:
-
     ////////////////////////////////////////////////////////////
     /// \brief Destructor
     ///
     ////////////////////////////////////////////////////////////
-    virtual ~RenderTarget();
+    virtual ~RenderTarget() = default;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Deleted copy constructor
+    ///
+    ////////////////////////////////////////////////////////////
+    RenderTarget(const RenderTarget&) = delete;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Deleted copy assignment
+    ///
+    ////////////////////////////////////////////////////////////
+    RenderTarget& operator=(const RenderTarget&) = delete;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Move constructor
+    ///
+    ////////////////////////////////////////////////////////////
+    RenderTarget(RenderTarget&&) noexcept = default;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Move assignment
+    ///
+    ////////////////////////////////////////////////////////////
+    RenderTarget& operator=(RenderTarget&&) noexcept = default;
 
     ////////////////////////////////////////////////////////////
     /// \brief Clear the entire target with a single color
@@ -67,7 +92,7 @@ public:
     /// \param color Fill color to use to clear the render target
     ///
     ////////////////////////////////////////////////////////////
-    void clear(const Color& color = Color(0, 0, 0, 255));
+    void clear(const Color& color = Color::Black);
 
     ////////////////////////////////////////////////////////////
     /// \brief Change the current active view
@@ -244,8 +269,33 @@ public:
     /// \param states      Render states to use for drawing
     ///
     ////////////////////////////////////////////////////////////
-    void draw(const Vertex* vertices, std::size_t vertexCount,
-              PrimitiveType type, const RenderStates& states = RenderStates::Default);
+    void draw(const Vertex*       vertices,
+              std::size_t         vertexCount,
+              PrimitiveType       type,
+              const RenderStates& states = RenderStates::Default);
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Draw primitives defined by a vertex buffer
+    ///
+    /// \param vertexBuffer Vertex buffer
+    /// \param states       Render states to use for drawing
+    ///
+    ////////////////////////////////////////////////////////////
+    void draw(const VertexBuffer& vertexBuffer, const RenderStates& states = RenderStates::Default);
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Draw primitives defined by a vertex buffer
+    ///
+    /// \param vertexBuffer Vertex buffer
+    /// \param firstVertex  Index of the first vertex to render
+    /// \param vertexCount  Number of vertices to render
+    /// \param states       Render states to use for drawing
+    ///
+    ////////////////////////////////////////////////////////////
+    void draw(const VertexBuffer& vertexBuffer,
+              std::size_t         firstVertex,
+              std::size_t         vertexCount,
+              const RenderStates& states = RenderStates::Default);
 
     ////////////////////////////////////////////////////////////
     /// \brief Return the size of the rendering region of the target
@@ -254,6 +304,36 @@ public:
     ///
     ////////////////////////////////////////////////////////////
     virtual Vector2u getSize() const = 0;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Tell if the render target will use sRGB encoding when drawing on it
+    ///
+    /// \return True if the render target use sRGB encoding, false otherwise
+    ///
+    ////////////////////////////////////////////////////////////
+    virtual bool isSrgb() const;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Activate or deactivate the render target for rendering
+    ///
+    /// This function makes the render target's context current for
+    /// future OpenGL rendering operations (so you shouldn't care
+    /// about it if you're not doing direct OpenGL stuff).
+    /// A render target's context is active only on the current thread,
+    /// if you want to make it active on another thread you have
+    /// to deactivate it on the previous thread first if it was active.
+    /// Only one context can be current in a thread, so if you
+    /// want to draw OpenGL geometry to another render target
+    /// don't forget to activate it again. Activating a render
+    /// target will automatically deactivate the previously active
+    /// context (if any).
+    ///
+    /// \param active True to activate, false to deactivate
+    ///
+    /// \return True if operation was successful, false otherwise
+    ///
+    ////////////////////////////////////////////////////////////
+    [[nodiscard]] virtual bool setActive(bool active = true);
 
     ////////////////////////////////////////////////////////////
     /// \brief Save the current OpenGL render states and matrices
@@ -324,12 +404,11 @@ public:
     void resetGLStates();
 
 protected:
-
     ////////////////////////////////////////////////////////////
     /// \brief Default constructor
     ///
     ////////////////////////////////////////////////////////////
-    RenderTarget();
+    RenderTarget() = default;
 
     ////////////////////////////////////////////////////////////
     /// \brief Performs the common initialization step after creation
@@ -341,7 +420,6 @@ protected:
     void initialize();
 
 private:
-
     ////////////////////////////////////////////////////////////
     /// \brief Apply the current view
     ///
@@ -381,18 +459,31 @@ private:
     void applyShader(const Shader* shader);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Activate the target for rendering
+    /// \brief Setup environment for drawing
     ///
-    /// This function must be implemented by derived classes to make
-    /// their OpenGL context current; it is called by the base class
-    /// everytime it's going to use OpenGL calls.
-    ///
-    /// \param active True to make the target active, false to deactivate it
-    ///
-    /// \return True if the function succeeded
+    /// \param useVertexCache Are we going to use the vertex cache?
+    /// \param states         Render states to use for drawing
     ///
     ////////////////////////////////////////////////////////////
-    virtual bool activate(bool active) = 0;
+    void setupDraw(bool useVertexCache, const RenderStates& states);
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Draw the primitives
+    ///
+    /// \param type        Type of primitives to draw
+    /// \param firstVertex Index of the first vertex to use when drawing
+    /// \param vertexCount Number of vertices to use when drawing
+    ///
+    ////////////////////////////////////////////////////////////
+    void drawPrimitives(PrimitiveType type, std::size_t firstVertex, std::size_t vertexCount);
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Clean up environment after drawing
+    ///
+    /// \param states Render states used for drawing
+    ///
+    ////////////////////////////////////////////////////////////
+    void cleanupDraw(const RenderStates& states);
 
     ////////////////////////////////////////////////////////////
     /// \brief Render states cache
@@ -400,28 +491,28 @@ private:
     ////////////////////////////////////////////////////////////
     struct StatesCache
     {
-        enum {VertexCacheSize = 4};
+        static constexpr std::size_t VertexCacheSize{4}; // NOLINT(readability-identifier-naming)
 
-        bool      glStatesSet;    ///< Are our internal GL states set yet?
-        bool      viewChanged;    ///< Has the current view changed since last draw?
-        BlendMode lastBlendMode;  ///< Cached blending mode
-        Uint64    lastTextureId;  ///< Cached texture
-        bool      useVertexCache; ///< Did we previously use the vertex cache?
-        Vertex    vertexCache[VertexCacheSize]; ///< Pre-transformed vertices cache
+        bool          enable;                       //!< Is the cache enabled?
+        bool          glStatesSet{};                //!< Are our internal GL states set yet?
+        bool          viewChanged;                  //!< Has the current view changed since last draw?
+        BlendMode     lastBlendMode;                //!< Cached blending mode
+        std::uint64_t lastTextureId;                //!< Cached texture
+        bool          texCoordsArrayEnabled;        //!< Is GL_TEXTURE_COORD_ARRAY client state enabled?
+        bool          useVertexCache;               //!< Did we previously use the vertex cache?
+        Vertex        vertexCache[VertexCacheSize]; //!< Pre-transformed vertices cache
     };
 
     ////////////////////////////////////////////////////////////
     // Member data
     ////////////////////////////////////////////////////////////
-    View        m_defaultView; ///< Default view
-    View        m_view;        ///< Current view
-    StatesCache m_cache;       ///< Render states cache
+    View          m_defaultView; //!< Default view
+    View          m_view;        //!< Current view
+    StatesCache   m_cache{};     //!< Render states cache
+    std::uint64_t m_id{};        //!< Unique number that identifies the RenderTarget
 };
 
 } // namespace sf
-
-
-#endif // SFML_RENDERTARGET_HPP
 
 
 ////////////////////////////////////////////////////////////
@@ -445,6 +536,12 @@ private:
 /// and regular SFML drawing commands. When doing so, make sure that
 /// OpenGL states are not messed up by calling the
 /// pushGLStates/popGLStates functions.
+///
+/// While render targets are moveable, it is not valid to move them
+/// between threads. This will cause your program to crash. The
+/// problem boils down to OpenGL being limited with regard to how it
+/// works in multithreaded environments. Please ensure you only move
+/// render targets within the same thread.
 ///
 /// \see sf::RenderWindow, sf::RenderTexture, sf::View
 ///

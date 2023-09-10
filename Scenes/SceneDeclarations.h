@@ -30,9 +30,18 @@ private:
 
 	World m_world;
 
+	enum class MenuMode
+	{
+		NormalMode,
+		BuildingMode
+	};
+
+	MenuMode m_currentMenuMode = MenuMode::NormalMode;
+	
+
 public:
-	static PlayerEntity player;
-	static bool showChunkBorders;
+	inline static PlayerEntity* player = nullptr;
+	inline static bool showChunkBorders = false;
 
 	inline GameScene() {};
 

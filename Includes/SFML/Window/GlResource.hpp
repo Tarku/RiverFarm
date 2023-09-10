@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2017 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2023 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -22,20 +22,19 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef SFML_GLRESOURCE_HPP
-#define SFML_GLRESOURCE_HPP
+#pragma once
 
 ////////////////////////////////////////////////////////////
 // Headers
 ////////////////////////////////////////////////////////////
 #include <SFML/Window/Export.hpp>
-#include <SFML/System/NonCopyable.hpp>
+
+#include <memory>
 
 
 namespace sf
 {
-
-class Context;
+using ContextDestroyCallback = void (*)(void*);
 
 ////////////////////////////////////////////////////////////
 /// \brief Base class for classes that require an OpenGL context
@@ -44,7 +43,6 @@ class Context;
 class SFML_WINDOW_API GlResource
 {
 protected:
-
     ////////////////////////////////////////////////////////////
     /// \brief Default constructor
     ///
@@ -52,22 +50,30 @@ protected:
     GlResource();
 
     ////////////////////////////////////////////////////////////
-    /// \brief Destructor
+    /// \brief Register an OpenGL object to be destroyed when its containing context is destroyed
+    ///
+    /// This is used for internal purposes in order to properly
+    /// clean up OpenGL resources that cannot be shared between
+    /// contexts.
+    ///
+    /// \param object Object to be destroyed when its containing context is destroyed
     ///
     ////////////////////////////////////////////////////////////
-    ~GlResource();
+    static void registerUnsharedGlObject(std::shared_ptr<void> object);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Empty function for ABI compatibility, use acquireTransientContext instead
+    /// \brief Unregister an OpenGL object from its containing context
+    ///
+    /// \param object Object to be unregistered
     ///
     ////////////////////////////////////////////////////////////
-    static void ensureGlContext();
+    static void unregisterUnsharedGlObject(std::shared_ptr<void> object);
 
     ////////////////////////////////////////////////////////////
     /// \brief RAII helper class to temporarily lock an available context for use
     ///
     ////////////////////////////////////////////////////////////
-    class SFML_WINDOW_API TransientContextLock : NonCopyable
+    class SFML_WINDOW_API TransientContextLock
     {
     public:
         ////////////////////////////////////////////////////////////
@@ -82,15 +88,28 @@ protected:
         ////////////////////////////////////////////////////////////
         ~TransientContextLock();
 
-    private:
-        Context* m_context; ///< Temporary context, in case we needed to create one
+        ////////////////////////////////////////////////////////////
+        /// \brief Deleted copy constructor
+        ///
+        ////////////////////////////////////////////////////////////
+        TransientContextLock(const TransientContextLock&) = delete;
+
+        ////////////////////////////////////////////////////////////
+        /// \brief Deleted copy assignment
+        ///
+        ////////////////////////////////////////////////////////////
+        TransientContextLock& operator=(const TransientContextLock&) = delete;
     };
+
+private:
+    ////////////////////////////////////////////////////////////
+    // Member data
+    ////////////////////////////////////////////////////////////
+    std::shared_ptr<void> m_sharedContext; //!< Shared context used to link all contexts together for resource sharing
 };
 
 } // namespace sf
 
-
-#endif // SFML_GLRESOURCE_HPP
 
 ////////////////////////////////////////////////////////////
 /// \class sf::GlResource

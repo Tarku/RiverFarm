@@ -1,7 +1,8 @@
 #include "CropRegistry.h"
 
 std::vector<Crop*> CropRegistry::Crops = {
-	new BarleyCrop()
+	new BarleyCrop(),
+	new GlasswortCrop()
 };
 
 int CropRegistry::CropAmount()
@@ -15,5 +16,7 @@ Crop* CropRegistry::GetInstance(CropID& cropId)
 	{
 	case CropBarley:
 		return new BarleyCrop();
+	case CropGlasswort:
+		return new GlasswortCrop();
 	}
 }

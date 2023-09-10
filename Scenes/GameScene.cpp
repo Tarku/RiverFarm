@@ -4,15 +4,13 @@
 
 using namespace sf;
 
-
-PlayerEntity GameScene::player = PlayerEntity(v2f(MAP_WIDTH / 2, MAP_HEIGHT / 2));
-bool GameScene::showChunkBorders = false;
-
 void GameScene::Initialize(RenderWindow* window)
 {
 	p_window = window;
 
 	p_interface = Interface();
+
+	player = new PlayerEntity(v2f(MAP_WIDTH / 2, MAP_HEIGHT / 2));
 
 	m_daynightCycleOverlay.loadFromFile("Assets/daynight_overlay.png");
 
@@ -113,7 +111,7 @@ void GameScene::HandleEvents()
 		}
 
 
-		player.HandleEvents(&p_event);
+		player->HandleEvents(&p_event);
 
 		for (auto& entity : World::WorldEntities)
 		{
@@ -129,7 +127,7 @@ void GameScene::Update(float dt)
 
 	m_currentTool = ToolRegistry::Tools.at(m_currentToolIndex);
 
-	player.Update(&m_world, dt);
+	player->Update(&m_world, dt);
 
 	for (auto entity : World::WorldEntities)
 	{
@@ -148,7 +146,7 @@ void GameScene::Update(float dt)
 
 	p_interface.SetTextString(std::string("ui_tool_name_text"), m_currentTool->name);
 	p_interface.SetTextString(std::string("fps_text"), std::format("FPS: {}", (int)m_fps));
-	p_interface.SetTextString(std::string("position_text"), std::format("Player X, Y: {}, {}", (int)player.position.x, (int)player.position.y));
+	p_interface.SetTextString(std::string("position_text"), std::format("Player X, Y: {}, {}", (int)player->position.x, (int)player->position.y));
 
 	p_interface.SetTextString(std::string("current_hour"), m_world.worldTime.GetHourString());
 
@@ -162,7 +160,7 @@ void GameScene::Draw()
 {
 
 
-	m_cameraPosition = player.position * (float)SCALED_TILE_SIZE - v2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+	m_cameraPosition = player->position * (float)SCALED_TILE_SIZE - v2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 
 	m_cameraPosition.x = std::max(0, (int) m_cameraPosition.x);
 	m_cameraPosition.y = std::max(0, (int) m_cameraPosition.y);
@@ -171,7 +169,7 @@ void GameScene::Draw()
 
 	p_window->setTitle(std::format("River Farm - {} chunks rendered", chunksRendered));
 
-	player.Draw(p_window, m_cameraPosition);
+	player->Draw(p_window, m_cameraPosition);
 
 	for (auto entity : World::WorldEntities)
 	{
@@ -180,10 +178,10 @@ void GameScene::Draw()
 	int currentHour = m_world.worldTime.hours;
 
 
-	sf::Sprite daynightOverlaySprite = sf::Sprite(m_daynightCycleOverlay, IntRect(currentHour, 0, 1, 1));
+	sf::Sprite daynightOverlaySprite = sf::Sprite(m_daynightCycleOverlay, IntRect(v2i(currentHour, 0), v2i(1, 1)));
 
-	daynightOverlaySprite.setScale(WINDOW_WIDTH, WINDOW_HEIGHT);
-	daynightOverlaySprite.setPosition(0, 0);
+	daynightOverlaySprite.setScale(v2f(WINDOW_WIDTH, WINDOW_HEIGHT));
+	daynightOverlaySprite.setPosition(v2f(0, 0));
 
 	p_window->draw(daynightOverlaySprite, RenderStates(sf::BlendMultiply));
 

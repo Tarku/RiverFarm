@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 // SFML - Simple and Fast Multimedia Library
-// Copyright (C) 2007-2017 Laurent Gomila (laurent@sfml-dev.org)
+// Copyright (C) 2007-2023 Laurent Gomila (laurent@sfml-dev.org)
 //
 // This software is provided 'as-is', without any express or implied warranty.
 // In no event will the authors be held liable for any damages arising from the use of this software.
@@ -22,20 +22,21 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef SFML_SOUND_HPP
-#define SFML_SOUND_HPP
+#pragma once
 
 ////////////////////////////////////////////////////////////
 // Headers
 ////////////////////////////////////////////////////////////
 #include <SFML/Audio/Export.hpp>
+
 #include <SFML/Audio/SoundSource.hpp>
-#include <SFML/System/Time.hpp>
+
 #include <cstdlib>
 
 
 namespace sf
 {
+class Time;
 class SoundBuffer;
 
 ////////////////////////////////////////////////////////////
@@ -45,13 +46,6 @@ class SoundBuffer;
 class SFML_AUDIO_API Sound : public SoundSource
 {
 public:
-
-    ////////////////////////////////////////////////////////////
-    /// \brief Default constructor
-    ///
-    ////////////////////////////////////////////////////////////
-    Sound();
-
     ////////////////////////////////////////////////////////////
     /// \brief Construct the sound with a buffer
     ///
@@ -59,6 +53,12 @@ public:
     ///
     ////////////////////////////////////////////////////////////
     explicit Sound(const SoundBuffer& buffer);
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Disallow construction from a temporary sound buffer
+    ///
+    ////////////////////////////////////////////////////////////
+    explicit Sound(SoundBuffer&& buffer) = delete;
 
     ////////////////////////////////////////////////////////////
     /// \brief Copy constructor
@@ -72,7 +72,7 @@ public:
     /// \brief Destructor
     ///
     ////////////////////////////////////////////////////////////
-    ~Sound();
+    ~Sound() override;
 
     ////////////////////////////////////////////////////////////
     /// \brief Start or resume playing the sound
@@ -86,7 +86,7 @@ public:
     /// \see pause, stop
     ///
     ////////////////////////////////////////////////////////////
-    void play();
+    void play() override;
 
     ////////////////////////////////////////////////////////////
     /// \brief Pause the sound
@@ -97,7 +97,7 @@ public:
     /// \see play, stop
     ///
     ////////////////////////////////////////////////////////////
-    void pause();
+    void pause() override;
 
     ////////////////////////////////////////////////////////////
     /// \brief stop playing the sound
@@ -109,7 +109,7 @@ public:
     /// \see play, pause
     ///
     ////////////////////////////////////////////////////////////
-    void stop();
+    void stop() override;
 
     ////////////////////////////////////////////////////////////
     /// \brief Set the source buffer containing the audio data to play
@@ -124,6 +124,12 @@ public:
     ///
     ////////////////////////////////////////////////////////////
     void setBuffer(const SoundBuffer& buffer);
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Disallow setting from a temporary sound buffer
+    ///
+    ////////////////////////////////////////////////////////////
+    void setBuffer(SoundBuffer&& buffer) = delete;
 
     ////////////////////////////////////////////////////////////
     /// \brief Set whether or not the sound should loop after reaching the end
@@ -158,10 +164,10 @@ public:
     ////////////////////////////////////////////////////////////
     /// \brief Get the audio buffer attached to the sound
     ///
-    /// \return Sound buffer attached to the sound (can be NULL)
+    /// \return Sound buffer attached to the sound
     ///
     ////////////////////////////////////////////////////////////
-    const SoundBuffer* getBuffer() const;
+    const SoundBuffer& getBuffer() const;
 
     ////////////////////////////////////////////////////////////
     /// \brief Tell whether or not the sound is in loop mode
@@ -189,7 +195,7 @@ public:
     /// \return Current status of the sound
     ///
     ////////////////////////////////////////////////////////////
-    Status getStatus() const;
+    Status getStatus() const override;
 
     ////////////////////////////////////////////////////////////
     /// \brief Overload of assignment operator
@@ -199,31 +205,36 @@ public:
     /// \return Reference to self
     ///
     ////////////////////////////////////////////////////////////
-    Sound& operator =(const Sound& right);
-
-    ////////////////////////////////////////////////////////////
-    /// \brief Reset the internal buffer of the sound
-    ///
-    /// This function is for internal use only, you don't have
-    /// to use it. It is called by the sf::SoundBuffer that
-    /// this sound uses, when it is destroyed in order to prevent
-    /// the sound from using a dead buffer.
-    ///
-    ////////////////////////////////////////////////////////////
-    void resetBuffer();
+    Sound& operator=(const Sound& right);
 
 private:
+    friend class SoundBuffer;
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Detach sound from its internal buffer
+    ///
+    /// This allows the sound buffer to temporarily detach the
+    /// sounds that use it when the sound buffer gets updated.
+    ///
+    ////////////////////////////////////////////////////////////
+    void detachBuffer();
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Re-attach sound to its internal buffer
+    ///
+    /// This allows the sound buffer to attach back the sounds
+    /// that use it after the sound buffer has been updated.
+    ///
+    ////////////////////////////////////////////////////////////
+    void reattachBuffer();
 
     ////////////////////////////////////////////////////////////
     // Member data
     ////////////////////////////////////////////////////////////
-    const SoundBuffer* m_buffer; ///< Sound buffer bound to the source
+    const SoundBuffer* m_buffer{}; //!< Sound buffer bound to the source
 };
 
 } // namespace sf
-
-
-#endif // SFML_SOUND_HPP
 
 
 ////////////////////////////////////////////////////////////
@@ -244,7 +255,7 @@ private:
 ///
 /// In order to work, a sound must be given a buffer of audio
 /// data to play. Audio data (samples) is stored in sf::SoundBuffer,
-/// and attached to a sound with the setBuffer() function.
+/// and attached to a sound when it is created or with the setBuffer() function.
 /// The buffer object attached to a sound must remain alive
 /// as long as the sound uses it. Note that multiple sounds
 /// can use the same sound buffer at the same time.
@@ -252,10 +263,12 @@ private:
 /// Usage example:
 /// \code
 /// sf::SoundBuffer buffer;
-/// buffer.loadFromFile("sound.wav");
+/// if (!buffer.loadFromFile("sound.wav"))
+/// {
+///     // Handle error...
+/// }
 ///
-/// sf::Sound sound;
-/// sound.setBuffer(buffer);
+/// sf::Sound sound(buffer);
 /// sound.play();
 /// \endcode
 ///

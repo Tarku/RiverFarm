@@ -8,24 +8,24 @@ sf::RenderWindow* Interface::window;
 sf::Texture Interface::uiTexture;
 sf::Texture Interface::uiElementsBackground;
 
-sf::Sprite Interface::uiIconBackground;
+sf::Sprite* Interface::uiIconBackground = nullptr;
 
 unsigned char Interface::uiTextCount = 0;
 
 void Interface::CreateText(const std::string& tag, const std::string& stringToDraw, const v2f& position, const sf::Color& color, const float scale)
 {
-	sf::Text text = sf::Text(stringToDraw, font);
+	sf::Text text = sf::Text(font, stringToDraw);
 
 	text.setFillColor(color);
-	text.setScale(scale, scale);
+	text.setScale(v2f(scale, scale));
 
-	Interface::textDeclarations[tag] = text;
+	Interface::textDeclarations.insert(std::pair(tag, text));
 }
 
 // This uses normalized coordinates like (0.0f, 0.5f)
 void Interface::CreateNormalizedText(const std::string& tag, const std::string& stringToDraw, const sf::Vector2f& normalizedPosition, const sf::Color& color, const float scale, const bool adjustHorizontally)
 {
-	sf::Text text = sf::Text(stringToDraw, font);
+	sf::Text text = sf::Text(font, stringToDraw);
 
 	v2f absolutePosition = v2f(normalizedPosition.x * WINDOW_WIDTH, normalizedPosition.y * WINDOW_HEIGHT);
 
@@ -34,9 +34,9 @@ void Interface::CreateNormalizedText(const std::string& tag, const std::string& 
 
 	text.setFillColor(color);
 	text.setPosition(absolutePosition);
-	text.setScale(scale, scale);
+	text.setScale(v2f(scale, scale));
 
-	Interface::textDeclarations[tag] = text;
+	Interface::textDeclarations.insert(std::pair(tag, text));
 }
 
 void Interface::SetTextString(const std::string& tag, const std::string& newString)
@@ -48,12 +48,12 @@ void Interface::SetTextString(const std::string& tag, const std::string& newStri
 		return;
 	};
 
-	if (Interface::textDeclarations[tag].getString() == newString)
+	if (Interface::textDeclarations.at(tag).getString() == newString)
 	{
 		return;
 	}
 
-	Interface::textDeclarations[tag].setString(newString);
+	Interface::textDeclarations.at(tag).setString(newString);
 }
 
 
@@ -64,7 +64,7 @@ void Interface::Initialize(sf::RenderWindow* window)
 
 	Interface::uiTexture = *AtlasManager::GetAtlas(AtlasTextureID::UI);
 
-	Interface::uiIconBackground = sf::Sprite(Interface::uiTexture, sf::IntRect(0, 0, UI_ICON_WIDTH, UI_ICON_HEIGHT));
+	Interface::uiIconBackground = new sf::Sprite(Interface::uiTexture, sf::IntRect(v2i(0, 0), v2i(UI_ICON_WIDTH, UI_ICON_HEIGHT)));
 
 	Interface::window = window;
 }
@@ -73,7 +73,7 @@ void Interface::DrawText(const std::string& tag)
 {
 	if (!Interface::textDeclarations.contains(tag)) std::cerr << "Trying to draw text of an inexistant text with tag '" << tag << "'.\n";
 	
-	sf::Text text = Interface::textDeclarations[tag];
+	sf::Text text = Interface::textDeclarations.at(tag);
 
 	sf::Sprite uiBackgroundSprite = sf::Sprite(Interface::uiElementsBackground);
 
@@ -109,8 +109,8 @@ void Interface::ShowInventoryOverlay()
 		int itemAmount = Inventory::GetAmount((ItemID) shownItemId);
 		Item* item = ItemRegistry::Items[shownItemId];
 
-		itemIconSprite.setTextureRect(sf::IntRect(item->atlasID.x * TILE_SIZE, item->atlasID.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
-		itemIconSprite.setScale(2, 2);
+		itemIconSprite.setTextureRect(sf::IntRect(v2i(item->atlasID.x * TILE_SIZE, item->atlasID.y * TILE_SIZE), v2i(TILE_SIZE, TILE_SIZE)));
+		itemIconSprite.setScale(v2f(2, 2));
 
 		itemIconSprite.setPosition(
 			v2f(
@@ -120,10 +120,10 @@ void Interface::ShowInventoryOverlay()
 		);
 
 
-		sf::Text text = sf::Text(std::format("{}", itemAmount), font);
+		sf::Text text = sf::Text( font, std::format("{}", itemAmount));
 
 		text.setFillColor(sf::Color(255, 255, 255));
-		text.setScale(1, 1);
+		text.setScale(v2f(1, 1));
 
 		text.setPosition(
 			v2f(
@@ -134,7 +134,12 @@ void Interface::ShowInventoryOverlay()
 
 
 		uiBackgroundSprite.setPosition(v2f(WINDOW_WIDTH - 2 * TILE_SIZE - text.getGlobalBounds().width - 8, itemCounter * 2 * TILE_SIZE + 1));
-		uiBackgroundSprite.setScale(SCALED_TILE_SIZE + text.getGlobalBounds().width + 8, 2 * TILE_SIZE - 2);
+		
+		v2f uiBackgroundSize = v2f(
+			SCALED_TILE_SIZE + text.getGlobalBounds().width + 8,
+			2 * TILE_SIZE - 2
+		);
+		uiBackgroundSprite.setScale(uiBackgroundSize);
 
 		window->draw(uiBackgroundSprite);
 		window->draw(itemIconSprite);
@@ -147,21 +152,21 @@ void Interface::ShowInventoryOverlay()
 
 void Interface::DrawUIElement(AtlasID atlasID, const sf::Vector2f& absolutePosition, AtlasTextureID textureAtlas)
 {
-	sf::Sprite uiElementSprite = sf::Sprite(*AtlasManager::GetAtlas(textureAtlas), sf::IntRect(atlasID.x * UI_ICON_WIDTH, atlasID.y * UI_ICON_HEIGHT, UI_ICON_WIDTH, UI_ICON_HEIGHT));
+	sf::Sprite uiElementSprite = sf::Sprite(*AtlasManager::GetAtlas(textureAtlas), sf::IntRect(v2i(atlasID.x * UI_ICON_WIDTH, atlasID.y * UI_ICON_HEIGHT), v2i(UI_ICON_WIDTH, UI_ICON_HEIGHT)));
 	
-	Interface::uiIconBackground.setPosition(absolutePosition);
-	Interface::uiIconBackground.setScale(TEXTURE_SCALE, TEXTURE_SCALE);
+	Interface::uiIconBackground->setPosition(absolutePosition);
+	Interface::uiIconBackground->setScale(v2f(TEXTURE_SCALE, TEXTURE_SCALE));
 
 	uiElementSprite.setPosition(absolutePosition);
-	uiElementSprite.setScale(TEXTURE_SCALE, TEXTURE_SCALE);
+	uiElementSprite.setScale(v2f(TEXTURE_SCALE, TEXTURE_SCALE));
 
-	window->draw(Interface::uiIconBackground);
+	window->draw(*Interface::uiIconBackground);
 	window->draw(uiElementSprite);
 }
 
 void Interface::DrawUIElementNormalized(AtlasID atlasID, const sf::Vector2f& normalizedPosition, const bool adjustHorizontally, AtlasTextureID textureAtlas)
 {
-	sf::Sprite uiElementSprite = sf::Sprite(*AtlasManager::GetAtlas(textureAtlas), sf::IntRect(atlasID.x * UI_ICON_WIDTH, atlasID.y * UI_ICON_HEIGHT, UI_ICON_WIDTH, UI_ICON_HEIGHT));
+	sf::Sprite uiElementSprite = sf::Sprite(*AtlasManager::GetAtlas(textureAtlas), sf::IntRect(v2i(atlasID.x * UI_ICON_WIDTH, atlasID.y * UI_ICON_HEIGHT), v2i(UI_ICON_WIDTH, UI_ICON_HEIGHT)));
 
 	v2f absolutePosition = { normalizedPosition.x * WINDOW_WIDTH, normalizedPosition.y * WINDOW_HEIGHT };
 
@@ -170,17 +175,16 @@ void Interface::DrawUIElementNormalized(AtlasID atlasID, const sf::Vector2f& nor
 		absolutePosition -= v2f((uiElementSprite.getGlobalBounds().width * TEXTURE_SCALE) / 2, 0);
 	}
 
-	Interface::uiIconBackground.setPosition(absolutePosition);
-	Interface::uiIconBackground.setScale(TEXTURE_SCALE, TEXTURE_SCALE);
+	Interface::uiIconBackground->setPosition(absolutePosition);
+	Interface::uiIconBackground->setScale(v2f(TEXTURE_SCALE, TEXTURE_SCALE));
 
 	uiElementSprite.setPosition(absolutePosition);
-	uiElementSprite.setScale(TEXTURE_SCALE, TEXTURE_SCALE);
+	uiElementSprite.setScale(v2f(TEXTURE_SCALE, TEXTURE_SCALE));
 
-	window->draw(Interface::uiIconBackground);
+	window->draw(*Interface::uiIconBackground);
 	window->draw(uiElementSprite);
 }
 
 void Interface::Dispose()
 {
-
 }

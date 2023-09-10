@@ -31,10 +31,10 @@ void MovingEntity::Draw(sf::RenderWindow* window, v2f cameraPosition)
 
 	sf::Sprite spr = sf::Sprite(*entitiesAtlas);
 
-	spr.setTextureRect(sf::IntRect(atlasID.x * TILE_SIZE, atlasID.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
+	spr.setTextureRect(sf::IntRect(v2i(atlasID.x * TILE_SIZE, atlasID.y * TILE_SIZE), v2i(TILE_SIZE, TILE_SIZE)));
 	spr.setPosition(position * (float)SCALED_TILE_SIZE - cameraPosition);
 
-	spr.setScale(TEXTURE_SCALE, TEXTURE_SCALE);
+	spr.setScale(v2f(TEXTURE_SCALE, TEXTURE_SCALE));
 
 	window->draw(spr);
 

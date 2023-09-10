@@ -5,7 +5,8 @@
 
 enum CropID
 {
-	CropBarley
+	CropBarley,
+	CropGlasswort
 };
 
 class CropRegistry

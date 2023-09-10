@@ -1,4 +1,5 @@
 #include "Game.h"
+#include <Windows.h>
 #include <iostream>
 
 using namespace sf;
@@ -17,8 +18,20 @@ Game::Game()
 	Image iconImage;
 	iconImage.loadFromFile("Assets/icon.png");
 
+	Image cursorImage;
+	cursorImage.loadFromFile("Assets/cursor.png");
+
+	Cursor cursor;
+	
+	cursor.loadFromPixels(cursorImage.getPixelsPtr(), cursorImage.getSize(), Vector2u(0, 0));
+
 	m_window.setFramerateLimit(60);
-	m_window.setIcon(iconImage.getSize().x, iconImage.getSize().y, iconImage.getPixelsPtr());
+
+	m_window.setIcon(iconImage);
+
+	m_window.setMouseCursorGrabbed(true);
+	m_window.setMouseCursor(cursor);
+
 
 	Interface::Initialize(&m_window);
 	Utils::Initialize(&m_window);
