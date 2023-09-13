@@ -57,13 +57,13 @@ void Interface::Initialize(sf::RenderWindow* window)
 	Interface::font.loadFromFile(Interface::fontName);
 	Interface::uiElementsBackground.loadFromFile("Assets/ui_background.png");
 
-	Utils::Log("Initialized interface");
 
 	Interface::uiTexture = *AtlasManager::GetAtlas(AtlasTextureID::UI);
 
 	Interface::uiIconBackground = new sf::Sprite(Interface::uiTexture, sf::IntRect(v2i(0, 0), v2i(UI_ICON_WIDTH, UI_ICON_HEIGHT)));
 
 	Interface::window = window;
+	Utils::Log("Interface initialized.");
 }
 
 void Interface::DrawText(const std::string& tag)
@@ -81,12 +81,17 @@ void Interface::DrawText(const std::string& tag)
 
 
 	sf::Sprite uiBackgroundSprite = sf::Sprite(Interface::uiElementsBackground);
-
+	
 	uiBackgroundSprite.setPosition(v2f(textElement.text.getPosition().x - 4, textElement.text.getGlobalBounds().height / 2 + textElement.text.getPosition().y - 4));
 	uiBackgroundSprite.setScale(v2f(textElement.text.getGlobalBounds().width + 8, textElement.text.getGlobalBounds().height + 8));
 
 	window->draw(uiBackgroundSprite);
 	window->draw(textElement.text);
+}
+
+sf::Text& Interface::GetText(const std::string& tag)
+{
+		return textDeclarations.at(tag).text;
 }
 
 void Interface::ShowInventoryOverlay()

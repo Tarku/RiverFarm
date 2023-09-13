@@ -42,7 +42,8 @@ public:
 	void CreateNormalizedText(const std::string& tag, const std::string& stringToDraw, const sf::Vector2f& normalizedPosition, const v2f& adjust, const sf::Color& color = sf::Color::White, const float scale = 1.0f);
 
 	void SetTextString(const std::string& tag, const std::string& newString);
-
+	
+	sf::Text& GetText(const std::string& tag);
 	void DrawText(const std::string& tag);
 
 	void ShowInventoryOverlay();

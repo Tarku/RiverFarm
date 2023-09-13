@@ -144,6 +144,7 @@ void GameScene::Update(float dt)
 	{
 		entity->Update(&m_world, dt);
 	}
+
 	for (auto entity : World::EntitiesToDelete)
 	{
 		m_world.RemoveEntity(entity);
@@ -151,7 +152,6 @@ void GameScene::Update(float dt)
 	}
 
 	m_world.Update(m_cameraPosition, dt);
-
 
 	m_fps = 1.f / dt;
 
@@ -169,16 +169,13 @@ void GameScene::Update(float dt)
 
 void GameScene::Draw()
 {
-
-
 	m_cameraPosition = player->position * (float)SCALED_TILE_SIZE - v2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
-
-	m_cameraPosition.x = std::max(0, (int) m_cameraPosition.x);
-	m_cameraPosition.y = std::max(0, (int) m_cameraPosition.y);
 
 	int chunksRendered = m_world.DrawChunks(p_window, m_cameraPosition);
 
 	p_window->setTitle(std::format("River Farm - {} chunks rendered", chunksRendered));
+
+	// -- Draw player and other entities --
 
 	player->Draw(p_window, m_cameraPosition);
 
@@ -186,34 +183,83 @@ void GameScene::Draw()
 	{
 		entity->Draw(p_window, m_cameraPosition);
 	}
+
+	// -- Draw UI --
+	//  * Draw daynight overlay
+
+	const int pixelsPerHour = 50;
+
 	int currentHour = m_world.worldTime.hours;
 	int currentMinute = m_world.worldTime.minutes;
 
-	int lightOverlayPixelX = currentHour * 50 + (int) ( (currentMinute / 60.F) * 50.F);
+	int lightOverlayPixelX = currentHour * pixelsPerHour + (int)((currentMinute / 60.F) * pixelsPerHour);
 
+	//		For smooth transition between the two sides of the image
 	if (lightOverlayPixelX >= m_daynightCycleOverlay.getSize().x)
 	{
 		int difference = lightOverlayPixelX - m_daynightCycleOverlay.getSize().x;
 		lightOverlayPixelX = difference;
 	}
 
-
-
-	p_interface.DrawText(std::string("position_text"));
-	p_interface.DrawText(std::string("fps_text"));
-	p_interface.DrawText(std::string("ui_tool_name_text"));
-	p_interface.DrawText(std::string("current_hour"));
-	sf::Sprite daynightOverlaySprite = sf::Sprite(m_daynightCycleOverlay, IntRect(v2i(lightOverlayPixelX, 0), v2i(1, 1)));
+	Sprite daynightOverlaySprite = 
+		Sprite(
+			m_daynightCycleOverlay,
+			IntRect(
+				v2i(lightOverlayPixelX, 0),
+				v2i(1, 1)
+			)
+		);
 
 	daynightOverlaySprite.setScale(v2f(WINDOW_WIDTH, WINDOW_HEIGHT));
 	daynightOverlaySprite.setPosition(v2f(0, 0));
 
 	p_window->draw(daynightOverlaySprite, RenderStates(sf::BlendMultiply));
 
+	//  * Draw tool overlay
 	if (m_currentTool != nullptr)
 		m_currentTool->Draw(&p_interface);
 
+	//  * Draw text elements
+	p_interface.DrawText(std::string("position_text"));
+	p_interface.DrawText(std::string("fps_text"));
+	p_interface.DrawText(std::string("ui_tool_name_text"));
+	p_interface.DrawText(std::string("current_hour"));
+
+	//  * Draw inventory screen
 	p_interface.ShowInventoryOverlay();
+
+	// * Draw tool cursor
+	AtlasID cursorID = { 0, 0 };
+	bool shouldShowCursor = false;
+
+	v2f worldMousePosition = ScreenToWorld(m_mousePosition);
+	
+	if (m_currentTool != nullptr)
+	{
+		cursorID = m_currentTool->uiIcon;
+		shouldShowCursor = m_currentTool->CanBeUsedHere(&m_world, worldMousePosition);
+	}
+
+	if (shouldShowCursor)
+	{
+		IntRect cursorImgRect = IntRect(
+			v2i(cursorID.x * UI_ICON_WIDTH, cursorID.y * UI_ICON_HEIGHT),
+			v2i(UI_ICON_WIDTH, UI_ICON_HEIGHT)
+		);
+
+		Sprite toolCursorSprite = Sprite(*AtlasManager::GetAtlas(AtlasTextureID::UI), cursorImgRect);
+
+		v2f cursorPosition = {
+			m_mousePosition.x + 16,
+			m_mousePosition.y + 16
+		};
+
+		toolCursorSprite.setPosition(cursorPosition);
+		toolCursorSprite.setScale(v2f(1.5f, 1.5f));
+
+		p_window->draw(toolCursorSprite);
+	}
+
 
 }
 

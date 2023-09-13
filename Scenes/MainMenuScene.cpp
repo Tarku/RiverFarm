@@ -1,33 +1,88 @@
 #include "SceneDeclarations.h"
 #include "SceneManager.h"
 
+using namespace sf;
+
 void MainMenuScene::Initialize(sf::RenderWindow* window)
 {
 	p_window = window;
-
 	p_interface = Interface();
+	MainMenuSelectionElement::Initialize(window);
+
+	int counter = 0;
+	float fontScreenRatio = 30.f / WINDOW_HEIGHT;
+
+	for (auto& element : m_mainMenuElements)
+	{
+		p_interface.CreateNormalizedText(std::format("main_menu_selection_element_{}", counter), element.label, v2f(0.5f, 0.5f + counter * fontScreenRatio), v2f(0.5f, 0.5f));
+			counter++;
+	}
+
 
 	p_interface.CreateNormalizedText(std::string("main_menu_text"), "River Farm", v2f(0.5f, 0), v2f(0.5f, 0.f));
+
 }
+
+RenderWindow* MainMenuScene::MainMenuSelectionElement::window = nullptr;
+
+void MainMenuScene::MainMenuSelectionElement::cb_StartGame()
+{
+	SceneManager::ChangeScene(SceneManager::gameScene);
+
+}
+
+
+void MainMenuScene::MainMenuSelectionElement::cb_QuitGame()
+{
+	window->close();
+}
+
+
+void MainMenuScene::MainMenuSelectionElement::cb_Options()
+{
+
+}
+
 
 void MainMenuScene::HandleEvents()
 {
-
 	while (p_window->pollEvent(p_event))
 	{
-		if (p_event.type == sf::Event::Closed)
+		if (p_event.type == Event::Closed)
 		{
 			p_window->close();
 		}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+		if (p_event.type == Event::KeyPressed)
 		{
-			p_window->close();
-		}
+			switch (p_event.key.code)
+			{
+			case Keyboard::Escape:
+				p_window->close();
+				break;
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
-		{
-			SceneManager::ChangeScene(SceneManager::gameScene);
+			case Keyboard::Enter:
+				m_mainMenuElements.at(m_currentMMenuElementID).callback();
+				break;
+			case Keyboard::Up:
+				m_currentMMenuElementID--;
+				break;
+			case Keyboard::Down:
+				m_currentMMenuElementID++;
+				break;
+			}
+
+			char menuElementsCount = m_mainMenuElements.size();
+
+			if (m_currentMMenuElementID < 0)
+			{
+				m_currentMMenuElementID = menuElementsCount - 1;
+			}
+
+			if (m_currentMMenuElementID > menuElementsCount - 1)
+			{
+				m_currentMMenuElementID = 0;
+			}
 		}
 	}
 }
@@ -36,59 +91,40 @@ void MainMenuScene::Update(float dt)
 {
 	HandleEvents();
 
-	m_angle += dt;
+	int counter = 0;
 
-	if (m_angle > TWO_PI)
-		m_angle = 0;
-
-
-	m_tileChangeTimer += dt;
-
-	if (m_tileChangeTimer > 1)
+	for (auto& element : m_mainMenuElements)
 	{
-		m_tileChangeTimer = 0;
-		tileId++;
+		bool isSelected = (counter == m_currentMMenuElementID);
+
+		std::string tag = std::format("main_menu_selection_element_{}", counter);
+
+		Color fillColor = isSelected ? Color::Yellow : Color::White;
+		float textScale = isSelected ? 1.2f : 1.f;
+
+		Text& text = p_interface.GetText(tag);
+		
+		text.setFillColor(fillColor);
+		text.setScale(v2f(textScale, textScale));
+
+		counter++;
 	}
-
-	if (tileId >= TileRegistry::TileCount())
-		tileId = 0;
-
-	m_blockPosition.x += 5 * dt * (m_startingBlockPosition.x * sinf(m_angle) - m_startingBlockPosition.y * cosf(m_angle));
-	m_blockPosition.y += 5 * dt * (m_startingBlockPosition.x * cosf(m_angle) + m_startingBlockPosition.y * sinf(m_angle));
-
-	Utils::Log(std::format("bx : {}; by : {}", roundf(m_blockPosition.x), roundf(m_blockPosition.y)));
 }
+
 void MainMenuScene::Draw() 
 {
-
-	sf::Sprite tileBackgroundSprite = sf::Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Tiles), sf::IntRect(v2i(0, 0), v2i(TILE_SIZE, TILE_SIZE)));
+	sf::Sprite tileBackgroundSprite = sf::Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Tiles));
 	
-	const float scale = 2.f;
+	p_interface.DrawText(std::string("main_menu_text"));
 
-	v2f transformedBlockPosition = (m_blockPosition) + v2f(16.f, 16.f);
+	int counter = 0;
 
-	const int horizontalSquares = (int) ( (WINDOW_WIDTH / TILE_SIZE) / scale ) ;
-	const int verticalSquares = (int) ( (WINDOW_HEIGHT / TILE_SIZE) / scale );
-
-	int totalSquares = horizontalSquares * verticalSquares;
-
-
-	for (int y = 0; y < verticalSquares; y++)
+	for (auto& element : m_mainMenuElements)
 	{
-		for (int x = 0; x < horizontalSquares; x++)
-		{
-			Tile* t = TileRegistry::Tiles[tileId];
-			
-			tileBackgroundSprite.setTextureRect(sf::IntRect(v2i(t->textureId.x * TILE_SIZE, t->textureId.y * TILE_SIZE), v2i(TILE_SIZE, TILE_SIZE)));
-			tileBackgroundSprite.setPosition(v2f(x * TILE_SIZE * scale, y * TILE_SIZE * scale));
-
-			tileBackgroundSprite.setScale(v2f(scale, scale));
-
-			p_window->draw(tileBackgroundSprite);
-		}
+		p_interface.DrawText(std::format("main_menu_selection_element_{}", counter));
+		counter++;
 	}
 
-	p_interface.DrawText(std::string("main_menu_text"));
 }
 void MainMenuScene::Dispose()
 {

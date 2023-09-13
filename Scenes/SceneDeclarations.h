@@ -8,6 +8,8 @@
 #include "../Inventory/Inventory.h"
 #include "../Tools/ToolDeclarations.h"
 
+#include <functional>
+
 class GameScene : public IScene
 {
 private:
@@ -23,7 +25,7 @@ private:
 
 	sf::Texture m_daynightCycleOverlay;
 
-	AgriculturalTool* m_currentTool;
+	AgriculturalTool* m_currentTool = nullptr;
 
 	v2f m_cameraPosition = v2f(0, 0);
 	v2f m_mousePosition = v2f(0, 0);
@@ -61,14 +63,41 @@ public:
 class MainMenuScene : public IScene
 {
 private:
-	const v2f m_startingBlockPosition { 1, 0 };
-	v2f m_blockPosition = m_startingBlockPosition;
-	
-	float tileId = 0;
 
-	float m_tileChangeTimer = 0;
 
-	float m_angle = 0;
+	struct MainMenuSelectionElement
+	{
+		static RenderWindow* window;
+
+		std::string label;
+		std::function<void()> callback;
+
+		static inline void Initialize(RenderWindow* window)
+		{
+			MainMenuSelectionElement::window = window;
+		}
+
+		static void cb_StartGame();
+		static void cb_QuitGame();
+		static void cb_Options();
+
+		inline MainMenuSelectionElement(const std::string& label, std::function<void()> callbackFunction)
+		{
+			this->label = label;
+			this->callback = callbackFunction;
+		}
+	};
+
+
+	std::vector<MainMenuSelectionElement> m_mainMenuElements = std::vector<MainMenuSelectionElement>
+	{
+		MainMenuSelectionElement(std::string("Start game"), MainMenuSelectionElement::cb_StartGame),
+		MainMenuSelectionElement(std::string("Options"), MainMenuSelectionElement::cb_Options),
+		MainMenuSelectionElement(std::string("Quit game"), MainMenuSelectionElement::cb_QuitGame)
+	};
+	char m_currentMMenuElementID = 0;
+
+
 public:
 	inline MainMenuScene() {};
 
