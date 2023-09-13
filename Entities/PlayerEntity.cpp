@@ -35,7 +35,7 @@ bool Entity::WillCollideWithBlock(const v2f& velocity, World* world)
 
 void PlayerEntity::Update(World* world, float dt)
 {
-	if (sf::Keyboard::isKeyPressed(Keyboard::Z))
+	if (sf::Keyboard::isKeyPressed(Keyboard::Up))
 	{
 		m_directionalSpriteID = { 0, 1 };
 
@@ -49,7 +49,7 @@ void PlayerEntity::Update(World* world, float dt)
 		}
 	}
 
-	if (sf::Keyboard::isKeyPressed(Keyboard::S))
+	if (sf::Keyboard::isKeyPressed(Keyboard::Down))
 	{
 		m_directionalSpriteID = { 0, 0 };
 
@@ -63,7 +63,7 @@ void PlayerEntity::Update(World* world, float dt)
 		}
 	}
 
-	if (sf::Keyboard::isKeyPressed(Keyboard::Q))
+	if (sf::Keyboard::isKeyPressed(Keyboard::Left))
 	{
 		m_directionalSpriteID = { 0, 2 };
 
@@ -77,7 +77,7 @@ void PlayerEntity::Update(World* world, float dt)
 		}
 	}
 
-	if (sf::Keyboard::isKeyPressed(Keyboard::D))
+	if (sf::Keyboard::isKeyPressed(Keyboard::Right))
 	{
 		m_directionalSpriteID = { 0, 3 };
 		if (WillCollideWithBlock(dt * v2f(1, 0) * 4.f, world))
