@@ -185,6 +185,7 @@
     <ClInclude Include="Inventory\Item.h" />
     <ClInclude Include="Inventory\ItemID.h" />
     <ClInclude Include="Inventory\ItemRegistry.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Scenes\Scene.h" />
     <ClInclude Include="Scenes\SceneDeclarations.h" />
     <ClInclude Include="Scenes\SceneManager.h" />
@@ -207,6 +208,12 @@
   <ItemGroup>
     <None Include=".gitignore" />
     <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="RiverFarm.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
