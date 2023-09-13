@@ -160,7 +160,7 @@ void CowEntity::Draw(sf::RenderWindow* window, v2f cameraPosition)
 					stateString,
 					round(milkFullness * 100)
 				)
-			), 14u);
+			), 16u);
 
 		fullnessText.setFillColor(sf::Color(255, 255, 255, 255));
 		fullnessText.setOutlineColor(sf::Color(0, 0, 0, 255));

@@ -48,6 +48,11 @@ void GameScene::HandleEvents()
 		Vector2i m = Mouse::getPosition(*p_window);
 
 		m_mousePosition = v2f((float)m.x, (float)m.y);
+		v2f worldMousePosition = ScreenToWorld(m_mousePosition);
+
+		v2f mouseToPlayerVector = worldMousePosition - player->position;
+
+		m_isCurrentToolTargetInRange = mouseToPlayerVector.length() <= 3;
 
 		if (p_event.type == Event::Closed)
 			p_window->close();
@@ -65,13 +70,17 @@ void GameScene::HandleEvents()
 				break;
 
 			case Keyboard::G:
-				GameScene::showChunkBorders = !GameScene::showChunkBorders;
+				m_drawChunkBorders = !m_drawChunkBorders;
+				break;
+
+			case Keyboard::F3:
+				m_drawDebugMenu = !m_drawDebugMenu;
 				break;
 
 			case Keyboard::P:
 				World::WorldEntities.push_back(
 					new CowEntity(
-						ScreenToWorld(m_mousePosition)
+						worldMousePosition
 					)
 				);
 				break;
@@ -103,20 +112,19 @@ void GameScene::HandleEvents()
 
 		if (p_event.type == Event::MouseButtonPressed)
 		{
-			v2f mousePosition = ScreenToWorld(m_mousePosition);
 			switch (p_event.mouseButton.button)
 			{
 			case Mouse::Left:
 
-				if (m_world.InBounds(mousePosition, 0) && m_currentTool->CanBeUsedHere(&m_world, mousePosition))
+				if (m_world.InBounds(worldMousePosition, 0) && m_currentTool->CanBeUsedHere(&m_world, worldMousePosition) && m_isCurrentToolTargetInRange)
 				{
-					m_currentTool->OnUse(&m_world, mousePosition);
+					m_currentTool->OnUse(&m_world, worldMousePosition);
 				}
 				break;
 			case Mouse::Right:
-				if (m_world.InBounds(mousePosition, 0))
+				if (m_world.InBounds(worldMousePosition, 0) && m_isCurrentToolTargetInRange)
 				{
-					m_currentTool->OnRightClick(&m_world, mousePosition);
+					m_currentTool->OnRightClick(&m_world, worldMousePosition);
 				}
 				break;
 			}
@@ -171,7 +179,7 @@ void GameScene::Draw()
 {
 	m_cameraPosition = player->position * (float)SCALED_TILE_SIZE - v2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 
-	int chunksRendered = m_world.DrawChunks(p_window, m_cameraPosition);
+	int chunksRendered = m_world.DrawChunks(p_window, m_cameraPosition, m_drawChunkBorders);
 
 	p_window->setTitle(std::format("River Farm - {} chunks rendered", chunksRendered));
 
@@ -220,8 +228,12 @@ void GameScene::Draw()
 		m_currentTool->Draw(&p_interface);
 
 	//  * Draw text elements
-	p_interface.DrawText(std::string("position_text"));
-	p_interface.DrawText(std::string("fps_text"));
+	if (m_drawDebugMenu)
+	{
+		p_interface.DrawText(std::string("position_text"));
+		p_interface.DrawText(std::string("fps_text"));
+	}
+
 	p_interface.DrawText(std::string("ui_tool_name_text"));
 	p_interface.DrawText(std::string("current_hour"));
 
@@ -237,7 +249,7 @@ void GameScene::Draw()
 	if (m_currentTool != nullptr)
 	{
 		cursorID = m_currentTool->uiIcon;
-		shouldShowCursor = m_currentTool->CanBeUsedHere(&m_world, worldMousePosition);
+		shouldShowCursor = m_currentTool->CanBeUsedHere(&m_world, worldMousePosition) && m_isCurrentToolTargetInRange;
 	}
 
 	if (shouldShowCursor)

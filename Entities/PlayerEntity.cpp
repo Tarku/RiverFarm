@@ -102,6 +102,8 @@ void PlayerEntity::Update(World* world, float dt)
 
 void PlayerEntity::Draw(sf::RenderWindow* window, v2f cameraPosition)
 {
+	Entity::Draw(window, cameraPosition);
+
 	Sprite s = Sprite(*Entity::entitiesAtlas, IntRect(v2i(atlasID.x * TILE_SIZE, atlasID.y * TILE_SIZE), v2i(TILE_SIZE, TILE_SIZE)));
 
 	s.setPosition(v2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));

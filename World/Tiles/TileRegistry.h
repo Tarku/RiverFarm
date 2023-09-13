@@ -22,7 +22,7 @@ public:
 		new Tile("Watered Tilled Soil", AtlasID(2, 1), ItemID::ItemDirt, TileProperties(false, true, false, true, PlantSubstrateProperties(true, 1.f))),
 		new Tile("Sand", AtlasID(3, 1), ItemID::ItemSand, TileProperties(true, true, false, true)),
 
-		new Tile("Stone", AtlasID(1, 2), ItemID::ItemSand, TileProperties(false, false, false, true)),
+		new Tile("Stone", std::make_tuple(AtlasID(5, 2), AtlasID(1, 2)), ItemID::ItemSand, TileProperties(false, false, false, true)),
 		new Tile("Gravel", AtlasID(2, 2), ItemID::ItemSand, TileProperties(false, true, false, true)),
 		new Tile("Flowers", AtlasID(3, 2), ItemID::ItemFlowers, TileProperties(true, true, false, false)),
 

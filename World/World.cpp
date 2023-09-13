@@ -164,23 +164,6 @@ void World::DoWorldGen()
 			else
 			{
 				bool isDesert = finalBiomeValue < 0.30;
-
-				if (erosionValue >= 0.85)
-				{
-
-					SetTile(v2f(x, y), 0, TileID::Stone);
-					continue;
-				}
-				else if (erosionValue > 0.65 && erosionValue < 0.85)
-				{
-					SetTile(v2f(x, y), 0, isDesert ? TileID::Sand : TileID::Dirt);
-				}
-				else {
-					SetTile(Vector2f(x, y), 0, isDesert ? TileID::Sand : TileID::Grass);
-				}
-
-				
-
 				int chanceForTreeSpawn = finalBiomeValue > 0.94f ? 1 : 8;
 
 				if (Utils::RandInt(0, chanceForTreeSpawn) == 0)
@@ -188,8 +171,29 @@ void World::DoWorldGen()
 					SetTile(Vector2f(x, y), 1, isDesert ? TileID::Cactus : TileID::Shrub);
 				}
 
-				if (Utils::RandInt(0, 8 - chanceForTreeSpawn) == 1 && !isDesert)
+				if (erosionValue >= 0.78)
+				{
+
+					SetTile(v2f(x, y), 1, TileID::Stone);
+					continue;
+				}
+				else if (erosionValue < 0.78 && erosionValue > 0.68)
+				{
+
+					SetTile(v2f(x, y), 0, TileID::Stone);
+					continue;
+				}
+				else if (erosionValue > 0.52 && erosionValue < 0.68)
+				{
+					SetTile(v2f(x, y), 0, isDesert ? TileID::Sand : TileID::Dirt);
+				}
+				else {
+					SetTile(Vector2f(x, y), 0, isDesert ? TileID::Sand : TileID::Grass);
+				}
+
+				if (Utils::RandInt(0, 21) == 0 && !isDesert && TileAt(v2f(x,y), 1) == TileID::Air)
 					SetTile(Vector2f(x, y), 1, TileID::Flowers);
+
 			}
 
 
@@ -251,7 +255,7 @@ void World::AttemptSpreadWater(const v2f& position)
 	AttemptSpreadWater(Vector2f(position.x, position.y - 1));
 }
 
-int World::DrawChunks(RenderWindow* window, const v2f& cameraPosition)
+int World::DrawChunks(RenderWindow* window, const v2f& cameraPosition, bool drawChunkBorders)
 {
 	int chunksDrawn = 0;
 	Vertex vertices[4] = {};
@@ -275,7 +279,7 @@ int World::DrawChunks(RenderWindow* window, const v2f& cameraPosition)
 				chunksDrawn++;
 			}
 
-			if (GameScene::showChunkBorders)
+			if (drawChunkBorders)
 			{
 
 				vertices[0] = Vertex(v2f(chunkX * SCALED_TILE_SIZE * CHUNK_WIDTH, chunkY * SCALED_TILE_SIZE * CHUNK_WIDTH) - cameraPosition);

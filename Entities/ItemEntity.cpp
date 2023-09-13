@@ -56,6 +56,8 @@ void ItemEntity::Update(World* world, float dt)
 
 void ItemEntity::Draw(sf::RenderWindow* window, v2f cameraPosition)
 {
+	Entity::Draw(window, cameraPosition);
+
 	if (m_itemID == -1) return; // Doesn't get drawn if the item is air
 
 	Item i = *ItemRegistry::Items[m_itemID];
@@ -67,6 +69,19 @@ void ItemEntity::Draw(sf::RenderWindow* window, v2f cameraPosition)
 	s.setScale(v2f(m_scale, m_scale));
 
 	window->draw(s);
+
+	if (p_isHovered)
+	{
+		Text descriptionText = Text(Interface::font, i.name, 16u);
+
+		descriptionText.setFillColor(sf::Color(255, 255, 255, 255));
+		descriptionText.setOutlineColor(sf::Color(0, 0, 0, 255));
+
+		sf::FloatRect textSize = descriptionText.getGlobalBounds();
+		descriptionText.setPosition(v2f(position.x * (float)SCALED_TILE_SIZE - cameraPosition.x - textSize.width / 2.f + SCALED_TILE_SIZE / 2, position.y * (float)SCALED_TILE_SIZE - cameraPosition.y - 14));
+
+		window->draw(descriptionText);
+	}
 }
 
 void ItemEntity::HandleEvents(sf::Event* event)

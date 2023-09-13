@@ -23,9 +23,14 @@ private:
 	const float MAX_TOOL_COOLDOWN = 0.25f;
 	float m_toolCooldown = 0;
 
+	bool m_isCurrentToolTargetInRange = false;
+
 	sf::Texture m_daynightCycleOverlay;
 
 	AgriculturalTool* m_currentTool = nullptr;
+
+	bool m_drawChunkBorders = false;
+	bool m_drawDebugMenu = false;
 
 	v2f m_cameraPosition = v2f(0, 0);
 	v2f m_mousePosition = v2f(0, 0);
@@ -43,7 +48,7 @@ private:
 
 public:
 	inline static PlayerEntity* player = nullptr;
-	inline static bool showChunkBorders = false;
+	
 
 	inline GameScene() {};
 

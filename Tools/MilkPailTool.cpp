@@ -42,11 +42,11 @@ void MilkPailTool::OnUse(World* world, const v2f& position)
 	{
 	case ActionMilkCow:
 		if (m_lastCowMilked != nullptr) m_lastCowMilked->milkFullness = 0;
-		Inventory::Add(ItemID::ItemMilk, 1);
+		world->AddItemEntity(position, ItemID::ItemMilk);
 		break;
 	case ActionTakeWater:
 		TileRegistry::Tiles[world->TileAt(position, 0)]->OnTileBreak(position, world, 0);
-		Inventory::Add(ItemID::ItemWater, 1);
+		world->AddItemEntity(position, ItemID::ItemWater);
 		break;
 
 	}

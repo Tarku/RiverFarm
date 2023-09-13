@@ -41,7 +41,7 @@ public:
 	void Dispose();
 	void AddDecorations();
 
-	int DrawChunks(RenderWindow* window, const v2f& cameraPosition);
+	int DrawChunks(RenderWindow* window, const v2f& cameraPosition, bool drawChunkBorders);
 
 	void DoWorldGen();
 
