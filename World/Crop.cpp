@@ -77,9 +77,11 @@ BarleyCrop::BarleyCrop () {
 	this->name = std::string("Barley");
 
 	this->baseGrowthRate = 0.05f;
+	this->textureID = { 2, 3 };
 
 	this->itemDrop = ItemID::ItemBarley;
 	this->seedItemDrop = ItemID::ItemBarleySeeds;
+	this->isHalophyte = false;
 }
 
 GlasswortCrop::GlasswortCrop()
@@ -87,6 +89,7 @@ GlasswortCrop::GlasswortCrop()
 	this->name = std::string("Glasswort");
 
 	this->baseGrowthRate = 0.028f;
+	this->textureID = { 3, 3 };
 
 	this->itemDrop = ItemID::ItemGlasswort;
 	this->seedItemDrop = ItemID::ItemGlasswortSeeds;

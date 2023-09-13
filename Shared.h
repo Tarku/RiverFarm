@@ -59,6 +59,8 @@ using v2u = sf::Vector2u;
 using uchar = unsigned char;
 using uint = unsigned int;
 
+constexpr v2f ZERO_VEC = v2f(0.f, 0.f);
+
 const v2f neighbors[8] = {
 	v2f(-1, -1), v2f(0, -1),  v2f(1, -1),
 	v2f(-1, 0),						v2f(1, 0),

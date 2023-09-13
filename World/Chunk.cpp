@@ -126,6 +126,28 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 				
 			AtlasID tileAtlasId = currentCrop->textureID;
 
+			// draw the first two pickets behind the crop
+
+			AtlasID cropDelimiter = { 4, 3 };
+			m_tileSprite.setTextureRect(
+				IntRect(
+					v2i(cropDelimiter.x * TILE_SIZE, cropDelimiter.y * TILE_SIZE),
+					v2i(TILE_SIZE, TILE_SIZE / 2)
+				)
+			);
+
+			m_tileSprite.setPosition(
+				v2f(
+					(position.x + x) * SCALED_TILE_SIZE,
+					(position.y + y) * SCALED_TILE_SIZE
+				) - (v2f)cameraPosition
+			);
+
+			m_tileSprite.setScale(v2f(TEXTURE_SCALE, TEXTURE_SCALE));
+			window->draw(m_tileSprite);
+
+			// draw the actual crop
+
 			m_tileSprite.setTextureRect(IntRect(v2i(tileAtlasId.x * TILE_SIZE, tileAtlasId.y * TILE_SIZE), v2i(TILE_SIZE, TILE_SIZE)));
 
 			float g = currentCrop->growth;
@@ -138,6 +160,25 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 			);
 
 			m_tileSprite.setScale(v2f(TEXTURE_SCALE * g, TEXTURE_SCALE * g));
+			window->draw(m_tileSprite);
+
+
+			// draw the last two pickets in front of the crop
+			m_tileSprite.setTextureRect(
+				IntRect(
+					v2i(cropDelimiter.x * TILE_SIZE, cropDelimiter.y * TILE_SIZE + TILE_SIZE / 2),
+					v2i(TILE_SIZE, TILE_SIZE / 2)
+				)
+			);
+
+			m_tileSprite.setPosition(
+				v2f(
+					(position.x + x) * SCALED_TILE_SIZE,
+					(position.y + y) * SCALED_TILE_SIZE + SCALED_TILE_SIZE / 2
+				) - (v2f)cameraPosition
+			);
+
+			m_tileSprite.setScale(v2f(TEXTURE_SCALE, TEXTURE_SCALE));
 			window->draw(m_tileSprite);
 		}
 	}

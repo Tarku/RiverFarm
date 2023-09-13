@@ -17,6 +17,7 @@ public:
 
 	virtual inline bool CanBeUsedHere(World* world, const sf::Vector2f& position) { return false; };
 	virtual inline void OnUse(World* world, const sf::Vector2f& position) {};
+	virtual inline void OnRightClick(World* world, const v2f& position) {};
 
 	virtual void Draw(Interface* inter);
 };
@@ -63,13 +64,14 @@ public:
 class SeedBagTool : public AgriculturalTool
 {
 private:
-	ItemID m_currentSeedItem = ItemBarleySeeds;
+	CropID m_currentCrop = CropID::CropBarley;
 
 public:
 	SeedBagTool();
 
 	virtual bool CanBeUsedHere(World* world, const sf::Vector2f& position) override;
 	virtual void OnUse(World* world, const sf::Vector2f& position) override;
+	virtual void OnRightClick(World* world, const v2f& position) override;
 
 	virtual void Draw(Interface* inter) override;
 };

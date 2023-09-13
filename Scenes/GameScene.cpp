@@ -12,14 +12,19 @@ void GameScene::Initialize(RenderWindow* window)
 
 	player = new PlayerEntity(v2f(MAP_WIDTH / 2, MAP_HEIGHT / 2));
 
-	m_daynightCycleOverlay.loadFromFile("Assets/daynight_overlay.png");
+	bool couldLoadDNCOverlay = m_daynightCycleOverlay.loadFromFile("Assets/daynight_overlay.png");
+
+	if (!couldLoadDNCOverlay)
+	{
+		Utils::Log("Couldn't load daynight cycle overlay!");
+	}
 
 	Inventory::Initialize();
 
-	p_interface.CreateNormalizedText(std::string("ui_tool_name_text"), "", v2f(0.5f, 0.075f));
-	p_interface.CreateNormalizedText(std::string("fps_text"), "", v2f(0.0f, 0.00f), sf::Color::Yellow, 1.0F, false);
-	p_interface.CreateNormalizedText(std::string("position_text"), "", v2f(0.f, 0.1f), sf::Color::White, 1.0F, true);
-	p_interface.CreateNormalizedText(std::string("current_hour"), "", v2f(0.5f, 0.950f), sf::Color::White, 1.0F, true);
+	p_interface.CreateNormalizedText(std::string("ui_tool_name_text"), "", v2f(0.5f, 0.075f), v2f(0.5, 0.0f));
+	p_interface.CreateNormalizedText(std::string("fps_text"), "", ZERO_VEC, ZERO_VEC, sf::Color::Yellow);
+	p_interface.CreateNormalizedText(std::string("position_text"), "", v2f(0.f, 0.1f), ZERO_VEC);
+	p_interface.CreateNormalizedText(std::string("current_hour"), "", v2f(0.5f, 0.950f), v2f(0.5f, 0.f));
 
 	Utils::Log("World created.");
 
@@ -96,20 +101,26 @@ void GameScene::HandleEvents()
 				m_currentToolIndex = 0;
 		}
 
-		if (p_event.type == Event::MouseButtonPressed && p_event.mouseButton.button == Mouse::Left)
-			m_toolCooldown = MAX_TOOL_COOLDOWN;
-
-		if (Mouse::isButtonPressed(Mouse::Left))
+		if (p_event.type == Event::MouseButtonPressed)
 		{
 			v2f mousePosition = ScreenToWorld(m_mousePosition);
-
-			if (m_toolCooldown >= MAX_TOOL_COOLDOWN && m_world.InBounds(mousePosition, 0) && m_currentTool->CanBeUsedHere(&m_world, mousePosition))
+			switch (p_event.mouseButton.button)
 			{
-				m_currentTool->OnUse(&m_world, mousePosition);
-				m_toolCooldown = 0;
+			case Mouse::Left:
+
+				if (m_world.InBounds(mousePosition, 0) && m_currentTool->CanBeUsedHere(&m_world, mousePosition))
+				{
+					m_currentTool->OnUse(&m_world, mousePosition);
+				}
+				break;
+			case Mouse::Right:
+				if (m_world.InBounds(mousePosition, 0))
+				{
+					m_currentTool->OnRightClick(&m_world, mousePosition);
+				}
+				break;
 			}
 		}
-
 
 		player->HandleEvents(&p_event);
 
@@ -148,7 +159,7 @@ void GameScene::Update(float dt)
 	p_interface.SetTextString(std::string("fps_text"), std::format("FPS: {}", (int)m_fps));
 	p_interface.SetTextString(std::string("position_text"), std::format("Player X, Y: {}, {}", (int)player->position.x, (int)player->position.y));
 
-	p_interface.SetTextString(std::string("current_hour"), m_world.worldTime.GetHourString());
+	p_interface.SetTextString(std::string("current_hour"), m_world.worldTime.GetDateString());
 
 
 	m_gameTime += dt;
@@ -176,9 +187,23 @@ void GameScene::Draw()
 		entity->Draw(p_window, m_cameraPosition);
 	}
 	int currentHour = m_world.worldTime.hours;
+	int currentMinute = m_world.worldTime.minutes;
+
+	int lightOverlayPixelX = currentHour * 50 + (int) ( (currentMinute / 60.F) * 50.F);
+
+	if (lightOverlayPixelX >= m_daynightCycleOverlay.getSize().x)
+	{
+		int difference = lightOverlayPixelX - m_daynightCycleOverlay.getSize().x;
+		lightOverlayPixelX = difference;
+	}
 
 
-	sf::Sprite daynightOverlaySprite = sf::Sprite(m_daynightCycleOverlay, IntRect(v2i(currentHour, 0), v2i(1, 1)));
+
+	p_interface.DrawText(std::string("position_text"));
+	p_interface.DrawText(std::string("fps_text"));
+	p_interface.DrawText(std::string("ui_tool_name_text"));
+	p_interface.DrawText(std::string("current_hour"));
+	sf::Sprite daynightOverlaySprite = sf::Sprite(m_daynightCycleOverlay, IntRect(v2i(lightOverlayPixelX, 0), v2i(1, 1)));
 
 	daynightOverlaySprite.setScale(v2f(WINDOW_WIDTH, WINDOW_HEIGHT));
 	daynightOverlaySprite.setPosition(v2f(0, 0));
@@ -187,11 +212,6 @@ void GameScene::Draw()
 
 	if (m_currentTool != nullptr)
 		m_currentTool->Draw(&p_interface);
-
-	p_interface.DrawText(std::string("position_text"));
-	p_interface.DrawText(std::string("fps_text"));
-	p_interface.DrawText(std::string("ui_tool_name_text"));
-	p_interface.DrawText(std::string("current_hour"));
 
 	p_interface.ShowInventoryOverlay();
 

@@ -12,6 +12,7 @@ sf::Sprite* Interface::uiIconBackground = nullptr;
 
 unsigned char Interface::uiTextCount = 0;
 
+/*
 void Interface::CreateText(const std::string& tag, const std::string& stringToDraw, const v2f& position, const sf::Color& color, const float scale)
 {
 	sf::Text text = sf::Text(font, stringToDraw);
@@ -19,41 +20,35 @@ void Interface::CreateText(const std::string& tag, const std::string& stringToDr
 	text.setFillColor(color);
 	text.setScale(v2f(scale, scale));
 
+
+
 	Interface::textDeclarations.insert(std::pair(tag, text));
-}
+}*/
 
 // This uses normalized coordinates like (0.0f, 0.5f)
-void Interface::CreateNormalizedText(const std::string& tag, const std::string& stringToDraw, const sf::Vector2f& normalizedPosition, const sf::Color& color, const float scale, const bool adjustHorizontally)
+void Interface::CreateNormalizedText(const std::string& tag, const std::string& stringToDraw, const v2f& normalizedPosition, const v2f& adjust, const sf::Color& color, const float scale)
 {
 	sf::Text text = sf::Text(font, stringToDraw);
 
-	v2f absolutePosition = v2f(normalizedPosition.x * WINDOW_WIDTH, normalizedPosition.y * WINDOW_HEIGHT);
-
-	if (adjustHorizontally)
-		absolutePosition -= v2f(text.getGlobalBounds().width / 2, 0);
-
 	text.setFillColor(color);
-	text.setPosition(absolutePosition);
 	text.setScale(v2f(scale, scale));
 
-	Interface::textDeclarations.insert(std::pair(tag, text));
+	UITextElement textElement = UITextElement(text, normalizedPosition, adjust);
+
+	Interface::textDeclarations.insert(std::pair(tag, textElement));
 }
 
 void Interface::SetTextString(const std::string& tag, const std::string& newString)
 {
-
 	if (!Interface::textDeclarations.contains(tag))
 	{
 		std::cerr << "Trying to set text of an inexistant text with tag '" << tag << "\'." << std::endl;
 		return;
 	};
 
-	if (Interface::textDeclarations.at(tag).getString() == newString)
-	{
-		return;
-	}
-
-	Interface::textDeclarations.at(tag).setString(newString);
+	auto& textElement = Interface::textDeclarations.at(tag);
+	
+	textElement.text.setString(sf::String(newString));
 }
 
 
@@ -61,6 +56,8 @@ void Interface::Initialize(sf::RenderWindow* window)
 {
 	Interface::font.loadFromFile(Interface::fontName);
 	Interface::uiElementsBackground.loadFromFile("Assets/ui_background.png");
+
+	Utils::Log("Initialized interface");
 
 	Interface::uiTexture = *AtlasManager::GetAtlas(AtlasTextureID::UI);
 
@@ -72,16 +69,24 @@ void Interface::Initialize(sf::RenderWindow* window)
 void Interface::DrawText(const std::string& tag)
 {
 	if (!Interface::textDeclarations.contains(tag)) std::cerr << "Trying to draw text of an inexistant text with tag '" << tag << "'.\n";
-	
-	sf::Text text = Interface::textDeclarations.at(tag);
+
+
+	UITextElement& textElement = Interface::textDeclarations.at(tag);
+
+	textElement.text.setPosition(
+		v2f(textElement.normalizedPosition.x * WINDOW_WIDTH, textElement.normalizedPosition.y * WINDOW_HEIGHT)
+		-
+		v2f(textElement.adjust.x * textElement.text.getGlobalBounds().width, textElement.adjust.y * textElement.text.getGlobalBounds().height)
+	);
+
 
 	sf::Sprite uiBackgroundSprite = sf::Sprite(Interface::uiElementsBackground);
 
-	uiBackgroundSprite.setPosition(v2f(text.getPosition().x - 4, text.getGlobalBounds().height / 2 + text.getPosition().y - 4));
-	uiBackgroundSprite.setScale(v2f(text.getGlobalBounds().width + 8, text.getGlobalBounds().height + 8));
+	uiBackgroundSprite.setPosition(v2f(textElement.text.getPosition().x - 4, textElement.text.getGlobalBounds().height / 2 + textElement.text.getPosition().y - 4));
+	uiBackgroundSprite.setScale(v2f(textElement.text.getGlobalBounds().width + 8, textElement.text.getGlobalBounds().height + 8));
 
 	window->draw(uiBackgroundSprite);
-	window->draw(text);
+	window->draw(textElement.text);
 }
 
 void Interface::ShowInventoryOverlay()

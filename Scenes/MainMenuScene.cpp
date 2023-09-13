@@ -7,7 +7,7 @@ void MainMenuScene::Initialize(sf::RenderWindow* window)
 
 	p_interface = Interface();
 
-	p_interface.CreateNormalizedText(std::string("main_menu_text"), "River Farm", v2f(0.5f, 0));
+	p_interface.CreateNormalizedText(std::string("main_menu_text"), "River Farm", v2f(0.5f, 0), v2f(0.5f, 0.f));
 }
 
 void MainMenuScene::HandleEvents()

@@ -4,6 +4,20 @@
 #include "Inventory/Inventory.h"
 #include "AtlasManager.h"
 
+class UITextElement
+{
+public:
+	sf::Text text;
+
+	v2f normalizedPosition;
+	v2f adjust;
+
+	UITextElement(const sf::Text& _text, const v2f& _normalizedPosition, const v2f& _adjust) : text(_text)
+	{
+		this->normalizedPosition = _normalizedPosition;
+		this->adjust = _adjust;
+	}
+};
 
 class Interface
 {
@@ -13,7 +27,7 @@ private:
 
 	static sf::Texture uiElementsBackground;
 
-	std::map<const std::string, sf::Text> textDeclarations;
+	std::map<const std::string, UITextElement> textDeclarations;
 
 	static uchar uiTextCount;
 public:
@@ -24,8 +38,8 @@ public:
 
 	Interface() {};
 
-	void CreateText(const std::string& tag, const std::string& text, const v2f& position, const sf::Color& color = sf::Color::White, const float scale = 1.f);
-	void CreateNormalizedText(const std::string& tag, const std::string& stringToDraw, const sf::Vector2f& normalizedPosition, const sf::Color& color = sf::Color::White, const float scale = 1.f, const bool adjustHorizontally = true);
+	// void CreateText(const std::string& tag, const std::string& text, const v2f& position, const sf::Color& color = sf::Color::White, const float scale = 1.f);
+	void CreateNormalizedText(const std::string& tag, const std::string& stringToDraw, const sf::Vector2f& normalizedPosition, const v2f& adjust, const sf::Color& color = sf::Color::White, const float scale = 1.0f);
 
 	void SetTextString(const std::string& tag, const std::string& newString);
 

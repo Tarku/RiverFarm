@@ -20,7 +20,7 @@ public:
 	float baseGrowthRate;
 	ItemID itemDrop;
 	ItemID seedItemDrop;
-	AtlasID textureID = AtlasID(2, 3);
+	AtlasID textureID;
 
 	float growth = 0.0f;
 	float actualGrowthRate;

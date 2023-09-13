@@ -16,14 +16,28 @@ Game::Game()
 	}
 
 	Image iconImage;
-	iconImage.loadFromFile("Assets/icon.png");
+	bool couldLoadIconImage = iconImage.loadFromFile("Assets/icon.png");
+
+	if (!couldLoadIconImage)
+	{
+		Utils::Log("Couldn't load icon image!");
+	}
 
 	Image cursorImage;
-	cursorImage.loadFromFile("Assets/cursor.png");
+	bool couldLoadCursorImage = cursorImage.loadFromFile("Assets/cursor.png");
+
+	if (!couldLoadCursorImage)
+	{
+		Utils::Log("Couldn't load cursor image!");
+	}
 
 	Cursor cursor;
-	
-	cursor.loadFromPixels(cursorImage.getPixelsPtr(), cursorImage.getSize(), Vector2u(0, 0));
+	bool couldInitCursor = cursor.loadFromPixels(cursorImage.getPixelsPtr(), cursorImage.getSize(), Vector2u(0, 0));
+
+	if (!couldInitCursor)
+	{
+		Utils::Log("Couldn't initialize cursor!");
+	}
 
 	m_window.setFramerateLimit(60);
 

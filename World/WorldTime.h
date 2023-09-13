@@ -21,7 +21,7 @@ struct WorldTime
 		days = 0;
 		weeks = 0;
 		months = 0;
-		years = 0;
+		years = 1000;
 	}
 
 	inline void Update()
@@ -80,5 +80,35 @@ struct WorldTime
 		}
 
 		return std::format("{}:{}", hourString, minutesString);
+	}
+
+	inline std::string GetDateString()
+	{
+		std::string yearString = std::format("{}", years);
+		std::string monthString = std::format("{}", months);
+		std::string dayString = std::format("{}", days);
+
+		if (monthString.size() == 1)
+		{
+			monthString.insert(0, std::string("0"));
+		}
+		if (dayString.size() == 1)
+		{
+			dayString.insert(0, std::string("0"));
+		}
+
+		std::string hourString = std::format("{}", hours);
+		std::string minutesString = std::format("{}", minutes);
+
+		if (hourString.size() == 1)
+		{
+			hourString.insert(0, std::string("0"));
+		}
+		if (minutesString.size() == 1)
+		{
+			minutesString.insert(0, std::string("0"));
+		}
+
+		return std::format("{}/{}/{} {}:{}", yearString, monthString, dayString, hourString, minutesString);
 	}
 };
