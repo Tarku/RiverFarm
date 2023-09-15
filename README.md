@@ -4,7 +4,7 @@
 
 RiverFarm is WIP farming simulation game with inspiration from many games like Minecraft, its younger brother Minicraft, as well as Stardew Valley.
 
-<img src="preview.png" alt= “Preview image of the game” width="350" height="350">
+<img src="preview.png" alt= “Preview image of the game” width="350" height="350"/>
 ## Features
 
  * Chunk-based rendering.
