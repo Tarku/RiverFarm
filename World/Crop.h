@@ -25,6 +25,8 @@ public:
 	float growth = 0.0f;
 	float actualGrowthRate;
 
+	bool hasRightSoil = false;
+	bool hasWater = false;
 	bool isFullyGrown = false;
 	bool isGrowing = true;
 

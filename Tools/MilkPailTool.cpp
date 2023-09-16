@@ -45,7 +45,7 @@ void MilkPailTool::OnUse(World* world, const v2f& position)
 		world->AddItemEntity(position, ItemID::ItemMilk);
 		break;
 	case ActionTakeWater:
-		TileRegistry::Tiles[world->TileAt(position, 0)]->OnTileBreak(position, world, 0);
+		world->SetTile(position, 0, TileID::Air, false);
 		world->AddItemEntity(position, ItemID::ItemWater);
 		break;
 

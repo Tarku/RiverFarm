@@ -37,7 +37,7 @@ void Chunk::Update(float dt)
 	// Random tick update
 
 	const int blocksToUpdate = 
-		(CHUNK_WIDTH * CHUNK_HEIGHT * MAP_LEVELS) / 20;
+		(CHUNK_WIDTH * CHUNK_HEIGHT * MAP_LEVELS) / 90;
 
 	for (int i = 0; i < blocksToUpdate; i++)
 	{

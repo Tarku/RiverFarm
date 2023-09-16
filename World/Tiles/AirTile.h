@@ -8,5 +8,6 @@ class AirTile : public Tile
 public:
 	AirTile();
 
-	void OnUpdate(const v2f& position, World* world, int layer = 0) override;
+	//void OnUpdate(const v2f& position, World* world, int layer = 0) override;
+	void OnRandomUpdate(const v2f& position, World* world, int layer = 0) override;
 };

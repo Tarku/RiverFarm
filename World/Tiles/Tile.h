@@ -64,7 +64,7 @@ public:
 
 	TileProperties tileProperties;
 
-	AtlasID groundId;
+	AtlasID groundId = {0, 0};
 
 	Tile();
 

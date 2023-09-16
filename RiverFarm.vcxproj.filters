@@ -144,6 +144,9 @@
     <ClCompile Include="World\Tiles\TilledSandTile.cpp">
       <Filter>Source Files\World\Tiles</Filter>
     </ClCompile>
+    <ClCompile Include="Scenes\OptionsScene.cpp">
+      <Filter>Source Files\Scenes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">

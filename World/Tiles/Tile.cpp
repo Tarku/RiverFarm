@@ -13,7 +13,7 @@ Tile::Tile(const std::string& name, const AtlasID& textureId, const ItemID& item
 	this->itemDrop = itemDrop;
 	this->tileProperties = tileProperties;
 
-	this->groundId = textureId;
+	this->groundId = this->textureId;
 }
 
 Tile::Tile(const std::string& name, const std::tuple<AtlasID, AtlasID>& textureIds, const ItemID& itemDrop, const TileProperties& tileProperties)

@@ -43,7 +43,6 @@ Game::Game()
 
 	m_window.setIcon(iconImage);
 
-	m_window.setMouseCursorGrabbed(true);
 	m_window.setMouseCursor(cursor);
 
 

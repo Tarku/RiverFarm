@@ -63,6 +63,7 @@ public:
 	void Draw() override;
 
 	void Dispose() override;
+
 };
 
 class MainMenuScene : public IScene

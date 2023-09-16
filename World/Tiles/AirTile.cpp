@@ -9,7 +9,8 @@ AirTile::AirTile()
 	this->tileProperties = TileProperties();
 }
 
-void AirTile::OnUpdate(const v2f& position, World* world, int layer)
+
+void AirTile::OnRandomUpdate(const v2f& position, World* world, int layer)
 {
 	if (layer == 1) return;
 

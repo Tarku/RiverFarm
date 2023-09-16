@@ -13,9 +13,10 @@ void Crop::OnUpdate(const v2f& position, Chunk* parentChunk, float dt)
 
 	uchar groundTileId = parentChunk->TileAt(position, 0);
 
-	bool hasCorrectSoil = isHalophyte ? (groundTileId == TileID::WateredTilledSand) : (groundTileId == TileID::WateredTilledSoil);
+	hasRightSoil = isHalophyte ? (groundTileId == TileID::WateredTilledSand) : (groundTileId == TileID::WateredTilledSoil);
+	hasWater = (groundTileId == TileID::WateredTilledSand) || (groundTileId == TileID::WateredTilledSoil);
 
-	if (!hasCorrectSoil)
+	if (!hasRightSoil)
 	{
 		isGrowing = false;
 		return;

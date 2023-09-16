@@ -111,6 +111,64 @@ void World::AddDecorations()
 	}
 }
 
+
+void World::SaveWorldToImage()
+{
+	Utils::Log("Saving world to image...");
+	Image tileAtlasCopy = AtlasManager::GetAtlas(AtlasTextureID::Tiles)->copyToImage();
+
+	Image outputImage;
+	outputImage.create(v2u(MAP_WIDTH, MAP_HEIGHT));
+
+	for (int y = 0; y < MAP_HEIGHT; y++)
+	{
+		for (int x = 0; x < MAP_WIDTH; x++)
+		{
+			Tile* tile = TileRegistry::Tiles.at(TileAt(x, y, 0));
+			Tile* topTile = TileRegistry::Tiles.at(TileAt(x, y, 1));
+
+			Color tilePx = tileAtlasCopy.getPixel(
+				v2u(
+					tile->groundId.x * TILE_SIZE,
+					tile->groundId.y * TILE_SIZE
+				)
+			);
+
+			Color finalPx;
+
+			if (TileAt(x, y, 1) == TileID::Air)
+			{
+				finalPx = tilePx;
+			}
+			else
+			{
+				Color topTilePx = tileAtlasCopy.getPixel(
+					v2u(
+						topTile->textureId.x * TILE_SIZE,
+						topTile->textureId.y * TILE_SIZE
+					)
+				);
+
+				finalPx = Color(
+					(uint8_t)((tilePx.r + topTilePx.r) * 0.5f),
+					(uint8_t)((tilePx.g + topTilePx.g) * 0.5f),
+					(uint8_t)((tilePx.b + topTilePx.b) * 0.5f)
+				);
+			}
+
+			outputImage.setPixel(v2u(x, y), finalPx);
+
+		}
+	}
+
+	bool couldSave = outputImage.saveToFile("world.png");
+	
+	if (couldSave)
+		Utils::Log("World saved.");
+	else
+		Utils::Log("World couldn't be saved.");
+}
+
 void World::DoWorldGen()
 {
 	ResetWorld();

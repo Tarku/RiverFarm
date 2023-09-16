@@ -156,6 +156,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Scenes\GameScene.cpp" />
     <ClCompile Include="Scenes\MainMenuScene.cpp" />
+    <ClCompile Include="Scenes\OptionsScene.cpp" />
     <ClCompile Include="Scenes\SceneManager.cpp" />
     <ClCompile Include="Tools\AxeTool.cpp" />
     <ClCompile Include="Tools\HoeTool.cpp" />

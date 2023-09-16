@@ -26,6 +26,8 @@ void GameScene::Initialize(RenderWindow* window)
 	p_interface.CreateNormalizedText(std::string("position_text"), "", v2f(0.f, 0.1f), ZERO_VEC);
 	p_interface.CreateNormalizedText(std::string("current_hour"), "", v2f(0.5f, 0.950f), v2f(0.5f, 0.f));
 
+	p_interface.CreateNormalizedText(std::string("tile_hovered"), "", v2f(0.0f, 0.95f), v2f(0.f, 0.f));
+
 	Utils::Log("World created.");
 
 	m_world.DoWorldGen();
@@ -67,6 +69,9 @@ void GameScene::HandleEvents()
 
 			case Keyboard::R:
 				m_world.DoWorldGen();
+				break;
+			case Keyboard::O:
+				m_world.SaveWorldToImage();
 				break;
 
 			case Keyboard::G:
@@ -169,6 +174,65 @@ void GameScene::Update(float dt)
 
 	p_interface.SetTextString(std::string("current_hour"), m_world.worldTime.GetDateString());
 
+	v2f worldMousePosition = ScreenToWorld(m_mousePosition);
+
+	auto worldChunkCoords = m_world.WorldToChunkPosition(worldMousePosition);
+
+	v2f chunkPosition = std::get<0>(worldChunkCoords);
+	v2f inChunkPositionOffset = std::get<1>(worldChunkCoords);
+
+	Crop* cropAtMousePos = m_world.GetChunk(chunkPosition)->CropAt(inChunkPositionOffset);
+
+	bool isCropAtMousePos = (cropAtMousePos != nullptr);
+
+	std::string cropString = "";
+
+	if (isCropAtMousePos)
+	{
+		bool isGrowing = cropAtMousePos->isGrowing;
+		bool isFullyGrown = cropAtMousePos->isFullyGrown;
+
+		std::string status = "";
+
+		if (isGrowing)
+			status = "G";
+		else
+		{
+
+			status = "NG";
+
+			if (!cropAtMousePos->hasWater)
+				status = "NG NW";
+			else if (!cropAtMousePos->hasRightSoil)
+				status = "NG WS";
+		}
+
+		if (isFullyGrown)
+			status = "HR";
+
+
+
+		cropString = std::format("{} {}% {}", cropAtMousePos->name,   roundf(cropAtMousePos->growth * 100), status);
+	}
+
+	uchar groundTileAtMousePos = m_world.TileAt(worldMousePosition, 0);
+	uchar topTileAtMousePos = m_world.TileAt(worldMousePosition, 1);
+	uchar tileHovered;
+
+	if (topTileAtMousePos == TileID::Air)
+		tileHovered = groundTileAtMousePos;
+	else
+		tileHovered = topTileAtMousePos;
+
+	std::string tileHoveredText;
+
+	if (isCropAtMousePos)
+		tileHoveredText = cropString;
+	else
+		tileHoveredText = TileRegistry::Tiles[tileHovered]->name;
+
+	p_interface.SetTextString(std::string("tile_hovered"), tileHoveredText);
+
 
 	m_gameTime += dt;
 	m_toolCooldown += dt;
@@ -236,6 +300,7 @@ void GameScene::Draw()
 
 	p_interface.DrawText(std::string("ui_tool_name_text"));
 	p_interface.DrawText(std::string("current_hour"));
+	p_interface.DrawText(std::string("tile_hovered"));
 
 	//  * Draw inventory screen
 	p_interface.ShowInventoryOverlay();

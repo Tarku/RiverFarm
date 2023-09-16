@@ -30,7 +30,7 @@ void ItemEntity::Update(World* world, float dt)
 
 	bool hasToBeRemoved = false;
 
-	if (GameScene::player->GetRectangle().findIntersection(this->GetRectangle()) != std::nullopt)
+	if (m_lifetime > 0.15f && GameScene::player->GetRectangle().findIntersection(this->GetRectangle()) != std::nullopt)
 	{
 		Inventory::Add((ItemID) m_itemID, 1);
 		hasToBeRemoved = true;

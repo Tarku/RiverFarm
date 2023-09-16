@@ -43,6 +43,7 @@ public:
 
 	int DrawChunks(RenderWindow* window, const v2f& cameraPosition, bool drawChunkBorders);
 
+	void SaveWorldToImage();
 	void DoWorldGen();
 
 	void AttemptSpreadWater(const v2f& position);
