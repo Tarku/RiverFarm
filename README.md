@@ -10,7 +10,11 @@ RiverFarm is WIP farming simulation game with inspiration from many games like M
  * 6 tools (Axe, Shovel, Hoe, Scythe, Milk Pail, Seed Bag).
  * Perlin noise based world generation.
 
+---
+
 ![Preview of the game](preview.png "This is a preview of the game")
+
+---
 
 ## Upcoming/Planned
 
