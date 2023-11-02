@@ -16,6 +16,7 @@ v2f Utils::GetMousePosition()
 	return v2f(sf::Mouse::getPosition(*m_window));
 }
 
+
 time_t Utils::GetTimestamp()
 {
 	return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();

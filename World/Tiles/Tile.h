@@ -32,7 +32,7 @@ struct TileProperties
 	// This determines if the tile is solid or not (aka. a wall)
 	bool isSolid = false;
 	// This holds values about the tile's quality as a substrate
-	PlantSubstrateProperties substrateProperties;
+	PlantSubstrateProperties substrateProperties{};
 
 	// By default, all properties are set to false.
 	TileProperties()
@@ -57,12 +57,12 @@ struct TileProperties
 class Tile
 {
 public:
-	std::string name = "Unknown";
-	AtlasID textureId = { 0, 0 };
+	std::string name{};
+	AtlasID textureId{};
 
 	ItemID itemDrop = ItemID::Null;
 
-	TileProperties tileProperties;
+	TileProperties tileProperties{};
 
 	AtlasID groundId = {0, 0};
 

@@ -1,11 +1,19 @@
 #include "Interface.h"
 #include "AtlasManager.h"
 #include "Utils.h"
+#include "Tools/ToolRegistry.h"
 
 std::string Interface::fontName = "Assets/font.ttf";
 sf::Font Interface::font;
 sf::RenderWindow* Interface::window;
 sf::Texture Interface::uiTexture;
+
+sf::Texture Interface::uiRightArrow;
+sf::Texture Interface::uiLeftArrow;
+
+sf::Sprite* Interface::uiRightArrowSprite = nullptr;
+sf::Sprite* Interface::uiLeftArrowSprite = nullptr;
+
 sf::Texture Interface::uiElementsBackground;
 
 sf::Sprite* Interface::uiIconBackground = nullptr;
@@ -22,41 +30,95 @@ void Interface::CreateText(const std::string& tag, const std::string& stringToDr
 
 
 
-	Interface::textDeclarations.insert(std::pair(tag, text));
+	Interface::elementDeclarations.insert(std::pair(tag, text));
 }*/
 
 // This uses normalized coordinates like (0.0f, 0.5f)
 void Interface::CreateNormalizedText(const std::string& tag, const std::string& stringToDraw, const v2f& normalizedPosition, const v2f& adjust, const sf::Color& color, const float scale)
 {
-	sf::Text text = sf::Text(font, stringToDraw);
+	Text* text = new Text(font, stringToDraw);
 
-	text.setFillColor(color);
-	text.setScale(v2f(scale, scale));
+	text->setFillColor(color);
+	text->setScale(v2f(scale, scale));
 
-	UITextElement textElement = UITextElement(text, normalizedPosition, adjust);
+	UINormalizedTextElement* textElement = new UINormalizedTextElement(text, normalizedPosition, adjust);
 
-	Interface::textDeclarations.insert(std::pair(tag, textElement));
+	Interface::elementDeclarations.insert(std::pair(tag, textElement));
 }
+
+void Interface::CreateNormalizedImage(const std::string& tag, const sf::Texture& textureToDraw, const v2f& normalizedPosition, const v2f& adjust, bool wobbles)
+{
+
+	UIImageElement* imgElement = new UIImageElement(textureToDraw, normalizedPosition, adjust);
+
+	imgElement->wobbles = wobbles;
+
+	Interface::elementDeclarations.insert(std::pair(tag, imgElement));
+}
+
+void Interface::CreateText(const std::string& tag, const std::string& stringToDraw, const v2f& position, const v2f& adjust, const sf::Color& color, const float scale)
+{
+	sf::Text* text = new sf::Text(font, stringToDraw);
+
+	text->setFillColor(color);
+	text->setScale(v2f(scale, scale));
+
+	UITextElement* textElement = new UITextElement(text, position, adjust);
+
+	Interface::elementDeclarations.insert(std::pair(tag, textElement));
+}
+
+void Interface::DrawImageElement(const std::string& tag)
+{
+
+	UIImageElement* imgElement = dynamic_cast<UIImageElement*>(elementDeclarations.at(tag));
+
+	assert(imgElement != nullptr);
+
+	imgElement->Draw(window);
+}
+
 
 void Interface::SetTextString(const std::string& tag, const std::string& newString)
 {
-	if (!Interface::textDeclarations.contains(tag))
-	{
-		std::cerr << "Trying to set text of an inexistant text with tag '" << tag << "\'." << std::endl;
-		return;
-	};
+	assert(Interface::elementDeclarations.contains(tag));
 
-	auto& textElement = Interface::textDeclarations.at(tag);
+	BaseUITextElement* textElement = dynamic_cast<BaseUITextElement*>(elementDeclarations.at(tag));
+
+	if (textElement == nullptr)
+	{
+		throw std::exception();
+	}
 	
-	textElement.text.setString(sf::String(newString));
+	textElement->text->setString(sf::String(newString));
 }
 
+void Interface::Update(float dt)
+{
+	for (const auto& [tag, element] : elementDeclarations)
+	{
+		element->Update(dt);
+	}
+}
 
 void Interface::Initialize(sf::RenderWindow* window)
 {
-	Interface::font.loadFromFile(Interface::fontName);
-	Interface::uiElementsBackground.loadFromFile("Assets/ui_background.png");
+	
+	bool couldLoadFont = Interface::font.loadFromFile(Interface::fontName);
+	assert(couldLoadFont);
 
+	bool couldLoadUIBackground = Interface::uiElementsBackground.loadFromFile("Assets/ui_background.png");
+	assert(couldLoadUIBackground);
+
+	bool couldLoadUILeftArrow = Interface::uiLeftArrow.loadFromFile("Assets/left_arrow.png");
+	assert(couldLoadUILeftArrow);
+
+	uiLeftArrowSprite = new Sprite(Interface::uiLeftArrow);
+
+	bool couldLoadUIRightArrow = Interface::uiRightArrow.loadFromFile("Assets/right_arrow.png");
+	assert(couldLoadUIRightArrow);
+
+	uiRightArrowSprite = new Sprite(Interface::uiRightArrow);
 
 	Interface::uiTexture = *AtlasManager::GetAtlas(AtlasTextureID::UI);
 
@@ -66,32 +128,137 @@ void Interface::Initialize(sf::RenderWindow* window)
 	Utils::Log("Interface initialized.");
 }
 
+void Interface::ShowToolOverlay(const int currentToolIndex)
+{
+	int previousToolIndex = currentToolIndex - 1;
+	int nextToolIndex = currentToolIndex + 1;
+
+	if (previousToolIndex < 0)
+		previousToolIndex = ToolRegistry::ToolCount() - 1;
+
+	if (nextToolIndex < 0)
+		nextToolIndex = ToolRegistry::ToolCount() - 1;
+
+	if (previousToolIndex >= ToolRegistry::ToolCount())
+		previousToolIndex = 0;
+
+	if (nextToolIndex >= ToolRegistry::ToolCount())
+		nextToolIndex = 0;
+
+	AgriculturalTool* currentTool = ToolRegistry::Tools.at(currentToolIndex);
+	AgriculturalTool* previousTool = ToolRegistry::Tools.at(previousToolIndex);
+	AgriculturalTool* nextTool = ToolRegistry::Tools.at(nextToolIndex);
+
+
+
+	if (previousTool != nullptr)
+	{
+		v2f position = v2f(.5f, 0.f) * (float)WINDOW_WIDTH;
+
+		position.x -= (UI_ICON_WIDTH * 2.75f);
+		position.y += (UI_ICON_HEIGHT / 3);
+
+		DrawUIElement(previousTool->uiIcon, position, UI, 0.75f);
+	}
+
+	if (nextTool != nullptr)
+	{
+		v2f position = v2f(.5f, 0.f) * (float)WINDOW_WIDTH;
+
+		position.x += (UI_ICON_WIDTH * 1.25f);
+		position.y += (UI_ICON_HEIGHT / 3);
+
+		DrawUIElement(nextTool->uiIcon, position, UI, 0.75f);
+	}
+	//  * Draw tool overlay
+	if (currentTool != nullptr)
+	{
+		currentTool->Draw(this);
+	}
+
+	// * Drawing left arrow
+
+	if (&Interface::uiLeftArrowSprite != nullptr)
+	{
+		sf::FloatRect bounds = Interface::uiLeftArrowSprite->getGlobalBounds();
+
+		v2f position = v2f(0.5f, 0.f) * (float)WINDOW_WIDTH;
+
+		position.x -= (UI_ICON_WIDTH * 2.75f);
+		position.x -= bounds.width * 1.5f;
+		position.y += (UI_ICON_HEIGHT / 2);
+
+		Interface::uiLeftArrowSprite->setPosition(position);
+
+		window->draw(*Interface::uiLeftArrowSprite);
+	}
+
+	// * Drawing right arrow
+
+	if (&Interface::uiRightArrowSprite != nullptr)
+	{
+		sf::FloatRect bounds = Interface::uiRightArrowSprite->getGlobalBounds();
+
+		v2f position = v2f(0.5f, 0.f) * (float)WINDOW_WIDTH;
+
+		position.x += (UI_ICON_WIDTH * 2.75f);
+		position.x += bounds.width * 0.5f;
+		position.y += (UI_ICON_HEIGHT / 2);
+
+		Interface::uiRightArrowSprite->setPosition(position);
+
+		window->draw(*Interface::uiRightArrowSprite);
+	}
+}
+
 void Interface::DrawText(const std::string& tag)
 {
-	if (!Interface::textDeclarations.contains(tag)) std::cerr << "Trying to draw text of an inexistant text with tag '" << tag << "'.\n";
+	if (!Interface::elementDeclarations.contains(tag)) std::cerr << "Trying to draw text of an inexistant text with tag '" << tag << "'.\n";
 
 
-	UITextElement& textElement = Interface::textDeclarations.at(tag);
+	BaseUITextElement* textElement = dynamic_cast<BaseUITextElement*>(elementDeclarations.at(tag));
 
-	textElement.text.setPosition(
-		v2f(textElement.normalizedPosition.x * WINDOW_WIDTH, textElement.normalizedPosition.y * WINDOW_HEIGHT)
+	if (textElement == nullptr)
+	{
+		return;
+	}
+
+	UINormalizedTextElement* normalizedTextElement = dynamic_cast<UINormalizedTextElement*>(textElement);
+
+	if (normalizedTextElement != nullptr)
+	{
+
+		textElement->absolutePosition = v2f(normalizedTextElement->normalizedPosition.x * WINDOW_WIDTH, normalizedTextElement->normalizedPosition.y * WINDOW_HEIGHT);
+		
+	}
+
+	textElement->text->setPosition(
+		textElement->absolutePosition
 		-
-		v2f(textElement.adjust.x * textElement.text.getGlobalBounds().width, textElement.adjust.y * textElement.text.getGlobalBounds().height)
+		v2f(textElement->adjust.x * textElement->text->getGlobalBounds().width, textElement->adjust.y * textElement->text->getGlobalBounds().height)
 	);
-
 
 	sf::Sprite uiBackgroundSprite = sf::Sprite(Interface::uiElementsBackground);
 	
-	uiBackgroundSprite.setPosition(v2f(textElement.text.getPosition().x - 4, textElement.text.getGlobalBounds().height / 2 + textElement.text.getPosition().y - 4));
-	uiBackgroundSprite.setScale(v2f(textElement.text.getGlobalBounds().width + 8, textElement.text.getGlobalBounds().height + 8));
+	uiBackgroundSprite.setPosition(v2f(textElement->text->getPosition().x - 16, textElement->text->getGlobalBounds().height / 2 + textElement->text->getPosition().y - 4));
+	uiBackgroundSprite.setScale(v2f(textElement->text->getGlobalBounds().width + 32, textElement->text->getGlobalBounds().height + 8) / 10.f);
 
 	window->draw(uiBackgroundSprite);
-	window->draw(textElement.text);
+	window->draw(*textElement->text);
 }
 
-sf::Text& Interface::GetText(const std::string& tag)
+BaseUITextElement& Interface::GetText(const std::string& tag)
 {
-		return textDeclarations.at(tag).text;
+	auto element = elementDeclarations.at(tag);
+
+	BaseUITextElement* textElement = dynamic_cast<BaseUITextElement*>(element);
+
+	if (textElement == 0)
+	{
+
+	}
+
+		return *textElement;
 }
 
 void Interface::ShowInventoryOverlay()
@@ -160,21 +327,21 @@ void Interface::ShowInventoryOverlay()
 	}
 }
 
-void Interface::DrawUIElement(AtlasID atlasID, const sf::Vector2f& absolutePosition, AtlasTextureID textureAtlas)
+void Interface::DrawUIElement(AtlasID atlasID, const sf::Vector2f& absolutePosition, AtlasTextureID textureAtlas, float scale)
 {
 	sf::Sprite uiElementSprite = sf::Sprite(*AtlasManager::GetAtlas(textureAtlas), sf::IntRect(v2i(atlasID.x * UI_ICON_WIDTH, atlasID.y * UI_ICON_HEIGHT), v2i(UI_ICON_WIDTH, UI_ICON_HEIGHT)));
 	
 	Interface::uiIconBackground->setPosition(absolutePosition);
-	Interface::uiIconBackground->setScale(v2f(TEXTURE_SCALE, TEXTURE_SCALE));
+	Interface::uiIconBackground->setScale(v2f(TEXTURE_SCALE, TEXTURE_SCALE) * scale);
 
 	uiElementSprite.setPosition(absolutePosition);
-	uiElementSprite.setScale(v2f(TEXTURE_SCALE, TEXTURE_SCALE));
+	uiElementSprite.setScale(v2f(TEXTURE_SCALE, TEXTURE_SCALE) * scale);
 
 	window->draw(*Interface::uiIconBackground);
 	window->draw(uiElementSprite);
 }
 
-void Interface::DrawUIElementNormalized(AtlasID atlasID, const sf::Vector2f& normalizedPosition, const bool adjustHorizontally, AtlasTextureID textureAtlas)
+void Interface::DrawUIElementNormalized(AtlasID atlasID, const sf::Vector2f& normalizedPosition, const bool adjustHorizontally, AtlasTextureID textureAtlas, float scale)
 {
 	sf::Sprite uiElementSprite = sf::Sprite(*AtlasManager::GetAtlas(textureAtlas), sf::IntRect(v2i(atlasID.x * UI_ICON_WIDTH, atlasID.y * UI_ICON_HEIGHT), v2i(UI_ICON_WIDTH, UI_ICON_HEIGHT)));
 
@@ -182,14 +349,14 @@ void Interface::DrawUIElementNormalized(AtlasID atlasID, const sf::Vector2f& nor
 
 	if (adjustHorizontally)
 	{
-		absolutePosition -= v2f((uiElementSprite.getGlobalBounds().width * TEXTURE_SCALE) / 2, 0);
+		absolutePosition -= v2f((uiElementSprite.getGlobalBounds().width * TEXTURE_SCALE * scale) / 2, 0);
 	}
 
 	Interface::uiIconBackground->setPosition(absolutePosition);
-	Interface::uiIconBackground->setScale(v2f(TEXTURE_SCALE, TEXTURE_SCALE));
+	Interface::uiIconBackground->setScale(v2f(TEXTURE_SCALE, TEXTURE_SCALE) * scale);
 
 	uiElementSprite.setPosition(absolutePosition);
-	uiElementSprite.setScale(v2f(TEXTURE_SCALE, TEXTURE_SCALE));
+	uiElementSprite.setScale(v2f(TEXTURE_SCALE, TEXTURE_SCALE) * scale);
 
 	window->draw(*Interface::uiIconBackground);
 	window->draw(uiElementSprite);
@@ -197,4 +364,8 @@ void Interface::DrawUIElementNormalized(AtlasID atlasID, const sf::Vector2f& nor
 
 void Interface::Dispose()
 {
+	/*
+	delete Interface::uiIconBackground;
+	delete Interface::uiLeftArrowSprite;
+	delete Interface::uiRightArrowSprite;*/
 }

@@ -154,6 +154,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Inventory\SeedItem.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="OptionsManager.cpp" />
     <ClCompile Include="Scenes\GameScene.cpp" />
     <ClCompile Include="Scenes\MainMenuScene.cpp" />
     <ClCompile Include="Scenes\OptionsScene.cpp" />
@@ -174,6 +175,7 @@
     <ClCompile Include="World\Tiles\TilledSoilTile.cpp" />
     <ClCompile Include="World\Tiles\WaterTile.cpp" />
     <ClCompile Include="World\World.cpp" />
+    <ClCompile Include="World\WorldGen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AtlasManager.h" />
@@ -186,7 +188,11 @@
     <ClInclude Include="Inventory\Item.h" />
     <ClInclude Include="Inventory\ItemID.h" />
     <ClInclude Include="Inventory\ItemRegistry.h" />
+    <ClInclude Include="OptionsManager.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Scenes\GameScene.h" />
+    <ClInclude Include="Scenes\MainMenuScene.h" />
+    <ClInclude Include="Scenes\OptionsScene.h" />
     <ClInclude Include="Scenes\Scene.h" />
     <ClInclude Include="Scenes\SceneDeclarations.h" />
     <ClInclude Include="Scenes\SceneManager.h" />
@@ -204,6 +210,7 @@
     <ClInclude Include="World\Tiles\TilledSoilTile.h" />
     <ClInclude Include="World\Tiles\WaterTile.h" />
     <ClInclude Include="World\World.h" />
+    <ClInclude Include="World\WorldGen.h" />
     <ClInclude Include="World\WorldTime.h" />
   </ItemGroup>
   <ItemGroup>

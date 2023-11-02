@@ -3,12 +3,14 @@
 #include "Tiles/TileRegistry.h"
 #include "Crop.h"
 #include "World.h"
+#include "WorldGen.h"
 #include "../Interface.h"
 
 sf::Sprite Chunk::m_tileSprite = Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Tiles));
 
 Chunk::Chunk(const v2f& position, World* world)
 {
+	
 	this->position = position;
 	this->m_world = world;
 
@@ -26,14 +28,111 @@ Chunk::Chunk(const v2f& position, World* world)
 bool Chunk::CanBeRendered(const v2f& cameraPosition)
 {
 	return
-		position.x < (cameraPosition.x + WINDOW_WIDTH) / SCALED_TILE_SIZE
-		&& position.y < (cameraPosition.y + WINDOW_HEIGHT) / SCALED_TILE_SIZE
-		&& position.x >(cameraPosition.x - WINDOW_WIDTH) / SCALED_TILE_SIZE
-		&& position.y >(cameraPosition.y - WINDOW_HEIGHT) / SCALED_TILE_SIZE;
+		position.x * CHUNK_WIDTH < (cameraPosition.x + WINDOW_WIDTH) / SCALED_TILE_SIZE
+		&& position.y * CHUNK_HEIGHT < (cameraPosition.y + WINDOW_HEIGHT) / SCALED_TILE_SIZE
+		&& position.x * CHUNK_WIDTH >(cameraPosition.x - WINDOW_WIDTH) / SCALED_TILE_SIZE
+		&& position.y * CHUNK_HEIGHT >(cameraPosition.y - WINDOW_HEIGHT) / SCALED_TILE_SIZE;
+}
+void Chunk::DoWorldGen()
+{
+	for (int y = 0; y < CHUNK_WIDTH; y++)
+	{
+		for (int x = 0; x < CHUNK_HEIGHT; x++)
+		{
+			WorldGen::BiomeType biome = WorldGen::GetBiome(position.x * CHUNK_WIDTH + x, position.y * CHUNK_HEIGHT + y);
+			double height = WorldGen::GetHeightmapValue(position.x * CHUNK_WIDTH + x, position.y * CHUNK_HEIGHT + y);
+
+			// Generate ground tile
+
+			if (height < 0.4)
+			{
+				SetTile(
+					v3f(x, y, 0),
+					TileID::Water
+				);
+				continue;
+			}
+			if (height >= 0.4 && height < 0.45)
+			{
+				SetTile(
+					v3f(x, y, 0),
+					TileID::Sand
+				);
+				continue;
+			}
+			switch (biome) {
+
+				case WorldGen::BiomeType::Plains:
+					SetTile(
+						v3f(x, y, 0),
+						TileID::Grass
+					);
+					break;
+				case WorldGen::BiomeType::Savanna:
+					SetTile(
+						v3f(x, y, 0),
+						TileID::Grass
+					);
+					break;
+				case WorldGen::BiomeType::Rainforest:
+					SetTile(
+						v3f(x, y, 0),
+						TileID::SwampGrass
+					);
+					break;
+
+				case WorldGen::BiomeType::ColdPlains:
+					SetTile(
+						v3f(x, y, 0),
+						TileID::Snow
+					);
+					break;
+
+				case WorldGen::BiomeType::Taiga:
+					SetTile(
+						v3f(x, y, 0),
+						TileID::Snow
+					);
+					break;
+				case WorldGen::BiomeType::Desert:
+					SetTile(
+						v3f(x, y, 0),
+						TileID::Sand
+					);
+					break;
+				default:
+					SetTile(
+						v3f(x, y, 0),
+						TileID::Gravel
+					);
+					break;
+			}
+
+			// Generate trees now
+
+			if (
+				Utils::RandInt(
+					0,
+					WorldGen::BiomeTreeScarcity.at(
+						biome
+					)
+				) == 0
+				)
+			{
+				SetTile(
+					v3f(x, y, 1),
+					WorldGen::BiomeTreeType.at(biome)
+				);
+			}
+		}
+	}
+
+	state = ChunkState::Unloaded;
 }
 
 void Chunk::Update(float dt)
 {
+
 	// Random tick update
 
 	const int blocksToUpdate = 
@@ -95,18 +194,29 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 
 				if (tileID == TileID::Air) // don't waste time drawing air plz
 					continue;
+				//Utils::Log(std::format("Drawing tile at {} {} {}", x, y, z));
 
-				Tile* currentTile = TileRegistry::Tiles[tileID];
+				Tile* currentTile = TileRegistry::Tiles.at(tileID);
+
+				if (currentTile == nullptr)
+				{
+					continue;
+				}
 
 				AtlasID tileAtlasId = ((int) z == 0) ? currentTile->groundId : currentTile->textureId;
 
 				m_tileSprite.setTextureRect(IntRect(v2i(tileAtlasId.x * TILE_SIZE, tileAtlasId.y * TILE_SIZE), v2i(TILE_SIZE, TILE_SIZE)));
 
-				m_tileSprite.setPosition(
+				auto drawPos =
 					v2f(
-						(position.x + x) * SCALED_TILE_SIZE,
-						(position.y + y) * SCALED_TILE_SIZE
-					) - (v2f)cameraPosition
+						(position.x * CHUNK_WIDTH + x) * SCALED_TILE_SIZE,
+						(position.y * CHUNK_HEIGHT + y) * SCALED_TILE_SIZE
+					) - (v2f)cameraPosition;
+
+				//Utils::Log(std::format("Drawing tile at screen pos X: {}, Y: {}", drawPos.x, drawPos.y));
+
+				m_tileSprite.setPosition(
+					drawPos
 				);
 
 				m_tileSprite.setScale(v2f(TEXTURE_SCALE, TEXTURE_SCALE));
@@ -201,14 +311,17 @@ void Chunk::SetTile(const v3f& position, uchar tileID)
 uchar Chunk::TileAt(const v2f& position, int layer)
 {
 	if (position.x < 0 || position.y < 0 || layer < 0 || position.x >= CHUNK_WIDTH || position.y >= CHUNK_HEIGHT || layer > 1)
-		return -1;
+		return 0;
 
 	return m_tiles[layer][(int)position.y][(int)position.x];
 }
 
 uchar Chunk::TileAt(const v3f& position)
 {
-	return uchar();
+	if (position.x < 0 || position.y < 0 || position.z < 0 || position.x >= CHUNK_WIDTH || position.y >= CHUNK_HEIGHT || position.z > 1)
+		return 0;
+
+	return m_tiles[(int) position.z][(int)position.y][(int)position.x];
 }
 
 bool Chunk::IsEmptyAt(const v2f& position, int layer)

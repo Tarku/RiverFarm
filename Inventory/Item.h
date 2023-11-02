@@ -9,8 +9,9 @@ class World;
 class Item
 {
 public:
-	std::string name = "Unknown";
-	AtlasID atlasID;
+
+	std::string name{};
+	AtlasID atlasID{};
 
 	Item() {};
 
@@ -25,7 +26,7 @@ class SeedItem : public Item
 {
 private:
 public:
-	CropID cropType;
+	CropID cropType{};
 	SeedItem(const std::string& name, AtlasID atlasID, CropID cropType)
 	{
 		this->name = name;

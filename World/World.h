@@ -15,40 +15,44 @@
 class World
 {
 private:
-	Chunk* m_map[MAP_HEIGHT / CHUNK_HEIGHT][MAP_WIDTH / CHUNK_WIDTH];
-
-	siv::PerlinNoise m_perlin {};
 
 public:
 	World();
 
-	WorldTime worldTime;
+	std::vector<Chunk*> Chunks{};
 
-	static constexpr float BaseHumidity = 0.3f;
+	void DoWorldGen();
+	void ResetWorld();
+
+	void Update(const v2f& cameraPosition, float dt);
+
+	WorldTime worldTime;
 
 	static std::list<Entity*> WorldEntities;
 	static std::list<Entity*> EntitiesToDelete;
 
+	void AddDecorations();
 
 	std::tuple<v2f, v2f> WorldToChunkPosition(const v2f& worldPosition);
 	v2f ChunkToWorldPosition(const v2f& chunkPosition, const v2f& inChunkPosition);
 
 	Chunk* GetChunk(const v2f& position);
-
-	void ResetWorld();
-	void Update(const v2f& cameraPosition, float dt);
-
-	void Dispose();
-	void AddDecorations();
-
 	int DrawChunks(RenderWindow* window, const v2f& cameraPosition, bool drawChunkBorders);
 
+	void UpdateChunkList();
+
 	void SaveWorldToImage();
-	void DoWorldGen();
 
-	void AttemptSpreadWater(const v2f& position);
+	// * Checks if the tile at position (in world coordinates) is air (TileID::Air, ID: 0)
+	bool IsEmptyAt(const v2f& position, int layer);
 
+	// * Checks if the position (in world coordinates) is inside the world's chunks
+	bool InBounds(const v2f& position, int layer);
+
+	// Gets the tile at position (in world coordinates)
 	unsigned char TileAt(const v2f& position, int layer);
+
+	// Gets the tile at position (in world coordinates)
 	unsigned char TileAt(int x, int y, int layer);
 
 	void SetTile(const v2f& position, int layer, unsigned char tileID, bool updateBlocks = false);
@@ -58,8 +62,7 @@ public:
 	void AddEntity(Entity* entity);
 	void RemoveEntity(Entity* entity);
 
-	bool IsEmptyAt(const v2f& position, int layer);
-	bool InBounds(const v2f& position, int layer);
+	void Dispose();
 };
 
 #endif

@@ -10,9 +10,6 @@ private:
 	static sf::RenderWindow* m_window;
 
 public:
-	static MainMenuScene* mainMenuScene;
-	static GameScene* gameScene;
-
 	static IScene* currentScene;
 
 	static void Initialize(sf::RenderWindow* window);

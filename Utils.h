@@ -15,6 +15,22 @@ private:
 public:
 	static void Initialize(sf::RenderWindow* window);
 
+	template<typename T>
+	static inline T Clamp(T value, T min, T max)
+	{
+		if (value > max)
+		{
+			value = max;
+		}
+
+		if (value <= min)
+		{
+			value = min;
+		}
+
+		return value;
+	}
+
 	inline static int RandInt(int min, int max)
 	{
 		auto distrib = std::uniform_int_distribution<int>(min, max);

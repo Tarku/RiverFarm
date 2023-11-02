@@ -25,6 +25,7 @@ public:
 	{
 	};
 
+	bool noclip = false;
 	v2f position;
 	v2f velocity;
 
@@ -81,6 +82,8 @@ private:
 	AtlasID m_directionalSpriteID = { 0, 0 };
 
 public:
+	float speedOffset = 0.0f;
+
 	PlayerEntity(const v2f& position);
 
 	void HandleEvents(Event* event) override;

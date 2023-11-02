@@ -19,12 +19,16 @@ private:
 
 
 public:
+	enum class ChunkState { Null, Loaded, Unloaded, Ungenerated };
+	ChunkState state = ChunkState::Ungenerated;
+
 	Chunk() = delete;
 	Chunk(const v2f& position, World* world);
 
 	v2f position;
 
 	bool CanBeRendered(const v2f& cameraPosition);
+	void DoWorldGen();
 
 	void Update(float dt);
 

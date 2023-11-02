@@ -1,5 +1,6 @@
 #include "Game.h"
-#include <Windows.h>
+#include "Scenes/MainMenuScene.h"
+#include "OptionsManager.h"
 #include <iostream>
 
 using namespace sf;
@@ -50,12 +51,22 @@ Game::Game()
 	Utils::Initialize(&m_window);
 
 	SceneManager::Initialize(&m_window);
-	SceneManager::ChangeScene(SceneManager::mainMenuScene);
+	SceneManager::ChangeScene(new MainMenuScene());
 }
 
 void Game::Update(float timeElapsed)
 {
 	SceneManager::currentScene->Update(timeElapsed);
+
+	if (OptionsManager::currentInputType == OptionsManager::InputType::Controller)
+	{
+		v2i middle = v2i(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+
+		int offsetX = (int)OptionsManager::GetJoystickSecondaryAxisX();
+		int offsetY = (int)OptionsManager::GetJoystickSecondaryAxisY();
+
+		sf::Mouse::setPosition(middle + v2i(offsetX, offsetY), m_window);
+	}
 }
 
 void Game::Draw()
@@ -74,6 +85,7 @@ void Game::Dispose()
 void Game::Run()
 {
 	time_t gameStartTime = Utils::GetTimestamp();
+
 	Utils::Log("Game started.");
 
 	while (m_window.isOpen())

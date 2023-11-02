@@ -1,4 +1,5 @@
 #include "EntityDeclarations.h"
+#include "../Scenes/GameScene.h"
 #include "../World/World.h"
 #include "../Inventory/ItemID.h"
 #include "../Inventory/ItemRegistry.h"

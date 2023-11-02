@@ -1,8 +1,12 @@
 #include "World.h"
+#include "WorldGen.h"
 #include "Tiles/Tile.h"
-#include "../Game.h"
 #include "Tiles/TileRegistry.h"
 #include "../Utils.h"
+#include "../Game.h"
+#include "../Scenes/GameScene.h"
+
+#include <algorithm>
 
 std::list<Entity*> World::WorldEntities;
 std::list<Entity*> World::EntitiesToDelete;
@@ -13,13 +17,7 @@ World::World()
 
 void World::ResetWorld()
 {
-	for (int y = 0; y < MAP_HEIGHT / CHUNK_HEIGHT; y++)
-	{
-		for (int x = 0; x < MAP_WIDTH / CHUNK_WIDTH; x++)
-		{
-			m_map[y][x] = new Chunk(v2f(x * CHUNK_WIDTH, y * CHUNK_HEIGHT), this);
-		}
-	}
+	
 
 }
 
@@ -29,10 +27,10 @@ std::tuple<v2f, v2f> World::WorldToChunkPosition(const v2f& worldPosition)
 	float chunkY = worldPosition.y / (float)CHUNK_HEIGHT;
 	float chunkX = worldPosition.x / (float)CHUNK_WIDTH;
 
-	int chunkPosX = (chunkX - (int)chunkX) * CHUNK_WIDTH;
-	int chunkPosY = (chunkY - (int)chunkY) * CHUNK_HEIGHT;
+	int chunkPosX = abs(chunkX - (int)chunkX) * CHUNK_WIDTH;
+	int chunkPosY = abs(chunkY - (int)chunkY) * CHUNK_HEIGHT;
 
-	return std::make_tuple(v2f(chunkX, chunkY), v2f(chunkPosX, chunkPosY));
+	return std::make_tuple(v2f((int) chunkX, (int) chunkY), v2f((int) chunkPosX, (int)chunkPosY));
 }
 v2f World::ChunkToWorldPosition(const v2f& chunkPosition, const v2f& inChunkPosition)
 {
@@ -46,7 +44,7 @@ v2f World::ChunkToWorldPosition(const v2f& chunkPosition, const v2f& inChunkPosi
 
 void World::AddDecorations()
 {
-	for (int i = 0; i < 600; i++)
+	for (int i = 0; i < 150; i++)
 	{
 
 		int roomWidth = Utils::RandInt(5, 14);
@@ -114,50 +112,89 @@ void World::AddDecorations()
 
 void World::SaveWorldToImage()
 {
+	int minX = 0xfffffff, maxX = -0xfffffff, minY = 0xfffffff, maxY = -0xfffffff;
+
+	for (auto& chunk : Chunks)
+	{
+		if (chunk->position.x < minX)
+			minX = chunk->position.x;
+		if (chunk->position.x > maxX)
+			maxX = chunk->position.x;
+
+		if (chunk->position.y < minY)
+			minY = chunk->position.y;
+		if (chunk->position.y > maxY)
+			maxY = chunk->position.y;
+	}
+
+	int imageWidth = (maxX - minX) + 1;
+	int imageHeight = (maxY - minY) + 1;
+
+	Utils::Log(std::format("Output image width: {}, height: {}", imageWidth * CHUNK_WIDTH, imageHeight * CHUNK_HEIGHT));
+
 	Utils::Log("Saving world to image...");
 	Image tileAtlasCopy = AtlasManager::GetAtlas(AtlasTextureID::Tiles)->copyToImage();
 
 	Image outputImage;
-	outputImage.create(v2u(MAP_WIDTH, MAP_HEIGHT));
+	outputImage.create(v2u(imageWidth * CHUNK_WIDTH, imageHeight * CHUNK_HEIGHT));
 
-	for (int y = 0; y < MAP_HEIGHT; y++)
+	for (auto& chunk : Chunks)
 	{
-		for (int x = 0; x < MAP_WIDTH; x++)
+		for (int y = 0; y < CHUNK_HEIGHT; y++)
 		{
-			Tile* tile = TileRegistry::Tiles.at(TileAt(x, y, 0));
-			Tile* topTile = TileRegistry::Tiles.at(TileAt(x, y, 1));
-
-			Color tilePx = tileAtlasCopy.getPixel(
-				v2u(
-					tile->groundId.x * TILE_SIZE,
-					tile->groundId.y * TILE_SIZE
-				)
-			);
-
-			Color finalPx;
-
-			if (TileAt(x, y, 1) == TileID::Air)
+			for (int x = 0; x < CHUNK_WIDTH; x++)
 			{
-				finalPx = tilePx;
-			}
-			else
-			{
-				Color topTilePx = tileAtlasCopy.getPixel(
+				Tile* tile = TileRegistry::Tiles.at(chunk->TileAt(v3f(x, y, 0)));
+				Tile* topTile = TileRegistry::Tiles.at(chunk->TileAt(v3f(x, y, 1)));
+
+				Color tilePx = tileAtlasCopy.getPixel(
 					v2u(
-						topTile->textureId.x * TILE_SIZE,
-						topTile->textureId.y * TILE_SIZE
+						tile->groundId.x * TILE_SIZE,
+						tile->groundId.y * TILE_SIZE
 					)
 				);
 
-				finalPx = Color(
-					(uint8_t)((tilePx.r + topTilePx.r) * 0.5f),
-					(uint8_t)((tilePx.g + topTilePx.g) * 0.5f),
-					(uint8_t)((tilePx.b + topTilePx.b) * 0.5f)
+				if (chunk->TileAt(v3f(x, y, 0)) == TileID::Air)
+				{
+					tilePx = Color(0, 0, 0, 255);
+				}
+
+				Color finalPx;
+
+				if (chunk->TileAt(v3f(x, y, 1)) == TileID::Air)
+				{
+					finalPx = tilePx;
+				}
+				else
+				{
+					Color topTilePx = tileAtlasCopy.getPixel(
+						v2u(
+							topTile->textureId.x * TILE_SIZE,
+							topTile->textureId.y * TILE_SIZE
+						)
+					);
+
+					finalPx = Color(
+						(uint8_t)((tilePx.r + topTilePx.r) * 0.5f),
+						(uint8_t)((tilePx.g + topTilePx.g) * 0.5f),
+						(uint8_t)((tilePx.b + topTilePx.b) * 0.5f)
+					);
+				}
+
+
+				int pixelX = ((int) chunk->position.x - minX) * CHUNK_WIDTH + x;
+				int pixelY = ((int) chunk->position.y - minY) * CHUNK_HEIGHT + y;
+
+				// Utils::Log(std::format("Pixel X, Y: {}, {}", pixelX, pixelY));
+
+				outputImage.setPixel(
+					v2u(
+						pixelX,
+						pixelY
+					),
+					finalPx
 				);
 			}
-
-			outputImage.setPixel(v2u(x, y), finalPx);
-
 		}
 	}
 
@@ -173,92 +210,44 @@ void World::DoWorldGen()
 {
 	ResetWorld();
 
+	Game::Seed = Utils::GetTimestamp();
+	WorldGen::Initialize();
+
 	v2f playerSpawnCoords = { MAP_WIDTH / 2.f + Utils::RandInt(-CHUNK_WIDTH / 2.f, CHUNK_WIDTH / 2.f), MAP_HEIGHT / 2.f + Utils::RandInt(-CHUNK_HEIGHT / 2.f, CHUNK_HEIGHT / 2.f) };
 
-	Game::Seed = Utils::GetTimestamp();
+	auto spawnChunkCoordsTuple = WorldToChunkPosition(playerSpawnCoords);
 
-	m_perlin.reseed((unsigned int) Game::Seed);
 
-	time_t worldgenStartTime = Utils::GetTimestamp();
 
-	for (int y = 0; y < MAP_HEIGHT; y++)
+	v2f spawnChunkCoords = std::get<0>(spawnChunkCoordsTuple);
+
+	Utils::Log(std::format("Player spawn coordinates (in chunk space):\n X : {} | Y : {}", spawnChunkCoords.x, spawnChunkCoords.y));
+
+	int radius = 2;
+
+	for (int oy = -radius; oy <= radius; oy++)
 	{
-		for (int x = 0; x < MAP_WIDTH; x++)
+		for (int ox = -radius; ox <= radius; ox++)
 		{
-			double biomeValue = m_perlin.octave2D_01(x * (1.f / 128), y * (1.f / 128), 2);
-			double biomeValue2 = m_perlin.octave2D_01(x * (1.f / 28), y * (1.f / 69), 1);
-			double biomeValue3 = m_perlin.octave2D_01(x * (1.f / 73), y * (1.f / 12), 3);
 
-			double finalBiomeValue = (biomeValue + biomeValue2 * 0.8f + biomeValue3 * 0.6f) / 3.f;
-
-			double perlinValue = m_perlin.octave2D_01(x * (1.f / 16), y * (1.f / 16), 2);
-			double perlinValue2 = m_perlin.octave2D_01(x * (1.f / 32), y * (1.f / 32), 1);
-			double perlinValue3 = m_perlin.octave2D_01(x * (1.f / 64), y * (1.f / 64), 2);
-			double perlinValue4 = m_perlin.octave2D_01(x * (1.f / 128), y * (1.f / 128), 4);
-
-			double erosionValue = m_perlin.octave2D_01(x * (1.f / 8) + x * (1.f / 16), y * (1.f / 16) - y * (1.f / 8), 5);
-
-			perlinValue += perlinValue2;
-			perlinValue += perlinValue3;
-
-			perlinValue /= 3;
-
-			perlinValue -= perlinValue4 / 8;
-
-
-			if (perlinValue < 0.43)
-			{
-				SetTile(Vector2f(x, y), 0, TileID::Water);
-			}
-			else if (perlinValue >= 0.43 && perlinValue < 0.46)
-			{
-
-				if (erosionValue > 0.7)
-					SetTile(v2f(x, y), 0, TileID::Gravel);
-				else
-
-					SetTile(Vector2f(x, y), 0, TileID::Sand);
-			}
-			else
-			{
-				bool isDesert = finalBiomeValue < 0.30;
-				int chanceForTreeSpawn = finalBiomeValue > 0.94f ? 1 : 8;
-
-				if (Utils::RandInt(0, chanceForTreeSpawn) == 0)
-				{
-					SetTile(Vector2f(x, y), 1, isDesert ? TileID::Cactus : TileID::Shrub);
-				}
-
-				if (erosionValue >= 0.78)
-				{
-
-					SetTile(v2f(x, y), 1, TileID::Stone);
-					continue;
-				}
-				else if (erosionValue < 0.78 && erosionValue > 0.68)
-				{
-
-					SetTile(v2f(x, y), 0, TileID::Stone);
-					continue;
-				}
-				else if (erosionValue > 0.52 && erosionValue < 0.68)
-				{
-					SetTile(v2f(x, y), 0, isDesert ? TileID::Sand : TileID::Dirt);
-				}
-				else {
-					SetTile(Vector2f(x, y), 0, isDesert ? TileID::Sand : TileID::Grass);
-				}
-
-				if (Utils::RandInt(0, 21) == 0 && !isDesert && TileAt(v2f(x,y), 1) == TileID::Air)
-					SetTile(Vector2f(x, y), 1, TileID::Flowers);
-
-			}
-
-
+			Chunks.push_back(
+				new Chunk(spawnChunkCoords + v2f(ox, oy), this)
+			);
 		}
 	}
 
+
+	time_t worldgenStartTime = Utils::GetTimestamp();
+
+	for (auto& chunk : Chunks)
+	{
+		chunk->DoWorldGen();
+		
+	}
+
 	AddDecorations();
+
+
 
 	// Add starting room at player spawn
 
@@ -296,21 +285,56 @@ void World::DoWorldGen()
 	printf("World generation time: %d microseconds.\n", (int) worldgenTotalTime);
 }
 
-void World::AttemptSpreadWater(const v2f& position)
+void World::UpdateChunkList()
 {
-	bool cond = TileAt(position, 0) == TileID::Air;
+	auto playerChunkPositionTuple = WorldToChunkPosition(GameScene::player->position);
 
-	if (!cond)
-		return;
+	v2f playerChunkPosition = std::get<0>(playerChunkPositionTuple);
 
-	SetTile(position, 0, TileID::Water);
-	// printf("Attempting to spread water at %d;%d\n", position.x, position.y);
+	v2f minPosition = v2f(playerChunkPosition.x - 1, playerChunkPosition.y - 1);
+	v2f maxPosition = v2f(playerChunkPosition.x + 1, playerChunkPosition.y + 1);
+
+	for (int yo = -1; yo <= 1; yo++)
+	{
+		for (int xo = -1; xo <= 1; xo++)
+		{
+			v2f localPlayerChunkPosition = v2f(playerChunkPosition.x + xo, playerChunkPosition.y + yo);
+
+			Chunk* chunkAtPos = GetChunk(localPlayerChunkPosition);
+
+			if (chunkAtPos == nullptr)
+			{
+				chunkAtPos = new Chunk(v2f((int)localPlayerChunkPosition.x, (int)localPlayerChunkPosition.y), this);
+				chunkAtPos->DoWorldGen();
+				Chunks.push_back(chunkAtPos);
+			}
+		}
+	}
 
 
-	AttemptSpreadWater(Vector2f(position.x + 1, position.y));
-	AttemptSpreadWater(Vector2f(position.x - 1, position.y));
-	AttemptSpreadWater(Vector2f(position.x, position.y + 1));
-	AttemptSpreadWater(Vector2f(position.x, position.y - 1));
+	std::vector<Chunk*> chunksToRemove = std::vector<Chunk*>();
+
+	for (Chunk*& chunkToCheck : Chunks)
+	{
+		bool condition =
+			chunkToCheck->position.x < minPosition.x
+			|| chunkToCheck->position.y < minPosition.y
+			|| chunkToCheck->position.x > maxPosition.x
+			|| chunkToCheck->position.y > maxPosition.y;
+
+		if (condition)
+		{
+			chunksToRemove.push_back(chunkToCheck);
+		}
+	}
+
+	for (auto& chunkToRemove : chunksToRemove)
+	{
+		Chunks.erase(std::remove(Chunks.begin(), Chunks.end(), chunkToRemove), Chunks.end());
+
+	}
+
+	Chunks.shrink_to_fit();
 }
 
 int World::DrawChunks(RenderWindow* window, const v2f& cameraPosition, bool drawChunkBorders)
@@ -320,20 +344,16 @@ int World::DrawChunks(RenderWindow* window, const v2f& cameraPosition, bool draw
 
 	v2f cameraChunkPosition = v2f((cameraPosition.x / SCALED_TILE_SIZE) / CHUNK_WIDTH, (cameraPosition.y / SCALED_TILE_SIZE) / CHUNK_HEIGHT);
 
-	for (int yOffset = -1; yOffset < 2; yOffset++)
+	for (auto& chunk : Chunks)
 	{
-		for (int xOffset = -1; xOffset < 2; xOffset++)
-		{
-			int chunkY = (int)(cameraChunkPosition.y + yOffset);
-			int chunkX = (int)(cameraChunkPosition.x + xOffset);
+		int chunkX = chunk->position.x;
+		int chunkY = chunk->position.y;
 
-			if (chunkY < 0 || chunkX < 0 || chunkY >= (MAP_HEIGHT / CHUNK_HEIGHT) || chunkX >= (MAP_WIDTH / CHUNK_WIDTH))
-				continue;
 
-			if (m_map[chunkY][chunkX]->CanBeRendered(cameraPosition))
+			if (chunk->CanBeRendered(cameraPosition))
 			{
-
-				m_map[chunkY][chunkX]->Draw(window, cameraPosition);
+				chunk->Draw(window, cameraPosition);
+				// Utils::Log("Chunk can be rendered.");
 				chunksDrawn++;
 			}
 
@@ -352,7 +372,7 @@ int World::DrawChunks(RenderWindow* window, const v2f& cameraPosition, bool draw
 
 				window->draw(vertices, 2, sf::PrimitiveType::Lines);
 			}
-		}
+		
 	}
 
 	return chunksDrawn;
@@ -365,61 +385,72 @@ void World::Update(const v2f& cameraPosition, float dt)
 
 	v2f cameraChunkPosition = v2f((cameraPosition.x / SCALED_TILE_SIZE) / CHUNK_WIDTH, (cameraPosition.y / SCALED_TILE_SIZE) / CHUNK_HEIGHT);
 
-	for (int yOffset = -1; yOffset < 2; yOffset++)
+	for (auto& chunk : Chunks)
 	{
-		for (int xOffset = -1; xOffset < 2; xOffset++)
-		{
-			int chunkY = (int)(cameraChunkPosition.y + yOffset);
-			int chunkX = (int)(cameraChunkPosition.x + xOffset);
-
-			if (chunkY < 0 || chunkX < 0 || chunkY >= (MAP_HEIGHT / CHUNK_HEIGHT) || chunkX >= (MAP_WIDTH / CHUNK_WIDTH))
-				continue;
-
-			m_map[chunkY][chunkX]->Update(dt);
-		}
+		if (chunk != nullptr)
+			chunk->Update(dt);
 	}
+
+	UpdateChunkList();
 	
 }
 
 Chunk* World::GetChunk(const v2f& position)
 {
-	return m_map[(int) position.y][(int) position.x];
+	for (auto& chunk : Chunks)
+	{
+		if ((int)chunk->position.x == (int)position.x && (int)chunk->position.y == (int)position.y)
+		{
+			return chunk;
+		}
+	}
+	return nullptr;
 }
 
 bool World::InBounds(const v2f& position, int layer)
 {
-    return 0 <= position.x && position.x < MAP_WIDTH && 0 <= position.y && position.y < MAP_HEIGHT && 0 <= layer && layer < MAP_LEVELS;
+	auto chunkPositionTuple = WorldToChunkPosition(position);
+
+	return GetChunk(std::get<0>(chunkPositionTuple)) != nullptr;
 }
 
 unsigned char World::TileAt(const v2f& position, int layer)
 {
-    if (!InBounds(position, layer)) return -1;
+	if (!InBounds(position, layer)) return 0;
 
 	auto chunkPosition = std::get<0>(WorldToChunkPosition(position));
 	auto chunkPositionOffset = std::get<1>(WorldToChunkPosition(position));
 
-    return m_map[(int)chunkPosition.y][(int)chunkPosition.x]->TileAt(chunkPositionOffset, layer);
+	return World::TileAt(position.x, position.y, layer);
 }
 
 unsigned char World::TileAt(int x, int y, int layer)
 {
-	if (!InBounds(Vector2f(x, y), layer)) return -1;
+	if (!InBounds(Vector2f(x, y), layer)) return 0;
 
 	auto chunkPosition = std::get<0>(WorldToChunkPosition(v2f(x, y)));
 	auto chunkPositionOffset = std::get<1>(WorldToChunkPosition(v2f(x, y)));
 
-	return m_map[(int)chunkPosition.y][(int)chunkPosition.x]->TileAt(chunkPositionOffset, layer);
+	Chunk* chunk = GetChunk(chunkPosition);
+
+	if (chunk == nullptr) return 0;
+
+	return chunk->TileAt(chunkPositionOffset, layer);
 }
 
 void World::SetTile(const v2f& position, int layer, unsigned char tileID, bool updateBlocks )
 {
-    if (!InBounds(position, layer)) return;
+	if (!InBounds(position, layer)) return;
 
 	auto chunkPosition = std::get<0>(WorldToChunkPosition(position));
 	auto chunkPositionOffset = std::get<1>(WorldToChunkPosition(position));
 
 
-    m_map[(int)chunkPosition.y][(int)chunkPosition.x]->SetTile(chunkPositionOffset, layer, tileID);
+	Chunk* chunk = GetChunk(chunkPosition);
+
+	if (chunk == nullptr) return;
+
+	chunk->SetTile(chunkPositionOffset, layer, tileID);
 
 	if (updateBlocks)
 		TileRegistry::Tiles[tileID]->OnUpdate(position, this, layer);

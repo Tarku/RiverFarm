@@ -15,15 +15,15 @@ protected:
 
 public:
 	bool isHalophyte = false;
-	std::string name;
+	std::string name{};
 
-	float baseGrowthRate;
-	ItemID itemDrop;
-	ItemID seedItemDrop;
-	AtlasID textureID;
+	float baseGrowthRate{};
+	ItemID itemDrop{};
+	ItemID seedItemDrop{};
+	AtlasID textureID{};
 
 	float growth = 0.0f;
-	float actualGrowthRate;
+	float actualGrowthRate{};
 
 	bool hasRightSoil = false;
 	bool hasWater = false;

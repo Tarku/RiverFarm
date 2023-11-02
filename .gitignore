@@ -366,3 +366,4 @@ code.txt
 .gitignore
 /Assets/e.ttf
 /lines of code count.txt
+*.aseprite

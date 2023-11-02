@@ -8,6 +8,7 @@
 #include <iostream>
 #include <chrono>
 #include <memory>
+#include <functional>
 #include <cstdint>
 
 constexpr int MAX_TILES = 256;
@@ -41,7 +42,7 @@ constexpr unsigned int WINDOW_HEIGHT = SCALED_TILE_SIZE * CHUNK_HEIGHT;
 
 namespace TimeConstants
 {
-	constexpr int TICKS_PER_MINUTE = 60;
+	constexpr int TICKS_PER_MINUTE = 20;
 	constexpr int MINUTES_PER_HOUR = 60;
 	constexpr int HOURS_PER_DAY = 24;
 	constexpr int DAYS_PER_WEEK = 7;
@@ -58,6 +59,12 @@ using v2i = sf::Vector2i;
 using v2u = sf::Vector2u;
 using uchar = unsigned char;
 using uint = unsigned int;
+
+using string = std::string;
+using strings = std::vector<string>;
+
+using voidfunc = std::function<void()>;
+using voidfuncs = std::vector<voidfunc>;
 
 constexpr v2f ZERO_VEC = v2f(0.f, 0.f);
 

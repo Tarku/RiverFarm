@@ -2,9 +2,6 @@
 
 sf::RenderWindow* SceneManager::m_window;
 
-MainMenuScene* SceneManager::mainMenuScene = new MainMenuScene();
-GameScene* SceneManager::gameScene = new GameScene();
-
 IScene* SceneManager::currentScene;
 
 void SceneManager::Initialize(sf::RenderWindow* window)

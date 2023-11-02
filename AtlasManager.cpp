@@ -15,9 +15,9 @@ bool AtlasManager::LoadAtlases()
 
 	int counter = 0;
 
-	for (int atID = 0; atID < MAX_ATLASES; atID++)
+	for (int atlasId = 0; atlasId < MAX_ATLASES; atlasId++)
 	{
-		counter += AtlasManager::Atlases[atID].loadFromFile(atlasFilenames[atID]);
+		counter += AtlasManager::Atlases[atlasId].loadFromFile(atlasFilenames[atlasId]);
 	}
 
 	return counter == MAX_ATLASES;

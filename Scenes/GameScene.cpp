@@ -1,6 +1,8 @@
-#include "SceneDeclarations.h"
+#include "GameScene.h"
+#include "MainMenuScene.h"
 #include "SceneManager.h"
 #include "../Tools/ToolRegistry.h"
+#include "../World/WorldGen.h"
 
 using namespace sf;
 
@@ -27,6 +29,7 @@ void GameScene::Initialize(RenderWindow* window)
 	p_interface.CreateNormalizedText(std::string("current_hour"), "", v2f(0.5f, 0.950f), v2f(0.5f, 0.f));
 
 	p_interface.CreateNormalizedText(std::string("tile_hovered"), "", v2f(0.0f, 0.95f), v2f(0.f, 0.f));
+	p_interface.CreateText(std::string("biome_debug_info"), "", v2f(0.0f, 0.0f), v2f(0.f, 0.f));
 
 	Utils::Log("World created.");
 
@@ -70,6 +73,11 @@ void GameScene::HandleEvents()
 			case Keyboard::R:
 				m_world.DoWorldGen();
 				break;
+
+			case Keyboard::B:
+				m_currentMenuMode = MenuMode::BuildingMode;
+				break;
+
 			case Keyboard::O:
 				m_world.SaveWorldToImage();
 				break;
@@ -80,7 +88,15 @@ void GameScene::HandleEvents()
 
 			case Keyboard::F3:
 				m_drawDebugMenu = !m_drawDebugMenu;
+				
 				break;
+			case Keyboard::Numpad7:
+				player->noclip = !player->noclip;
+				break;
+			case Keyboard::Numpad8:
+				player->speedOffset += 0.5;
+				break;
+
 
 			case Keyboard::P:
 				World::WorldEntities.push_back(
@@ -91,19 +107,19 @@ void GameScene::HandleEvents()
 				break;
 
 			case Keyboard::Escape:
-				SceneManager::ChangeScene(SceneManager::mainMenuScene);
+				SceneManager::ChangeScene(new MainMenuScene());
 				break;
 			}
 		}
 
 		if (p_event.type == Event::MouseWheelScrolled)
 		{
-			if (p_event.mouseWheelScroll.delta < 0)
+			if (p_event.mouseWheelScroll.delta > 0)
 			{
 				m_currentToolIndex--;
 			}
 
-			if (p_event.mouseWheelScroll.delta > 0)
+			if (p_event.mouseWheelScroll.delta < 0)
 			{
 				m_currentToolIndex++;
 			}
@@ -121,13 +137,22 @@ void GameScene::HandleEvents()
 			{
 			case Mouse::Left:
 
-				if (m_world.InBounds(worldMousePosition, 0) && m_currentTool->CanBeUsedHere(&m_world, worldMousePosition) && m_isCurrentToolTargetInRange)
+				if (
+					m_world.InBounds(worldMousePosition, 0)
+					&& m_currentTool->CanBeUsedHere(&m_world, worldMousePosition)
+					&& m_isCurrentToolTargetInRange
+					&& !player->inWater
+				)
 				{
 					m_currentTool->OnUse(&m_world, worldMousePosition);
 				}
 				break;
 			case Mouse::Right:
-				if (m_world.InBounds(worldMousePosition, 0) && m_isCurrentToolTargetInRange)
+				if (
+					m_world.InBounds(worldMousePosition, 0)
+					&& m_isCurrentToolTargetInRange
+					&& !player->inWater
+				)
 				{
 					m_currentTool->OnRightClick(&m_world, worldMousePosition);
 				}
@@ -174,8 +199,16 @@ void GameScene::Update(float dt)
 
 	p_interface.SetTextString(std::string("current_hour"), m_world.worldTime.GetDateString());
 
-	v2f worldMousePosition = ScreenToWorld(m_mousePosition);
+	
 
+
+	m_gameTime += dt;
+	m_toolCooldown += dt;
+	m_ticks++;
+}
+
+void GameScene::DrawTileAtMouseUI(const v2f& worldMousePosition)
+{
 	auto worldChunkCoords = m_world.WorldToChunkPosition(worldMousePosition);
 
 	v2f chunkPosition = std::get<0>(worldChunkCoords);
@@ -212,7 +245,7 @@ void GameScene::Update(float dt)
 
 
 
-		cropString = std::format("{} {}% {}", cropAtMousePos->name,   roundf(cropAtMousePos->growth * 100), status);
+		cropString = std::format("{} {}% {}", cropAtMousePos->name, roundf(cropAtMousePos->growth * 100), status);
 	}
 
 	uchar groundTileAtMousePos = m_world.TileAt(worldMousePosition, 0);
@@ -224,6 +257,11 @@ void GameScene::Update(float dt)
 	else
 		tileHovered = topTileAtMousePos;
 
+	if (tileHovered < 0 || tileHovered >= TileRegistry::TileCount())
+	{
+		return;
+	}
+
 	std::string tileHoveredText;
 
 	if (isCropAtMousePos)
@@ -233,84 +271,15 @@ void GameScene::Update(float dt)
 
 	p_interface.SetTextString(std::string("tile_hovered"), tileHoveredText);
 
-
-	m_gameTime += dt;
-	m_toolCooldown += dt;
-	m_ticks++;
+	p_interface.DrawText(std::string("tile_hovered"));
 }
 
-void GameScene::Draw()
+void GameScene::DrawCursorToolUseUI(const v2f& worldMousePosition)
 {
-	m_cameraPosition = player->position * (float)SCALED_TILE_SIZE - v2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
-
-	int chunksRendered = m_world.DrawChunks(p_window, m_cameraPosition, m_drawChunkBorders);
-
-	p_window->setTitle(std::format("River Farm - {} chunks rendered", chunksRendered));
-
-	// -- Draw player and other entities --
-
-	player->Draw(p_window, m_cameraPosition);
-
-	for (auto entity : World::WorldEntities)
-	{
-		entity->Draw(p_window, m_cameraPosition);
-	}
-
-	// -- Draw UI --
-	//  * Draw daynight overlay
-
-	const int pixelsPerHour = 50;
-
-	int currentHour = m_world.worldTime.hours;
-	int currentMinute = m_world.worldTime.minutes;
-
-	int lightOverlayPixelX = currentHour * pixelsPerHour + (int)((currentMinute / 60.F) * pixelsPerHour);
-
-	//		For smooth transition between the two sides of the image
-	if (lightOverlayPixelX >= m_daynightCycleOverlay.getSize().x)
-	{
-		int difference = lightOverlayPixelX - m_daynightCycleOverlay.getSize().x;
-		lightOverlayPixelX = difference;
-	}
-
-	Sprite daynightOverlaySprite = 
-		Sprite(
-			m_daynightCycleOverlay,
-			IntRect(
-				v2i(lightOverlayPixelX, 0),
-				v2i(1, 1)
-			)
-		);
-
-	daynightOverlaySprite.setScale(v2f(WINDOW_WIDTH, WINDOW_HEIGHT));
-	daynightOverlaySprite.setPosition(v2f(0, 0));
-
-	p_window->draw(daynightOverlaySprite, RenderStates(sf::BlendMultiply));
-
-	//  * Draw tool overlay
-	if (m_currentTool != nullptr)
-		m_currentTool->Draw(&p_interface);
-
-	//  * Draw text elements
-	if (m_drawDebugMenu)
-	{
-		p_interface.DrawText(std::string("position_text"));
-		p_interface.DrawText(std::string("fps_text"));
-	}
-
-	p_interface.DrawText(std::string("ui_tool_name_text"));
-	p_interface.DrawText(std::string("current_hour"));
-	p_interface.DrawText(std::string("tile_hovered"));
-
-	//  * Draw inventory screen
-	p_interface.ShowInventoryOverlay();
-
 	// * Draw tool cursor
 	AtlasID cursorID = { 0, 0 };
 	bool shouldShowCursor = false;
 
-	v2f worldMousePosition = ScreenToWorld(m_mousePosition);
-	
 	if (m_currentTool != nullptr)
 	{
 		cursorID = m_currentTool->uiIcon;
@@ -336,8 +305,119 @@ void GameScene::Draw()
 
 		p_window->draw(toolCursorSprite);
 	}
+}
+
+void GameScene::DrawBiomeDebugInfoUI(const v2f& worldMousePosition)
+{
+
+	auto worldChunkCoords = m_world.WorldToChunkPosition(worldMousePosition);
+
+	WorldGen::BiomeType biomeAtMouse = WorldGen::GetBiome((int) worldMousePosition.x, (int) worldMousePosition.y);
+
+	double humidityValue = WorldGen::GetHumidityValue((int)worldMousePosition.x, (int)worldMousePosition.y);
+	double heatValue = WorldGen::GetHeatValue((int)worldMousePosition.x, (int)worldMousePosition.y);
+
+	p_interface.SetTextString(std::string("biome_debug_info"), std::format("Wet: {} \nHot: {} \nBiome: {}", humidityValue, heatValue, (int) biomeAtMouse));
+	
+	auto& element = p_interface.GetText("biome_debug_info");
+	FloatRect bounds = element.text->getGlobalBounds();
+
+	v2f drawPosition = v2f(
+		m_mousePosition.x - bounds.width - 8,
+		m_mousePosition.y
+	);
+	element.absolutePosition = drawPosition;
+
+	p_interface.DrawText("biome_debug_info");
+}
+
+void GameScene::DrawUI()
+{
+	v2f worldMousePosition = ScreenToWorld(m_mousePosition);
+
+	auto worldChunkCoords = m_world.WorldToChunkPosition(worldMousePosition);
+	
+	if (m_world.InBounds(worldMousePosition, 0))
+	{
+
+		DrawTileAtMouseUI(worldMousePosition);
+
+		DrawCursorToolUseUI(worldMousePosition);
+	}
+
+	//  * Draw tool overlay 
+	p_interface.ShowToolOverlay(m_currentToolIndex);
+
+	//  * Draw text elements
+	if (m_drawDebugMenu)
+	{
+		p_interface.DrawText(std::string("position_text"));
+		p_interface.DrawText(std::string("fps_text"));
+
+		DrawBiomeDebugInfoUI(worldMousePosition);
+	}
+
+	p_interface.DrawText(std::string("ui_tool_name_text"));
+	p_interface.DrawText(std::string("current_hour"));
+
+	//  * Draw inventory screen
+	p_interface.ShowInventoryOverlay();
 
 
+
+}
+
+
+
+void GameScene::Draw()
+{
+	m_cameraPosition = player->position * (float)SCALED_TILE_SIZE - v2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+
+	int chunksRendered = m_world.DrawChunks(p_window, m_cameraPosition, m_drawChunkBorders);
+
+	p_window->setTitle(std::format("River Farm - {} chunks rendered - {} chunks loaded", chunksRendered, m_world.Chunks.size()));
+
+	// -- Draw player and other entities --
+
+	player->Draw(p_window, m_cameraPosition);
+
+	for (auto entity : World::WorldEntities)
+	{
+		entity->Draw(p_window, m_cameraPosition);
+	}
+
+	// -- Draw UI --
+	//  * Draw daynight overlay
+
+	const int pixelsPerHour = 50;
+
+	int currentHour = static_cast<int>(m_world.worldTime.hours);
+	int currentMinute = static_cast<int>(m_world.worldTime.minutes);
+
+	int lightOverlayPixelX = currentHour * pixelsPerHour + (int)((currentMinute / 60.F) * pixelsPerHour);
+
+	//		For smooth transition between the two sides of the image
+	if ((uint) lightOverlayPixelX >= m_daynightCycleOverlay.getSize().x)
+	{
+		int difference = lightOverlayPixelX - m_daynightCycleOverlay.getSize().x;
+		lightOverlayPixelX = difference;
+	}
+
+	Sprite daynightOverlaySprite = 
+		Sprite(
+			m_daynightCycleOverlay,
+			IntRect(
+				v2i(lightOverlayPixelX, 0),
+				v2i(1, 1)
+			)
+		);
+
+	daynightOverlaySprite.setScale(v2f(WINDOW_WIDTH, WINDOW_HEIGHT));
+	daynightOverlaySprite.setPosition(v2f(0, 0));
+
+	p_window->draw(daynightOverlaySprite, RenderStates(sf::BlendMultiply));
+
+	DrawUI();
 }
 
 void GameScene::Dispose()
