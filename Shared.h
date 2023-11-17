@@ -30,6 +30,9 @@ constexpr int MAP_LEVELS = 2;
 
 constexpr float TEXTURE_SCALE = 2.f;
 
+const std::string TEXTURES_PATH = std::string("Assets/Textures/");
+const std::string SOUNDS_PATH = std::string("Assets/Sounds/");
+
 constexpr float PI = 3.141592654f;
 constexpr float TWO_PI = PI * 2.f;
 

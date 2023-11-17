@@ -1,4 +1,5 @@
 #include "ToolDeclarations.h"
+#include "../SoundManager.h"
 
 MilkPailTool::MilkPailTool()
 {
@@ -43,6 +44,7 @@ void MilkPailTool::OnUse(World* world, const v2f& position)
 	case ActionMilkCow:
 		if (m_lastCowMilked != nullptr) m_lastCowMilked->milkFullness = 0;
 		world->AddItemEntity(position, ItemID::ItemMilk);
+		SoundManager::PlaySound("moo");
 		break;
 	case ActionTakeWater:
 		world->SetTile(position, 0, TileID::Air, false);

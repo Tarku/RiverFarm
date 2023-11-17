@@ -119,7 +119,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>freetype.lib;jpeg.lib;openal32.lib;flac.lib;opengl32.lib;winmm.lib;gdi32.lib;sfml-system-s-d.lib;sfml-window-s-d.lib;sfml-graphics-s-d.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>openal32.lib;freetype.lib;jpeg.lib;flac.lib;libvorbisfile_static.lib;libvorbis_static.lib;ogg.lib;sfml-audio-s-d.lib;flac.lib;opengl32.lib;winmm.lib;gdi32.lib;sfml-system-s-d.lib;sfml-window-s-d.lib;sfml-graphics-s-d.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
     </Link>
@@ -139,7 +139,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>freetype.lib;jpeg.lib;openal32.lib;flac.lib;opengl32.lib;winmm.lib;gdi32.lib;sfml-main.lib;sfml-system-s.lib;sfml-window-s.lib;sfml-graphics-s.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;jpeg.lib;openal32.lib;flac.lib;opengl32.lib;winmm.lib;gdi32.lib;sfml-main.lib;sfml-audio-s.lib;sfml-system-s.lib;sfml-window-s.lib;sfml-graphics-s.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -159,17 +159,21 @@
     <ClCompile Include="Scenes\MainMenuScene.cpp" />
     <ClCompile Include="Scenes\OptionsScene.cpp" />
     <ClCompile Include="Scenes\SceneManager.cpp" />
+    <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="Tools\AxeTool.cpp" />
+    <ClCompile Include="Tools\HandTool.cpp" />
     <ClCompile Include="Tools\HoeTool.cpp" />
     <ClCompile Include="Tools\MilkPailTool.cpp" />
     <ClCompile Include="Tools\ScytheTool.cpp" />
     <ClCompile Include="Tools\SeedBagTool.cpp" />
     <ClCompile Include="Tools\ShovelTool.cpp" />
     <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="World\Biome.cpp" />
     <ClCompile Include="World\Chunk.cpp" />
     <ClCompile Include="World\Crop.cpp" />
     <ClCompile Include="World\CropRegistry.cpp" />
     <ClCompile Include="World\Tiles\AirTile.cpp" />
+    <ClCompile Include="World\Tiles\DoorTile.cpp" />
     <ClCompile Include="World\Tiles\Tile.cpp" />
     <ClCompile Include="World\Tiles\TilledSandTile.cpp" />
     <ClCompile Include="World\Tiles\TilledSoilTile.cpp" />
@@ -197,13 +201,18 @@
     <ClInclude Include="Scenes\SceneDeclarations.h" />
     <ClInclude Include="Scenes\SceneManager.h" />
     <ClInclude Include="Shared.h" />
+    <ClInclude Include="SoundManager.h" />
     <ClInclude Include="Tools\ToolDeclarations.h" />
     <ClInclude Include="Tools\ToolRegistry.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="World\Biome.h" />
+    <ClInclude Include="World\BiomeID.h" />
+    <ClInclude Include="World\BiomeRegistry.h" />
     <ClInclude Include="World\Chunk.h" />
     <ClInclude Include="World\Crop.h" />
     <ClInclude Include="World\CropRegistry.h" />
     <ClInclude Include="World\Tiles\AirTile.h" />
+    <ClInclude Include="World\Tiles\DoorTile.h" />
     <ClInclude Include="World\Tiles\Tile.h" />
     <ClInclude Include="World\Tiles\TileRegistry.h" />
     <ClInclude Include="World\Tiles\TilledSandTile.h" />

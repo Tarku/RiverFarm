@@ -107,15 +107,15 @@ void Interface::Initialize(sf::RenderWindow* window)
 	bool couldLoadFont = Interface::font.loadFromFile(Interface::fontName);
 	assert(couldLoadFont);
 
-	bool couldLoadUIBackground = Interface::uiElementsBackground.loadFromFile("Assets/ui_background.png");
+	bool couldLoadUIBackground = Interface::uiElementsBackground.loadFromFile(TEXTURES_PATH + "ui_background.png");
 	assert(couldLoadUIBackground);
 
-	bool couldLoadUILeftArrow = Interface::uiLeftArrow.loadFromFile("Assets/left_arrow.png");
+	bool couldLoadUILeftArrow = Interface::uiLeftArrow.loadFromFile(TEXTURES_PATH + "left_arrow.png");
 	assert(couldLoadUILeftArrow);
 
 	uiLeftArrowSprite = new Sprite(Interface::uiLeftArrow);
 
-	bool couldLoadUIRightArrow = Interface::uiRightArrow.loadFromFile("Assets/right_arrow.png");
+	bool couldLoadUIRightArrow = Interface::uiRightArrow.loadFromFile(TEXTURES_PATH + "right_arrow.png");
 	assert(couldLoadUIRightArrow);
 
 	uiRightArrowSprite = new Sprite(Interface::uiRightArrow);
@@ -239,9 +239,12 @@ void Interface::DrawText(const std::string& tag)
 	);
 
 	sf::Sprite uiBackgroundSprite = sf::Sprite(Interface::uiElementsBackground);
+
+	int backgroundWidth = Interface::uiElementsBackground.getSize().x;
+	int backgroundHeight = Interface::uiElementsBackground.getSize().y;
 	
 	uiBackgroundSprite.setPosition(v2f(textElement->text->getPosition().x - 16, textElement->text->getGlobalBounds().height / 2 + textElement->text->getPosition().y - 4));
-	uiBackgroundSprite.setScale(v2f(textElement->text->getGlobalBounds().width + 32, textElement->text->getGlobalBounds().height + 8) / 10.f);
+	uiBackgroundSprite.setScale(v2f(textElement->text->getGlobalBounds().width + 32, textElement->text->getGlobalBounds().height + 8) / (float) backgroundWidth);
 
 	window->draw(uiBackgroundSprite);
 	window->draw(*textElement->text);
@@ -268,7 +271,7 @@ void Interface::ShowInventoryOverlay()
 	sf::Sprite itemIconSprite = sf::Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Items));
 	sf::Sprite uiBackgroundSprite = sf::Sprite(Interface::uiElementsBackground);
 
-
+	float fontScreenRatio = 30.0f / WINDOW_HEIGHT;
 	std::vector<int> itemsThatShouldBeShown = std::vector<int>();
 
 	for (int itemId = 0; itemId < itemsAmount; itemId++)
@@ -291,7 +294,7 @@ void Interface::ShowInventoryOverlay()
 
 		itemIconSprite.setPosition(
 			v2f(
-				WINDOW_WIDTH - TILE_SIZE * 2,
+				WINDOW_WIDTH * 0.95f - TILE_SIZE * 2,
 				itemCounter * TILE_SIZE * 2 + 4
 			)
 		);
@@ -304,17 +307,17 @@ void Interface::ShowInventoryOverlay()
 
 		text.setPosition(
 			v2f(
-				WINDOW_WIDTH - 2 * TILE_SIZE - text.getGlobalBounds().width - 4.f,
-				itemCounter * 2 * TILE_SIZE * 1.f
+				WINDOW_WIDTH * 0.95f - 2 * TILE_SIZE - text.getGlobalBounds().width - 4.f,
+				fontScreenRatio + itemCounter * 2 * TILE_SIZE * 1.f
 			)
 		);
 
 
-		uiBackgroundSprite.setPosition(v2f(WINDOW_WIDTH - 2 * TILE_SIZE - text.getGlobalBounds().width - 8, itemCounter * 2 * TILE_SIZE + 1));
+		uiBackgroundSprite.setPosition(v2f(WINDOW_WIDTH * 0.95f - 2 * TILE_SIZE - text.getGlobalBounds().width - 8, itemCounter * 2 * TILE_SIZE + 1));
 		
 		v2f uiBackgroundSize = v2f(
 			SCALED_TILE_SIZE + text.getGlobalBounds().width + 8,
-			2 * TILE_SIZE - 2
+			fontScreenRatio + 2 * TILE_SIZE - 2
 		);
 		uiBackgroundSprite.setScale(uiBackgroundSize);
 
@@ -368,4 +371,6 @@ void Interface::Dispose()
 	delete Interface::uiIconBackground;
 	delete Interface::uiLeftArrowSprite;
 	delete Interface::uiRightArrowSprite;*/
+
+	// elementDeclarations.clear();
 }

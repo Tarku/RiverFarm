@@ -15,7 +15,7 @@ double WorldGen::GetHumidityValue(int x, int y)
 	double biomeValue = perlin.octave2D_01(x * (1.f / 128), y * (1.f / 187), 2);
 	double biomeValue2 = perlin.octave2D_01(x * (1.f / 28), y * (1.f / 69), 1);
 
-	double finalBiomeValue = (biomeValue + biomeValue2) * 0.5f;
+	double finalBiomeValue = (biomeValue + biomeValue2) * 0.35;
 
 	return finalBiomeValue;
 }
@@ -24,19 +24,19 @@ double WorldGen::GetHeatValue(int x, int y)
 
 	double biomeValue = perlin.octave2D_01(x * (1.f / 289), y * (1.f / 320), 2);
 	double biomeValue2 = perlin.octave2D_01(x * (1.f / 28), y * (1.f / 68), 3);
-	double finalBiomeValue = (biomeValue + biomeValue2) * 0.5f;
+	double finalBiomeValue = (biomeValue + biomeValue2) * 0.6;
 
 	return finalBiomeValue;
 }
 
-WorldGen::BiomeType WorldGen::GetBiome(int x, int y)
+BiomeID WorldGen::GetBiome(int x, int y)
 {
 
-	int humidityValue = static_cast<int>( (1 - GetHumidityValue(x, y) * lookupResolution));
-	int heatValue = static_cast<int>(GetHeatValue(x, y) * lookupResolution);
+	int humidityValue = static_cast<int>( GetHumidityValue(x, y) * (lookupResolution + 1));
+	int heatValue = static_cast<int>(GetHeatValue(x, y) * (lookupResolution + 1));
 
-	humidityValue = Utils::Clamp<int>(humidityValue, 0, lookupResolution);
-	heatValue = Utils::Clamp<int>(heatValue, 0, lookupResolution);
+	humidityValue = Utils::Clamp<int>(humidityValue, 0, (lookupResolution));
+	heatValue = Utils::Clamp<int>(heatValue, 0, (lookupResolution));
 		
 	return biomeLookup[humidityValue][heatValue];
 	

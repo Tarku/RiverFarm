@@ -67,8 +67,8 @@ struct WorldTime
 
 	inline std::string GetHourString()
 	{
-		std::string hourString = std::format("{}", hours);
-		std::string minutesString = std::format("{}", minutes);
+		std::string hourString = std::format("{}", hours + 1);
+		std::string minutesString = std::format("{}", minutes + 1);
 
 		if (hourString.size() == 1)
 		{
@@ -85,8 +85,8 @@ struct WorldTime
 	inline std::string GetDateString()
 	{
 		std::string yearString = std::format("{}", years);
-		std::string monthString = std::format("{}", months);
-		std::string dayString = std::format("{}", days);
+		std::string monthString = std::format("{}", months + 1);
+		std::string dayString = std::format("{}", days + 1);
 
 		if (monthString.size() == 1)
 		{
@@ -97,8 +97,8 @@ struct WorldTime
 			dayString.insert(0, std::string("0"));
 		}
 
-		std::string hourString = std::format("{}", hours);
-		std::string minutesString = std::format("{}", minutes);
+		std::string hourString = std::format("{}", hours + 1);
+		std::string minutesString = std::format("{}", minutes + 1);
 
 		if (hourString.size() == 1)
 		{

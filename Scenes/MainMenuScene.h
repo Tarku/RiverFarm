@@ -11,8 +11,8 @@ private:
 	{
 		static sf::RenderWindow* window;
 
-		std::string label;
-		std::function<void()> callback;
+		string label;
+		voidfunc callback;
 
 		static inline void Initialize(sf::RenderWindow* window)
 		{

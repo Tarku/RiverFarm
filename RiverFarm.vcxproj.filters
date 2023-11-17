@@ -153,6 +153,18 @@
     <ClCompile Include="World\WorldGen.cpp">
       <Filter>Source Files\World</Filter>
     </ClCompile>
+    <ClCompile Include="World\Biome.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\HandTool.cpp">
+      <Filter>Source Files\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="World\Tiles\DoorTile.cpp">
+      <Filter>Source Files\World\Tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -256,6 +268,21 @@
     </ClInclude>
     <ClInclude Include="World\WorldGen.h">
       <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="World\Biome.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="World\BiomeID.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="World\BiomeRegistry.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="World\Tiles\DoorTile.h">
+      <Filter>Header Files\World\Tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundManager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

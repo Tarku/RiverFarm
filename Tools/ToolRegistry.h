@@ -7,6 +7,7 @@ class ToolRegistry
 {
 public:
 	inline static std::vector<AgriculturalTool*> Tools = std::vector<AgriculturalTool*> {
+		new HandTool(),
 		new AxeTool(),
 		new HoeTool(),
 		new ShovelTool(),

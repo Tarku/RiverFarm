@@ -44,69 +44,7 @@ v2f World::ChunkToWorldPosition(const v2f& chunkPosition, const v2f& inChunkPosi
 
 void World::AddDecorations()
 {
-	for (int i = 0; i < 150; i++)
-	{
-
-		int roomWidth = Utils::RandInt(5, 14);
-		int roomHeight = Utils::RandInt(5, 14);
-
-		int roomX = Utils::RandInt(0, MAP_WIDTH - roomWidth);
-		int roomY = Utils::RandInt(0, MAP_HEIGHT - roomHeight);
-
-		for (int y = 0; y < roomHeight; y++)
-		{
-			for (int x = 0; x < roomWidth; x++)
-			{
-				// Set the flooring
-				SetTile(v2f(x + roomX, y + roomY), 0, TileID::WoodWall);
-
-				if (x == 0 || y == 0 || x == roomWidth - 1 || y == roomHeight - 1)
-				{
-
-					SetTile(v2f(x + roomX, y + roomY), 1, TileID::WoodWall);
-				}
-				else {
-
-					SetTile(v2f(x + roomX, y + roomY), 1, TileID::Air);
-				}
-
-			}
-		}
-
-		int doorAmount = Utils::RandInt(1, 3);
-		int lastRandomSide = -1;
-
-		for (int doorId = 0; doorId < doorAmount; doorId++)
-		{
-			int doorX = Utils::RandInt(1, roomWidth - 2);
-			int doorY = Utils::RandInt(1, roomHeight - 2);
-
-			int randomSide = Utils::RandInt(0, 3);
-
-			while (randomSide == lastRandomSide)
-			{
-				randomSide = Utils::RandInt(0, 3);
-			}
-
-			switch (randomSide)
-			{
-			case 0:
-				SetTile(v2f(roomX + doorX, roomY + roomHeight - 1), 1, TileID::Air);
-				break;
-			case 1:
-				SetTile(v2f(roomX + roomWidth - 1, roomY + doorY), 1, TileID::Air);
-				break;
-			case 2:
-				SetTile(v2f(roomX, roomY + doorY), 1, TileID::Air);
-				break;
-			case 3:
-				SetTile(v2f(roomX + doorX, roomY), 1, TileID::Air);
-				break;
-			}
-
-			lastRandomSide = randomSide;
-		}
-	}
+		
 }
 
 
@@ -213,6 +151,8 @@ void World::DoWorldGen()
 	Game::Seed = Utils::GetTimestamp();
 	WorldGen::Initialize();
 
+	Chunks.clear();
+
 	v2f playerSpawnCoords = { MAP_WIDTH / 2.f + Utils::RandInt(-CHUNK_WIDTH / 2.f, CHUNK_WIDTH / 2.f), MAP_HEIGHT / 2.f + Utils::RandInt(-CHUNK_HEIGHT / 2.f, CHUNK_HEIGHT / 2.f) };
 
 	auto spawnChunkCoordsTuple = WorldToChunkPosition(playerSpawnCoords);
@@ -270,10 +210,10 @@ void World::DoWorldGen()
 			}
 
 			// Generate air for doorways
-			SetTile(v2f(playerSpawnCoords.x + spawnRoomHalfWidth, playerSpawnCoords.y), 1, TileID::Air);
-			SetTile(v2f(playerSpawnCoords.x - spawnRoomHalfWidth, playerSpawnCoords.y), 1, TileID::Air);
-			SetTile(v2f(playerSpawnCoords.x, playerSpawnCoords.y + spawnRoomHalfHeight), 1, TileID::Air);
-			SetTile(v2f(playerSpawnCoords.x, playerSpawnCoords.y - spawnRoomHalfHeight), 1, TileID::Air);
+			SetTile(v2f(playerSpawnCoords.x + spawnRoomHalfWidth, playerSpawnCoords.y), 1, TileID::Door);
+			SetTile(v2f(playerSpawnCoords.x - spawnRoomHalfWidth, playerSpawnCoords.y), 1, TileID::Door);
+			SetTile(v2f(playerSpawnCoords.x, playerSpawnCoords.y + spawnRoomHalfHeight), 1, TileID::Door);
+			SetTile(v2f(playerSpawnCoords.x, playerSpawnCoords.y - spawnRoomHalfHeight), 1, TileID::Door);
 		}
 	}
 
@@ -466,6 +406,10 @@ void World::AddItemEntity(const v2f& position, ItemID itemID, int amount)
 		WorldEntities.push_back(newEntity);
 
 	}
+}
+void World::AddEntity(Entity* entity)
+{
+	WorldEntities.push_back(entity);
 }
 
 void World::RemoveEntity(Entity* entity)

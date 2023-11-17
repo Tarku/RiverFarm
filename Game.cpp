@@ -17,7 +17,7 @@ Game::Game()
 	}
 
 	Image iconImage;
-	bool couldLoadIconImage = iconImage.loadFromFile("Assets/icon.png");
+	bool couldLoadIconImage = iconImage.loadFromFile(TEXTURES_PATH + "icon.png");
 
 	if (!couldLoadIconImage)
 	{
@@ -25,7 +25,7 @@ Game::Game()
 	}
 
 	Image cursorImage;
-	bool couldLoadCursorImage = cursorImage.loadFromFile("Assets/cursor.png");
+	bool couldLoadCursorImage = cursorImage.loadFromFile(TEXTURES_PATH + "cursor.png");
 
 	if (!couldLoadCursorImage)
 	{

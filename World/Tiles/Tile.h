@@ -77,4 +77,7 @@ public:
 	virtual void OnRandomUpdate(const v2f& position, World* world, int layer = 0);
 
 	virtual void OnUpdate(const v2f& position, World* world, int layer = 0);
+
+	virtual AtlasID GetContextTextureID(const v2f& position, World* world, int layer);
+	virtual bool IsSolidAt(const v2f& position, World* world, int layer);
 };

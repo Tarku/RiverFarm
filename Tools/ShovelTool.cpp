@@ -5,6 +5,7 @@ ShovelTool::ShovelTool()
 {
 	name = "Shovel"; 
 	uiIcon = AtlasID( 3, 0 );
+	soundEffectTag = "shovel";
 }
 
 bool ShovelTool::CanBeUsedHere(World* world, const sf::Vector2f& position)

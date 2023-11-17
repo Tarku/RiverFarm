@@ -29,6 +29,7 @@ public:
 
 	bool CanBeRendered(const v2f& cameraPosition);
 	void DoWorldGen();
+	void AddDecorations();
 
 	void Update(float dt);
 

@@ -52,3 +52,16 @@ void Tile::OnUpdate(const v2f& position, World* world, int layer)
 {
 	// Base tile doesn't have any update stuff
 };
+
+AtlasID Tile::GetContextTextureID(const v2f& position, World* world, int layer)
+{
+	if (layer == 0)
+		return groundId;
+	else
+		return textureId;
+}
+
+bool Tile::IsSolidAt(const v2f& position, World* world, int layer)
+{
+	return tileProperties.isSolid;
+}

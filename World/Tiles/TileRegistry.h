@@ -5,6 +5,7 @@
 #include "TilledSoilTile.h"
 #include "WaterTile.h"
 #include "TilledSandTile.h"
+#include "DoorTile.h"
 
 #include <vector>
 
@@ -32,12 +33,16 @@ public:
 		new TilledSandTile(),
 		new Tile("Watered tilled sand", AtlasID(5, 1), ItemID::ItemSand, TileProperties(false, true, false, true, PlantSubstrateProperties(true, 0.5f))),
 
-		new Tile("Snow", AtlasID(6, 0), ItemID::Null, TileProperties(true, false, false, false)),
-		new Tile("Swamp grass", AtlasID(7, 0), ItemID::Null, TileProperties(true, false, false, false)),
+		new Tile("Snow", AtlasID(6, 0), ItemID::ItemDirt, TileProperties(true, false, false, false)),
+		new Tile("Swamp grass", AtlasID(7, 0), ItemID::ItemDirt, TileProperties(true, false, false, false)),
 
 
 		new Tile("Fir tree", AtlasID(6, 1), ItemID::ItemWood, TileProperties(false, false, true, true)),
+		new Tile("Acacia tree", AtlasID(7, 2), ItemID::ItemWood, TileProperties(false, false, true, true)),
 		new Tile("Mangrove tree", AtlasID(6, 2), ItemID::ItemWood, TileProperties(false, false, true, true)),
+		new Tile("Dry grass", AtlasID(7, 1), ItemID::ItemDirt, TileProperties(true, true, false, false)),
+
+		new DoorTile()
 	};
 
 	inline static int TileCount()
@@ -67,5 +72,8 @@ enum TileID
 	Snow,
 	SwampGrass,
 	FirTree,
-	MangroveTree
+	AcaciaTree,
+	MangroveTree,
+	DryGrass,
+	Door
 };

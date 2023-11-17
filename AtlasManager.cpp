@@ -3,10 +3,10 @@
 sf::Texture AtlasManager::Atlases[];
 
 std::string AtlasManager::atlasFilenames[] = {
-	"Assets/atlas.png",
-	"Assets/entities.png",
-	"Assets/ui.png",
-	"Assets/items.png"
+	"atlas.png",
+	"entities.png",
+	"ui.png",
+	"items.png"
 };
 
 bool AtlasManager::LoadAtlases()
@@ -17,7 +17,7 @@ bool AtlasManager::LoadAtlases()
 
 	for (int atlasId = 0; atlasId < MAX_ATLASES; atlasId++)
 	{
-		counter += AtlasManager::Atlases[atlasId].loadFromFile(atlasFilenames[atlasId]);
+		counter += AtlasManager::Atlases[atlasId].loadFromFile(TEXTURES_PATH + atlasFilenames[atlasId]);
 	}
 
 	return counter == MAX_ATLASES;

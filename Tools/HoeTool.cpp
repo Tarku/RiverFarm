@@ -4,6 +4,7 @@ HoeTool::HoeTool()
 {
 	name = "Hoe";
 	uiIcon = AtlasID( 2, 0 );
+	soundEffectTag = "hoe";
 }
 
 bool HoeTool::CanBeUsedHere(World* world, const Vector2f& position)

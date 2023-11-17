@@ -10,6 +10,7 @@ AxeTool::AxeTool()
 {
 	name = "Axe";
 	uiIcon = AtlasID( 1, 0 );
+	soundEffectTag = "chop";
 }
 
 bool AxeTool::CanBeUsedHere(World* world, const sf::Vector2f& position)

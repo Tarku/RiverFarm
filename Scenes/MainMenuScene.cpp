@@ -2,6 +2,7 @@
 #include "GameScene.h"
 #include "OptionsScene.h"
 #include "SceneManager.h"
+#include "../SoundManager.h"
 
 using namespace sf;
 
@@ -11,12 +12,19 @@ void MainMenuScene::Initialize(sf::RenderWindow* window)
 	p_interface = Interface();
 	MainMenuSelectionElement::Initialize(window);
 
-	bool couldLoadTitleBanner = titleBanner.loadFromFile("Assets/title_image.png");
+	
+
+	bool couldLoadTitleBanner = titleBanner.loadFromFile(TEXTURES_PATH + "title_image.png");
 
 	if (!couldLoadTitleBanner)
 	{
 		Utils::Log(std::string("Couldn't load title banner!"));
 	}
+
+	SoundManager::LoadSound(SOUNDS_PATH + "sfx_chop.ogg", "chop");
+	SoundManager::LoadSound(SOUNDS_PATH + "sfx_shovel.ogg", "shovel");
+	SoundManager::LoadSound(SOUNDS_PATH + "sfx_hoe.ogg", "hoe");
+	SoundManager::LoadSound(SOUNDS_PATH + "sfx_moo.ogg", "moo");
 
 	int counter = 0;
 	float fontScreenRatio = 30.f / WINDOW_HEIGHT;
@@ -74,6 +82,10 @@ void MainMenuScene::HandleEvents()
 
 			case Keyboard::Up:
 				m_currentMMenuElementID--;
+				break;
+
+			case Keyboard::Num8:
+				SoundManager::PlaySound("chop");
 				break;
 			case Keyboard::Down:
 				m_currentMMenuElementID++;

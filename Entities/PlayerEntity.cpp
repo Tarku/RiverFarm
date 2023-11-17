@@ -38,11 +38,11 @@ bool Entity::WillCollideWithBlock(const v2f& velocity, World* world)
 	else if (world->GetChunk(v2f(minX / CHUNK_WIDTH, minY / CHUNK_HEIGHT)) == nullptr)
 		returnValue = true;
 	else
-		returnValue = 
-		TileRegistry::Tiles.at(world->TileAt(minX, minY, 1))->tileProperties.isSolid
-		|| TileRegistry::Tiles.at(world->TileAt(maxX, minY, 1))->tileProperties.isSolid
-		|| TileRegistry::Tiles.at(world->TileAt(minX, maxY, 1))->tileProperties.isSolid
-		|| TileRegistry::Tiles.at(world->TileAt(maxX, maxY, 1))->tileProperties.isSolid;
+		returnValue =
+		TileRegistry::Tiles.at(world->TileAt(minX, minY, 1))->IsSolidAt(v2f(minX, minY), world, 1)
+		|| TileRegistry::Tiles.at(world->TileAt(maxX, minY, 1))->IsSolidAt(v2f(maxX, minY), world, 1)
+		|| TileRegistry::Tiles.at(world->TileAt(minX, maxY, 1))->IsSolidAt(v2f(minX, maxY), world, 1)
+		|| TileRegistry::Tiles.at(world->TileAt(maxX, maxY, 1))->IsSolidAt(v2f(maxX, maxY), world, 1);
 
 	return returnValue;
 }

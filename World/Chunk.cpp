@@ -5,6 +5,7 @@
 #include "World.h"
 #include "WorldGen.h"
 #include "../Interface.h"
+#include "BiomeRegistry.h"
 
 sf::Sprite Chunk::m_tileSprite = Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Tiles));
 
@@ -39,7 +40,9 @@ void Chunk::DoWorldGen()
 	{
 		for (int x = 0; x < CHUNK_HEIGHT; x++)
 		{
-			WorldGen::BiomeType biome = WorldGen::GetBiome(position.x * CHUNK_WIDTH + x, position.y * CHUNK_HEIGHT + y);
+			BiomeID biomeID = WorldGen::GetBiome(position.x * CHUNK_WIDTH + x, position.y * CHUNK_HEIGHT + y);
+			Biome* biome = BiomeRegistry::Biomes.at(biomeID);
+
 			double height = WorldGen::GetHeightmapValue(position.x * CHUNK_WIDTH + x, position.y * CHUNK_HEIGHT + y);
 
 			// Generate ground tile
@@ -60,74 +63,140 @@ void Chunk::DoWorldGen()
 				);
 				continue;
 			}
-			switch (biome) {
 
-				case WorldGen::BiomeType::Plains:
-					SetTile(
-						v3f(x, y, 0),
-						TileID::Grass
-					);
-					break;
-				case WorldGen::BiomeType::Savanna:
-					SetTile(
-						v3f(x, y, 0),
-						TileID::Grass
-					);
-					break;
-				case WorldGen::BiomeType::Rainforest:
-					SetTile(
-						v3f(x, y, 0),
-						TileID::SwampGrass
-					);
-					break;
+			TileID groundTile = biome->groundTile;
 
-				case WorldGen::BiomeType::ColdPlains:
-					SetTile(
-						v3f(x, y, 0),
-						TileID::Snow
-					);
-					break;
+			// Generate water holes
 
-				case WorldGen::BiomeType::Taiga:
-					SetTile(
-						v3f(x, y, 0),
-						TileID::Snow
-					);
-					break;
-				case WorldGen::BiomeType::Desert:
-					SetTile(
-						v3f(x, y, 0),
-						TileID::Sand
-					);
-					break;
-				default:
-					SetTile(
-						v3f(x, y, 0),
-						TileID::Gravel
-					);
-					break;
+			if (biomeID == BiomeID::Rainforest)
+			{
+				if (Utils::RandInt(0, 8) == 0)
+				{
+					groundTile = TileID::Water;
+				}
+			}
+			if (biomeID == BiomeID::Steppe || biomeID == BiomeID::Savanna)
+			{
+
+				if (Utils::RandInt(0, 10) == 0)
+				{
+					groundTile = TileID::Dirt;
+				}
 			}
 
-			// Generate trees now
+			SetTile(
+				v3f(x, y, 0),
+				groundTile
+			);
 
-			if (
-				Utils::RandInt(
-					0,
-					WorldGen::BiomeTreeScarcity.at(
-						biome
-					)
-				) == 0
-				)
+			if (biome->treeScarcity == -1)
+				continue;
+				
+			// Generate trees
+			TileID treeTile = biome->treeTile;
+
+			if (Utils::RandInt(0, biome->treeScarcity) == 0 && groundTile != TileID::Water)
 			{
 				SetTile(
 					v3f(x, y, 1),
-					WorldGen::BiomeTreeType.at(biome)
+					treeTile
 				);
 			}
 		}
 	}
 
 	state = ChunkState::Unloaded;
+
+	AddDecorations();
+	
+	CowEntity* cow = new CowEntity(
+		v2f(
+			CHUNK_WIDTH * position.x + Utils::RandInt(0, CHUNK_WIDTH),
+			CHUNK_HEIGHT * position.y + Utils::RandInt(0, CHUNK_HEIGHT)
+		)
+	);
+
+		m_world->AddEntity(cow);
+}
+
+void Chunk::AddDecorations()
+{
+	if (Utils::RandInt(0, 100) == 0)
+	{
+
+		int roomWidth = Utils::RandInt(5, 14);
+		int roomHeight = Utils::RandInt(5, 14);
+
+		int roomX = Utils::RandInt(0, CHUNK_WIDTH - roomWidth);
+		int roomY = Utils::RandInt(0, CHUNK_HEIGHT - roomHeight);
+
+		double topLeftHeight = WorldGen::GetHeightmapValue(position.x * CHUNK_WIDTH + roomX, position.y * CHUNK_HEIGHT + roomY);
+		double topRightHeight = WorldGen::GetHeightmapValue(position.x * CHUNK_WIDTH + roomX + roomWidth, position.y * CHUNK_HEIGHT + roomY);
+		double bottomRightHeight = WorldGen::GetHeightmapValue(position.x * CHUNK_WIDTH + roomX + roomWidth, position.y * CHUNK_HEIGHT + roomY + roomHeight);
+		double bottomLeftHeight = WorldGen::GetHeightmapValue(position.x * CHUNK_WIDTH + roomX, position.y * CHUNK_HEIGHT + roomY + roomHeight);
+
+		double avgHeight = (topLeftHeight + topRightHeight + bottomLeftHeight + bottomRightHeight) / 4.0;
+
+		// If the height of the decoration is below water level, then don't do it
+		if (avgHeight < 0.4)
+		{
+			return;
+		}
+
+		for (int y = 0; y < roomHeight; y++)
+		{
+			for (int x = 0; x < roomWidth; x++)
+			{
+				// Set the flooring
+				SetTile(v2f(x + roomX, y + roomY), 0, TileID::WoodWall);
+
+				if (x == 0 || y == 0 || x == roomWidth - 1 || y == roomHeight - 1)
+				{
+
+					SetTile(v2f(x + roomX, y + roomY), 1, TileID::WoodWall);
+				}
+				else {
+
+					SetTile(v2f(x + roomX, y + roomY), 1, TileID::Air);
+				}
+
+			}
+		}
+
+		int doorAmount = Utils::RandInt(1, 3);
+		int lastRandomSide = -1;
+
+		for (int doorId = 0; doorId < doorAmount; doorId++)
+		{
+			int doorX = Utils::RandInt(1, roomWidth - 2);
+			int doorY = Utils::RandInt(1, roomHeight - 2);
+
+			int randomSide = Utils::RandInt(0, 3);
+
+			while (randomSide == lastRandomSide)
+			{
+				randomSide = Utils::RandInt(0, 3);
+			}
+
+			switch (randomSide)
+			{
+			case 0:
+				SetTile(v2f(roomX + doorX, roomY + roomHeight - 1), 1, TileID::Door);
+				break;
+			case 1:
+				SetTile(v2f(roomX + roomWidth - 1, roomY + doorY), 1, TileID::Door);
+				break;
+			case 2:
+				SetTile(v2f(roomX, roomY + doorY), 1, TileID::Door);
+				break;
+			case 3:
+				SetTile(v2f(roomX + doorX, roomY), 1, TileID::Door);
+				break;
+			}
+
+			lastRandomSide = randomSide;
+		}
+	}
 }
 
 void Chunk::Update(float dt)
@@ -136,7 +205,7 @@ void Chunk::Update(float dt)
 	// Random tick update
 
 	const int blocksToUpdate = 
-		(CHUNK_WIDTH * CHUNK_HEIGHT * MAP_LEVELS) / 90;
+		(CHUNK_WIDTH * CHUNK_HEIGHT * MAP_LEVELS) / 70;
 
 	for (int i = 0; i < blocksToUpdate; i++)
 	{
@@ -203,9 +272,27 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 					continue;
 				}
 
-				AtlasID tileAtlasId = ((int) z == 0) ? currentTile->groundId : currentTile->textureId;
+				AtlasID tileAtlasId = currentTile->GetContextTextureID(
+					v2f(
+						position.x * CHUNK_WIDTH + x,
+						position.y * CHUNK_HEIGHT + y
+					),
+					m_world,
+					z
+				);
 
-				m_tileSprite.setTextureRect(IntRect(v2i(tileAtlasId.x * TILE_SIZE, tileAtlasId.y * TILE_SIZE), v2i(TILE_SIZE, TILE_SIZE)));
+				m_tileSprite.setTextureRect(
+					
+					IntRect(
+						v2i(
+							floor(tileAtlasId.x * TILE_SIZE),
+							floor(tileAtlasId.y * TILE_SIZE)
+						),
+						v2i(
+							TILE_SIZE,
+							TILE_SIZE
+						)
+					));
 
 				auto drawPos =
 					v2f(

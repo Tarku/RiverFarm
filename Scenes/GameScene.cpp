@@ -1,8 +1,10 @@
 #include "GameScene.h"
 #include "MainMenuScene.h"
 #include "SceneManager.h"
+#include "../SoundManager.h"
 #include "../Tools/ToolRegistry.h"
 #include "../World/WorldGen.h"
+#include "../World/BiomeRegistry.h"
 
 using namespace sf;
 
@@ -14,7 +16,7 @@ void GameScene::Initialize(RenderWindow* window)
 
 	player = new PlayerEntity(v2f(MAP_WIDTH / 2, MAP_HEIGHT / 2));
 
-	bool couldLoadDNCOverlay = m_daynightCycleOverlay.loadFromFile("Assets/daynight_overlay.png");
+	bool couldLoadDNCOverlay = m_daynightCycleOverlay.loadFromFile(TEXTURES_PATH + "daynight_overlay.png");
 
 	if (!couldLoadDNCOverlay)
 	{
@@ -23,13 +25,15 @@ void GameScene::Initialize(RenderWindow* window)
 
 	Inventory::Initialize();
 
-	p_interface.CreateNormalizedText(std::string("ui_tool_name_text"), "", v2f(0.5f, 0.075f), v2f(0.5, 0.0f));
-	p_interface.CreateNormalizedText(std::string("fps_text"), "", ZERO_VEC, ZERO_VEC, sf::Color::Yellow);
-	p_interface.CreateNormalizedText(std::string("position_text"), "", v2f(0.f, 0.1f), ZERO_VEC);
-	p_interface.CreateNormalizedText(std::string("current_hour"), "", v2f(0.5f, 0.950f), v2f(0.5f, 0.f));
+	float fontScreenRatio = 30.f / WINDOW_HEIGHT;
 
-	p_interface.CreateNormalizedText(std::string("tile_hovered"), "", v2f(0.0f, 0.95f), v2f(0.f, 0.f));
-	p_interface.CreateText(std::string("biome_debug_info"), "", v2f(0.0f, 0.0f), v2f(0.f, 0.f));
+	p_interface.CreateNormalizedText(std::string("ui_tool_name_text"), "", v2f(0.5f, 0.075f), v2f(0.5f, 0.0f));
+	p_interface.CreateNormalizedText(std::string("fps_text"), "", v2f(0.05f, 0.05f), ZERO_VEC, sf::Color::Yellow);
+	p_interface.CreateNormalizedText(std::string("position_text"), "", v2f(0.05f, 0.15f), ZERO_VEC);
+	p_interface.CreateNormalizedText(std::string("current_hour"), "", v2f(0.5f, 0.950f - fontScreenRatio), v2f(0.5f, 0.f));
+
+	p_interface.CreateNormalizedText(std::string("tile_hovered"), "", v2f(0.05f, 0.95f - fontScreenRatio), v2f(0.f, 0.f));
+	p_interface.CreateText(std::string("biome_debug_info"), "", v2f(0.0f, 0.0f), v2f(0.f, 0.f), sf::Color::White, 1.0f);
 
 	Utils::Log("World created.");
 
@@ -145,6 +149,9 @@ void GameScene::HandleEvents()
 				)
 				{
 					m_currentTool->OnUse(&m_world, worldMousePosition);
+					
+					if (m_currentTool->soundEffectTag != "")
+						SoundManager::PlaySound(m_currentTool->soundEffectTag);
 				}
 				break;
 			case Mouse::Right:
@@ -194,8 +201,8 @@ void GameScene::Update(float dt)
 	m_fps = 1.f / dt;
 
 	p_interface.SetTextString(std::string("ui_tool_name_text"), m_currentTool->name);
-	p_interface.SetTextString(std::string("fps_text"), std::format("FPS: {}", (int)m_fps));
-	p_interface.SetTextString(std::string("position_text"), std::format("Player X, Y: {}, {}", (int)player->position.x, (int)player->position.y));
+	p_interface.SetTextString(std::string("fps_text"), std::format("{} FPS", (int)m_fps));
+	p_interface.SetTextString(std::string("position_text"), std::format("X: {}; Y: {}", (int)player->position.x, (int)player->position.y));
 
 	p_interface.SetTextString(std::string("current_hour"), m_world.worldTime.GetDateString());
 
@@ -312,12 +319,12 @@ void GameScene::DrawBiomeDebugInfoUI(const v2f& worldMousePosition)
 
 	auto worldChunkCoords = m_world.WorldToChunkPosition(worldMousePosition);
 
-	WorldGen::BiomeType biomeAtMouse = WorldGen::GetBiome((int) worldMousePosition.x, (int) worldMousePosition.y);
+	BiomeID biomeAtMouse = WorldGen::GetBiome((int) worldMousePosition.x, (int) worldMousePosition.y);
 
 	double humidityValue = WorldGen::GetHumidityValue((int)worldMousePosition.x, (int)worldMousePosition.y);
 	double heatValue = WorldGen::GetHeatValue((int)worldMousePosition.x, (int)worldMousePosition.y);
 
-	p_interface.SetTextString(std::string("biome_debug_info"), std::format("Wet: {} \nHot: {} \nBiome: {}", humidityValue, heatValue, (int) biomeAtMouse));
+	p_interface.SetTextString(std::string("biome_debug_info"), std::format("Wet: {} \nHot: {} \nBiome: {}", round((1 - humidityValue) * 100) / 100, round((1 - heatValue) * 100) / 100, BiomeRegistry::Biomes.at(biomeAtMouse)->name));
 	
 	auto& element = p_interface.GetText("biome_debug_info");
 	FloatRect bounds = element.text->getGlobalBounds();

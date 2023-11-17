@@ -15,6 +15,8 @@ public:
 	std::string description;
 	AtlasID uiIcon;
 
+	std::string soundEffectTag;
+
 	virtual inline bool CanBeUsedHere(World* world, const sf::Vector2f& position) { return false; };
 	virtual inline void OnUse(World* world, const sf::Vector2f& position) {};
 	virtual inline void OnRightClick(World* world, const v2f& position) {};
@@ -91,6 +93,25 @@ private:
 
 public:
 	MilkPailTool();
+
+	virtual bool CanBeUsedHere(World* world, const sf::Vector2f& position) override;
+	virtual void OnUse(World* world, const sf::Vector2f& position) override;
+};
+
+class HandTool : public AgriculturalTool
+{
+private:
+
+	enum class HandAction
+	{
+		None = -1,
+		InteractDoor,
+		PetCow
+	};
+	HandAction m_lastHandAction = HandAction::None;
+
+public:
+	HandTool();
 
 	virtual bool CanBeUsedHere(World* world, const sf::Vector2f& position) override;
 	virtual void OnUse(World* world, const sf::Vector2f& position) override;

@@ -4,7 +4,7 @@
 SeedBagTool::SeedBagTool()
 {
 	uiIcon = { 1, 1 };
-	name = "Seed Bag";
+	name = "Seed bag";
 }
 
 bool SeedBagTool::CanBeUsedHere(World* world, const sf::Vector2f& position)
