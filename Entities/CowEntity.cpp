@@ -9,6 +9,8 @@ CowEntity::CowEntity(const v2f& position)
 
 	RandomizeDirection();
 
+	this->milkFullness = Utils::RandFloat(0.0f, 1.0f);
+
 	this->position = position;
 }
 
@@ -26,6 +28,29 @@ void CowEntity::Update(World* world, float dt)
 
 	m_hunger += dt * 0.02f;
 
+	float actualSpeed = inWater ? speed / 2 : speed;
+
+
+	if (m_currentAIState == Eating)
+	{
+
+		if (m_hunger > 0)
+		{
+
+			atlasID = { 1, 1 };
+			actualSpeed = 0;
+			m_hunger -= dt * 0.1;
+		}
+		else
+		{
+
+			actualSpeed = speed;
+
+			m_currentAIState = Wandering;
+
+			world->SetTile(m_foodTarget, 1, 0, false);
+		}
+	}
 	if (m_currentAIState == FoodTargetLocked)
 	{
 		/*
@@ -47,15 +72,13 @@ void CowEntity::Update(World* world, float dt)
 
 		if ((int)position.x == (int)m_foodTarget.x && (int)position.y == (int)m_foodTarget.y)
 		{
-			world->SetTile(m_foodTarget, 1, 0, false);
-
-			m_hunger = 0;
-			m_currentAIState = Wandering;
+			m_currentAIState = Eating;
 			return;
 		}
 
 
 	}
+
 	if (m_currentAIState == LookingForFood)
 	{
 		/* 
@@ -103,7 +126,20 @@ void CowEntity::Update(World* world, float dt)
 		milkFullness += dt * milkFillingFactor * inverse;
 	}
 
-	float actualSpeed = inWater ? speed / 2 : speed;
+	switch (m_currentAIState)
+	{
+	case Eating:
+		atlasID = { 1, 1 };
+		break;
+	default:
+		atlasID = { 1, 0 };
+		break;
+	}
+
+	if (inWater)
+	{
+		atlasID = { 1, 2 };
+	}
 
 	if (WillCollideWithBlock(velocity * dt, world))
 	{
@@ -120,8 +156,6 @@ void CowEntity::Update(World* world, float dt)
 void CowEntity::RandomizeDirection()
 {
 	float angle = Utils::RandInt(0, 360) * RADIAN;
-
-
 
 	this->velocity.x = cos(angle);
 	this->velocity.y = sin(angle);
@@ -144,6 +178,9 @@ void CowEntity::Draw(sf::RenderWindow* window, v2f cameraPosition)
 	case FoodTargetLocked:
 		stateString = "FoodTargetFound";
 		break;
+	case Eating:
+		stateString = "Eating...";
+		break;
 	default:
 		stateString = "Error";
 		break;
@@ -156,7 +193,7 @@ void CowEntity::Draw(sf::RenderWindow* window, v2f cameraPosition)
 			Interface::font,
 			sf::String(
 				std::format(
-					"{} {}%",
+					"{}; milk: {}%",
 					stateString,
 					round(milkFullness * 100)
 				)

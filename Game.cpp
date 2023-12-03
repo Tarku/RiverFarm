@@ -1,12 +1,16 @@
 #include "Game.h"
 #include "Scenes/MainMenuScene.h"
 #include "OptionsManager.h"
+#include "SoundManager.h"
 #include <iostream>
+#include <SFML/OpenGL.hpp>
 
 using namespace sf;
 
 Game::Game()
 {
+	glDisable(0x809D);
+	
 	srand((unsigned int) Game::Seed);
 
 	bool atlasesLoaded = AtlasManager::LoadAtlases();
@@ -50,6 +54,8 @@ Game::Game()
 	Interface::Initialize(&m_window);
 	Utils::Initialize(&m_window);
 
+	SoundManager::Initialize();
+
 	SceneManager::Initialize(&m_window);
 	SceneManager::ChangeScene(new MainMenuScene());
 }
@@ -87,6 +93,7 @@ void Game::Run()
 	time_t gameStartTime = Utils::GetTimestamp();
 
 	Utils::Log("Game started.");
+	m_window.setKeyRepeatEnabled(false);
 
 	while (m_window.isOpen())
 	{

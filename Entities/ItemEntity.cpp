@@ -3,6 +3,7 @@
 #include "../World/World.h"
 #include "../Inventory/ItemID.h"
 #include "../Inventory/ItemRegistry.h"
+#include "../SoundManager.h"
 #include "../Game.h"
 
 Texture* Entity::itemsAtlas = AtlasManager::GetAtlas(AtlasTextureID::Items);
@@ -27,13 +28,16 @@ FloatRect ItemEntity::GetRectangle()
 
 void ItemEntity::Update(World* world, float dt)
 {
-	if (m_angle > TWO_PI) m_angle = 0;
+	if (m_angle > TWO_PI)
+		m_angle = 0;
 
 	bool hasToBeRemoved = false;
 
-	if (m_lifetime > 0.15f && GameScene::player->GetRectangle().findIntersection(this->GetRectangle()) != std::nullopt)
+	if (m_lifetime > 0.15f && GameScene::Player->GetRectangle().findIntersection(this->GetRectangle()) != std::nullopt)
 	{
 		Inventory::Add((ItemID) m_itemID, 1);
+		SoundManager::PlaySound("pickup");
+
 		hasToBeRemoved = true;
 	}
 

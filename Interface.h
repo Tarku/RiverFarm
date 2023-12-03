@@ -148,6 +148,7 @@ public:
 	void ShowInventoryOverlay();
 	
 	void ShowToolOverlay(const int currentToolId);
+	void ShowBuildableTileOverlay(const int currentBuildableTileId);
 
 	void CreateNormalizedImage(const std::string& tag, const sf::Texture& textureToDraw, const v2f& normalizedPosition, const v2f& adjust, bool wobbles);
 

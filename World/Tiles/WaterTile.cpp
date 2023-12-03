@@ -8,7 +8,8 @@ WaterTile::WaterTile()
 	this->textureId = { 1, 1 };
 	this->groundId = textureId;
 	this->tileProperties = TileProperties();
-	this->itemDrop = ItemID::Null;
+	this->tileDrops = std::vector<TileDrop>{ };
+	useDefaultDirectionalSprites = false;
 }
 
 void WaterTile::OnUpdate(const v2f& position, World* world, int layer)
@@ -24,4 +25,19 @@ void WaterTile::OnUpdate(const v2f& position, World* world, int layer)
 			return;
 		}
 	}
+}
+
+AtlasID WaterTile::GetContextTextureID(const v2f& position, World* world, int layer)
+{
+	AtlasID returnID;
+
+	if (Utils::RandInt(0, 2) == 0)
+	{
+		returnID = AtlasID(0, 4);
+	}
+	else {
+		returnID = AtlasID(0, 5);
+	}
+
+	return returnID;
 }

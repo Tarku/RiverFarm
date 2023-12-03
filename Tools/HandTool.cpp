@@ -1,5 +1,6 @@
 #include "ToolDeclarations.h"
 
+#include "../Scenes/GameScene.h"
 #include "../SoundManager.h"
 
 HandTool::HandTool()
@@ -25,8 +26,8 @@ bool HandTool::CanBeUsedHere(World* world, const v2f& position)
 		{
 			continue;
 		}
-
-		if (cowCast->position.x >= position.x && cowCast->position.y > position.y && cowCast->position.x < position.x + 1.f && cowCast->position.y < position.y + 1.f)
+		
+		if (cowCast->CheckIfHovered(GameScene::CameraPosition))
 		{
 			m_lastHandAction = HandAction::PetCow;
 			isThereCow = true;
@@ -74,6 +75,7 @@ void HandTool::OnUse(World* world, const v2f& position)
 	case HandAction::InteractDoor:
 		// Toggle the door's state
 
+		SoundManager::PlaySound("door");
 		DoorTile::SetOpen(
 			position,
 			!DoorTile::IsOpenAt(position)

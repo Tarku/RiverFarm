@@ -4,7 +4,55 @@
 #include "../Utils.h"
 #include "../OptionsManager.h"
 
+#include "../World/Tiles/TileRegistry.h"
+
 Texture* Entity::entitiesAtlas = AtlasManager::GetAtlas(AtlasTextureID::Entities);
+
+std::map<TileID, std::map<Direction, AtlasID>> PlayerEntity::ContextualDirectionalSprites =
+{
+	{
+			TileID::Water,
+			std::map<Direction, AtlasID> {
+				{
+					Direction::North, AtlasID(2, 1)
+				},
+				{
+					Direction::South, AtlasID(2, 0)
+				},
+				{
+					Direction::West, AtlasID(2, 2)
+				},
+				{
+					Direction::East, AtlasID(2, 3)
+				}
+			}
+	},
+		{
+			TileID::Ice,
+			std::map<Direction, AtlasID> {
+				{
+					Direction::North, AtlasID(3, 1)
+				},
+				{
+					Direction::South, AtlasID(3, 0)
+				},
+				{
+					Direction::West, AtlasID(3, 2)
+				},
+				{
+					Direction::East, AtlasID(3, 3)
+				}
+			}
+		}
+};
+
+std::map<Direction, AtlasID> PlayerEntity::DefaultDirectionalSprites =
+		{
+			{ Direction::North, AtlasID(0, 1) },
+			{ Direction::South, AtlasID(0, 0) },
+			{ Direction::West, AtlasID(0, 2) },
+			{ Direction::East, AtlasID(0, 3) }
+		};
 
 PlayerEntity::PlayerEntity(const v2f& _position)
 {
@@ -55,7 +103,7 @@ void PlayerEntity::Update(World* world, float dt)
 
 		if (OptionsManager::IsForwardsActive())
 		{
-			m_directionalSpriteID = { 0, 1 };
+			m_currentDirection = Direction::North;
 
 			if (WillCollideWithBlock(dt * v2f(0, -1) * speed, world))
 			{
@@ -69,7 +117,7 @@ void PlayerEntity::Update(World* world, float dt)
 
 		if (OptionsManager::IsBackwardsActive())
 		{
-			m_directionalSpriteID = { 0, 0 };
+			m_currentDirection = Direction::South;
 
 			if (WillCollideWithBlock(dt * v2f(0, 1)  * speed, world))
 			{
@@ -83,7 +131,7 @@ void PlayerEntity::Update(World* world, float dt)
 
 		if (OptionsManager::IsLeftActive())
 		{
-			m_directionalSpriteID = { 0, 2 };
+			m_currentDirection = Direction::West;
 
 			if (WillCollideWithBlock(dt * v2f(-1, 0) * speed, world))
 			{
@@ -97,7 +145,7 @@ void PlayerEntity::Update(World* world, float dt)
 
 		if (OptionsManager::IsRightActive())
 		{
-			m_directionalSpriteID = { 0, 3 };
+			m_currentDirection = Direction::East;
 			if (WillCollideWithBlock(dt * v2f(1, 0) * speed, world))
 			{
 				velocity.x *= 0.1f;
@@ -123,17 +171,21 @@ void PlayerEntity::Update(World* world, float dt)
 		}
 	}
 
+	TileID groundTile = static_cast<TileID>(world->TileAt(position.x + .5f, position.y + .5f, 0));
+	Tile* tile = TileRegistry::Tiles[groundTile];
 
-	inWater = (world->TileAt(position.x + .5f, position.y + .5f, 0) == TileID::Water);
+	inWater = (groundTile == TileID::Water);
 
 	speed = inWater ? 1.5f : 4.f;
 	speed += speedOffset;
 
-	atlasID = inWater ? AtlasID(1, 1) : m_directionalSpriteID;
 
-	position += velocity * dt * speed;
 
-	velocity *= 0.25f;
+	atlasID = tile->useDefaultDirectionalSprites ? DefaultDirectionalSprites[m_currentDirection] : ContextualDirectionalSprites.at(groundTile).at(m_currentDirection);
+
+	position += velocity * dt * (speed / TileRegistry::Tiles[groundTile]->tileProperties.slipperiness);
+
+	velocity *= 0.25f * TileRegistry::Tiles[groundTile]->tileProperties.slipperiness;
 }
 
 void PlayerEntity::Draw(sf::RenderWindow* window, v2f cameraPosition)

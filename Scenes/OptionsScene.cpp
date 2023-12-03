@@ -34,17 +34,13 @@ void OptionsScene::HandleEvents()
 			case sf::Keyboard::Escape:
 				SceneManager::ChangeScene(new MainMenuScene());
 				break;
+			case sf::Keyboard::Up:
+				m_currentOptionsElementID--;
+				break;
+			case sf::Keyboard::Down:
+				m_currentOptionsElementID++;
+				break;
 			}
-		}
-
-		if (OptionsManager::IsForwardsActive())
-		{
-			m_currentOptionsElementID--;
-		} 
-
-		if (OptionsManager::IsBackwardsActive())
-		{
-			m_currentOptionsElementID++;
 		}
 
 		if (m_currentOptionsElementID < 0)
@@ -77,6 +73,7 @@ void OptionsScene::Draw()
 
 	for (auto& element : m_optionsSelectionElements)
 	{
+
 		element.Draw();
 	}
 }

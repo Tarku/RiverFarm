@@ -33,6 +33,8 @@ struct TileProperties
 	bool isSolid = false;
 	// This holds values about the tile's quality as a substrate
 	PlantSubstrateProperties substrateProperties{};
+	// Higher values mean less player velocity damping
+	float slipperiness = 1;
 
 	// By default, all properties are set to false.
 	TileProperties()
@@ -44,15 +46,19 @@ struct TileProperties
 		this->substrateProperties = PlantSubstrateProperties();
 	}
 
-	TileProperties(bool isArable, bool isDiggable, bool isChoppable, bool isSolid, PlantSubstrateProperties substrateProperties = PlantSubstrateProperties())
+	TileProperties(bool isArable, bool isDiggable, bool isChoppable, bool isSolid, PlantSubstrateProperties substrateProperties = PlantSubstrateProperties(), float slipperiness = 1)
 	{
 		this->isArable = isArable;
 		this->isDiggable = isDiggable;
 		this->isChoppable = isChoppable;
 		this->isSolid = isSolid;
 		this->substrateProperties = substrateProperties;
+
+		this->slipperiness = slipperiness;
 	}
 };
+
+class TileDrop;
 
 class Tile
 {
@@ -60,7 +66,9 @@ public:
 	std::string name{};
 	AtlasID textureId{};
 
-	ItemID itemDrop = ItemID::Null;
+	bool useDefaultDirectionalSprites;
+
+	std::vector<TileDrop> tileDrops = {};
 
 	TileProperties tileProperties{};
 
@@ -68,9 +76,9 @@ public:
 
 	Tile();
 
-	Tile(const std::string& name, const AtlasID& textureId, const ItemID& itemDrop, const TileProperties& tileProperties);
+	Tile(const std::string& name, const AtlasID& textureId, std::vector<TileDrop> tileDrops, const TileProperties& tileProperties, bool useDefaultDirectionalSprites = true);
 
-	Tile(const std::string& name, const std::tuple<AtlasID, AtlasID>& textureIds, const ItemID& itemDrop, const TileProperties& tileProperties);
+	Tile(const std::string& name, const std::tuple<AtlasID, AtlasID>& textureIds, std::vector<TileDrop> tileDrops, const TileProperties& tileProperties, bool useDefaultDirectionalSprites = true);
 
 	virtual void OnTileBreak(const v2f& position, World* world, int layer = 0);
 

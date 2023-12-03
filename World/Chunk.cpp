@@ -47,22 +47,6 @@ void Chunk::DoWorldGen()
 
 			// Generate ground tile
 
-			if (height < 0.4)
-			{
-				SetTile(
-					v3f(x, y, 0),
-					TileID::Water
-				);
-				continue;
-			}
-			if (height >= 0.4 && height < 0.45)
-			{
-				SetTile(
-					v3f(x, y, 0),
-					TileID::Sand
-				);
-				continue;
-			}
 
 			TileID groundTile = biome->groundTile;
 
@@ -91,17 +75,36 @@ void Chunk::DoWorldGen()
 
 			if (biome->treeScarcity == -1)
 				continue;
-				
-			// Generate trees
-			TileID treeTile = biome->treeTile;
 
-			if (Utils::RandInt(0, biome->treeScarcity) == 0 && groundTile != TileID::Water)
+			// Generate trees
+
+			TileID treeTile = TileID::Air;
+
+			if (Utils::RandInt(0, biome->treeScarcity) > 0 || groundTile == TileID::Water)
+				continue;
+
+			int totalWeight = 0;
+
+			for (TreeGenerationProperty& tgp : biome->treeGenerationProperties)
 			{
-				SetTile(
-					v3f(x, y, 1),
-					treeTile
-				);
+				totalWeight += tgp.weight;
 			}
+
+			for (TreeGenerationProperty& tgp : biome->treeGenerationProperties)
+			{
+				float normalizedProbability = (float)tgp.weight / (float)totalWeight;
+
+				if (Utils::RandFloat(0.0f, 1.0f) < normalizedProbability)
+				{
+					treeTile = tgp.treeType;
+					continue;
+				}
+			}
+
+			SetTile(
+				v3f(x, y, 1),
+				treeTile
+			);
 		}
 	}
 
@@ -121,7 +124,7 @@ void Chunk::DoWorldGen()
 
 void Chunk::AddDecorations()
 {
-	if (Utils::RandInt(0, 100) == 0)
+	if (Utils::RandInt(0, 20) == 0)
 	{
 
 		int roomWidth = Utils::RandInt(5, 14);
@@ -205,17 +208,17 @@ void Chunk::Update(float dt)
 	// Random tick update
 
 	const int blocksToUpdate = 
-		(CHUNK_WIDTH * CHUNK_HEIGHT * MAP_LEVELS) / 70;
+		(CHUNK_WIDTH * CHUNK_HEIGHT * MAP_LEVELS) / 29;
 
 	for (int i = 0; i < blocksToUpdate; i++)
 	{
 		int randomX = Utils::RandInt(0, CHUNK_WIDTH - 1);
 		int randomY = Utils::RandInt(0, CHUNK_HEIGHT - 1);
-		int randomLevel = Utils::RandInt(0, MAP_LEVELS - 1);
+		int randomLevel = Utils::RandInt(0, MAP_LEVELS);
 
 		uchar tileID = m_tiles[randomLevel][randomY][randomX];
 
-		v2f worldPosition = m_world->ChunkToWorldPosition(this->position, v2f(randomX, randomY));
+		v2f worldPosition = v2f(position.x * CHUNK_WIDTH + randomX, position.y * CHUNK_HEIGHT + randomY);
 
 		TileRegistry::Tiles[tileID]->OnRandomUpdate(worldPosition, m_world, randomLevel);
 	}
@@ -226,7 +229,7 @@ void Chunk::Update(float dt)
 	{
 		for (int x = 0; x < CHUNK_WIDTH; x++)
 		{
-			if (m_crops[y][x] != nullptr)
+			if (m_crops[y][x] != NULL)
 				m_crops[y][x]->OnUpdate(v2f(x, y), this, dt);
 		}
 	}
@@ -285,8 +288,8 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 					
 					IntRect(
 						v2i(
-							floor(tileAtlasId.x * TILE_SIZE),
-							floor(tileAtlasId.y * TILE_SIZE)
+							floor(tileAtlasId.x * TILE_SIZE + tileAtlasId.x),
+							floor(tileAtlasId.y * TILE_SIZE + tileAtlasId.y)
 						),
 						v2i(
 							TILE_SIZE,
@@ -296,9 +299,9 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 
 				auto drawPos =
 					v2f(
-						(position.x * CHUNK_WIDTH + x) * SCALED_TILE_SIZE,
-						(position.y * CHUNK_HEIGHT + y) * SCALED_TILE_SIZE
-					) - (v2f)cameraPosition;
+						(int) ((position.x * CHUNK_WIDTH + x) * SCALED_TILE_SIZE) - (int) cameraPosition.x,
+						(int) ((position.y * CHUNK_HEIGHT + y) * SCALED_TILE_SIZE) - (int)cameraPosition.y
+					);
 
 				//Utils::Log(std::format("Drawing tile at screen pos X: {}, Y: {}", drawPos.x, drawPos.y));
 
@@ -323,6 +326,8 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 				
 			AtlasID tileAtlasId = currentCrop->textureID;
 
+			//Utils::Log(std::format("Drawing crop in {}.{}, {}.{}", position.x, x, position.y, y));
+
 			// draw the first two pickets behind the crop
 
 			AtlasID cropDelimiter = { 4, 3 };
@@ -335,8 +340,8 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 
 			m_tileSprite.setPosition(
 				v2f(
-					(position.x + x) * SCALED_TILE_SIZE,
-					(position.y + y) * SCALED_TILE_SIZE
+					(position.x * CHUNK_WIDTH + x) * SCALED_TILE_SIZE,
+					(position.y * CHUNK_HEIGHT + y) * SCALED_TILE_SIZE
 				) - (v2f)cameraPosition
 			);
 
@@ -351,8 +356,8 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 
 			m_tileSprite.setPosition(
 				v2f(
-					(position.x + x + (0.5f * (1 - g))) * SCALED_TILE_SIZE,
-					(position.y + y + (0.5f * (1 - g))) * SCALED_TILE_SIZE
+					(position.x * CHUNK_WIDTH + x + (0.5f * (1 - g))) * SCALED_TILE_SIZE,
+					(position.y * CHUNK_HEIGHT + y + (0.5f * (1 - g))) * SCALED_TILE_SIZE
 				) - (v2f)cameraPosition
 			);
 
@@ -370,8 +375,8 @@ void Chunk::Draw(sf::RenderWindow* window, const v2f& cameraPosition)
 
 			m_tileSprite.setPosition(
 				v2f(
-					(position.x + x) * SCALED_TILE_SIZE,
-					(position.y + y) * SCALED_TILE_SIZE + SCALED_TILE_SIZE / 2
+					(position.x * CHUNK_WIDTH + x) * SCALED_TILE_SIZE,
+					(position.y* CHUNK_HEIGHT + y) * SCALED_TILE_SIZE + SCALED_TILE_SIZE / 2
 				) - (v2f)cameraPosition
 			);
 

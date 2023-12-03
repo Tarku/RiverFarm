@@ -1,5 +1,6 @@
 #include "ToolDeclarations.h"
 #include "../SoundManager.h"
+#include "../Scenes/GameScene.h"
 
 MilkPailTool::MilkPailTool()
 {
@@ -19,7 +20,7 @@ bool MilkPailTool::CanBeUsedHere(World* world, const v2f& position)
 			continue;
 		}
 
-		if (cowCast->position.x >= position.x && cowCast->position.y > position.y && cowCast->position.x < position.x + 1.f && cowCast->position.y < position.y + 1.f && cowCast->milkFullness >= 1)
+		if (cowCast->CheckIfHovered(GameScene::CameraPosition) && cowCast->milkFullness >= 1.0f)
 		{
 			m_lastPailAction = ActionMilkCow;
 			m_lastCowMilked = cowCast;

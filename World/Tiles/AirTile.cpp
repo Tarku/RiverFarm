@@ -5,8 +5,9 @@ AirTile::AirTile()
 {
 	this->name = "Air";
 	this->textureId = { 0, 0 };
-	this->itemDrop = ItemID::Null;
+	this->tileDrops = std::vector<TileDrop>{};
 	this->tileProperties = TileProperties();
+	useDefaultDirectionalSprites = true;
 }
 
 

@@ -165,6 +165,18 @@
     <ClCompile Include="SoundManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="World\Tiles\FlowerTile.cpp">
+      <Filter>Source Files\World\Tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\DolphinEntity.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="World\Tiles\BuildableTile.cpp">
+      <Filter>Source Files\World\Tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="World\Tiles\BuildableTileRegistry.cpp">
+      <Filter>Source Files\World\Tiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -224,9 +236,6 @@
     <ClInclude Include="Scenes\Scene.h">
       <Filter>Header Files\Scenes</Filter>
     </ClInclude>
-    <ClInclude Include="Scenes\SceneDeclarations.h">
-      <Filter>Header Files\Scenes</Filter>
-    </ClInclude>
     <ClInclude Include="Scenes\SceneManager.h">
       <Filter>Header Files\Scenes</Filter>
     </ClInclude>
@@ -283,6 +292,18 @@
     </ClInclude>
     <ClInclude Include="SoundManager.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="World\Tiles\FlowerTile.h">
+      <Filter>Header Files\World\Tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\DolphinEntity.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="World\Tiles\BuildableTile.h">
+      <Filter>Header Files\World\Tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="World\Tiles\BuildableTileRegistry.h">
+      <Filter>Header Files\World\Tiles</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

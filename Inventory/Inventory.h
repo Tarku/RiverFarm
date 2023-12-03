@@ -18,7 +18,7 @@ private:
 	static std::array<amount_t, m_inventorySize> m_inventoryItems;
 
 public:
-	static void Initialize();
+	static void Reset();
 
 	static bool IsIDInBounds(ItemID item);
 

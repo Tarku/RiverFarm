@@ -18,7 +18,7 @@ public:
 	std::string name{};
 
 	float baseGrowthRate{};
-	ItemID itemDrop{};
+	ItemID tileDrops{};
 	ItemID seedItemDrop{};
 	AtlasID textureID{};
 

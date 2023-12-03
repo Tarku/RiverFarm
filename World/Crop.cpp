@@ -15,6 +15,7 @@ void Crop::OnUpdate(const v2f& position, Chunk* parentChunk, float dt)
 
 	hasRightSoil = isHalophyte ? (groundTileId == TileID::WateredTilledSand) : (groundTileId == TileID::WateredTilledSoil);
 	hasWater = (groundTileId == TileID::WateredTilledSand) || (groundTileId == TileID::WateredTilledSoil);
+	// Utils::Log(std::format("Updating crop at {}:{}; {}:{}", parentChunk->position.x, position.x, parentChunk->position.y, position.y));
 
 	if (!hasRightSoil)
 	{
@@ -38,10 +39,10 @@ void Crop::OnUpdate(const v2f& position, Chunk* parentChunk, float dt)
 
 void Crop::OnDestroy(const v2f& position, Chunk* parentChunk, World* world)
 {
-	float worldX = parentChunk->position.x + position.x;
-	float worldY = parentChunk->position.y  + position.y;
+	float worldX = parentChunk->position.x * CHUNK_WIDTH + position.x;
+	float worldY = parentChunk->position.y * CHUNK_HEIGHT + position.y;
 
-	world->AddItemEntity(v2f(worldX, worldY), itemDrop);
+	world->AddItemEntity(v2f(worldX, worldY), tileDrops);
 
 	world->AddItemEntity(v2f(worldX, worldY), seedItemDrop);
 
@@ -63,8 +64,8 @@ void Crop::OnDestroy(const v2f& position, Chunk* parentChunk, World* world)
 
 void CerealCrop::OnDestroy(const v2f& position, Chunk* parentChunk, World* world)
 {
-	float worldX = parentChunk->position.x + position.x;
-	float worldY = parentChunk->position.y + position.y;
+	float worldX = parentChunk->position.x * CHUNK_WIDTH + position.x;
+	float worldY = parentChunk->position.y * CHUNK_HEIGHT + position.y;
 
 	for (int i = 0; i < Utils::RandInt(0, 2); i++)
 		world->AddItemEntity(v2f(worldX, worldY), ItemID::ItemStraw);
@@ -80,7 +81,7 @@ BarleyCrop::BarleyCrop () {
 	this->baseGrowthRate = 0.05f;
 	this->textureID = { 2, 3 };
 
-	this->itemDrop = ItemID::ItemBarley;
+	this->tileDrops = ItemID::ItemBarley;
 	this->seedItemDrop = ItemID::ItemBarleySeeds;
 	this->isHalophyte = false;
 }
@@ -92,7 +93,7 @@ GlasswortCrop::GlasswortCrop()
 	this->baseGrowthRate = 0.028f;
 	this->textureID = { 3, 3 };
 
-	this->itemDrop = ItemID::ItemGlasswort;
+	this->tileDrops = ItemID::ItemGlasswort;
 	this->seedItemDrop = ItemID::ItemGlasswortSeeds;
 
 	this->isHalophyte = true;

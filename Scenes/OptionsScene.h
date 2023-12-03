@@ -2,6 +2,7 @@
 #include "SceneManager.h"
 #include "../OptionsManager.h"
 #include "../Shared.h"
+#include "../Includes/SFML/Window/Mouse.hpp"
 
 class OptionsScene : public IScene
 {
@@ -102,7 +103,28 @@ private:
 
 		inline void Update(float dt)
 		{
+			v2i viMousePosition = sf::Mouse::getPosition(*OptionsSelectionElement::interface->window);
+			v2f vfMousePosition = v2f(viMousePosition.x, viMousePosition.y);
+
+			sf::Text* text = OptionsSelectionElement::interface->GetText(labelTextTag).text;
+
+			bool isSelected = false;
+
+			if (text->getGlobalBounds().contains(vfMousePosition))
+				elementId = counter;
+
+			if (counter == elementId)
+				isSelected = true;
+
+			sf::Color fillColor = isSelected ? sf::Color::Yellow : sf::Color::White;
+			float textScale = isSelected ? 1.1f : 1.0f;
+
+			text->setFillColor(fillColor);
+			text->setScale(v2f(textScale, textScale));
+
 			OptionsSelectionElement::interface->SetTextString(selectionTextTag, selectionsNames.at(selectionIndex));
+
+			counter++;
 		}
 
 		inline void Draw()

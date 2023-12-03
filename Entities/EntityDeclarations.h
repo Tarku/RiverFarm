@@ -11,6 +11,9 @@ using namespace sf;
 
 class World;
 
+enum TileID;
+
+
 class Entity
 {
 protected:
@@ -79,7 +82,11 @@ class PlayerEntity : public Entity
 {
 private:
 	bool m_didCollide = false;
-	AtlasID m_directionalSpriteID = { 0, 0 };
+	Direction m_currentDirection = Direction::North;
+
+	static std::map<Direction, AtlasID> DefaultDirectionalSprites;
+
+	static std::map<TileID, std::map<Direction, AtlasID>> ContextualDirectionalSprites;
 
 public:
 	float speedOffset = 0.0f;
@@ -141,7 +148,8 @@ private:
 	{
 		Wandering,
 		LookingForFood,
-		FoodTargetLocked
+		FoodTargetLocked,
+		Eating
 	};
 
 	v2f m_foodTarget;

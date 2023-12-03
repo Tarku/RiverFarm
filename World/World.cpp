@@ -17,7 +17,12 @@ World::World()
 
 void World::ResetWorld()
 {
-	
+	DoWorldGen();
+
+	worldTime.Reset();
+	Inventory::Reset();
+
+	WorldEntities.empty();
 
 }
 
@@ -146,7 +151,6 @@ void World::SaveWorldToImage()
 
 void World::DoWorldGen()
 {
-	ResetWorld();
 
 	Game::Seed = Utils::GetTimestamp();
 	WorldGen::Initialize();
@@ -220,14 +224,14 @@ void World::DoWorldGen()
 	time_t worldgenEndTime = Utils::GetTimestamp();
 	time_t worldgenTotalTime = worldgenEndTime - worldgenStartTime;
 
-	GameScene::player->position = playerSpawnCoords;
+	GameScene::Player->position = playerSpawnCoords;
 
 	printf("World generation time: %d microseconds.\n", (int) worldgenTotalTime);
 }
 
 void World::UpdateChunkList()
 {
-	auto playerChunkPositionTuple = WorldToChunkPosition(GameScene::player->position);
+	auto playerChunkPositionTuple = WorldToChunkPosition(GameScene::Player->position);
 
 	v2f playerChunkPosition = std::get<0>(playerChunkPositionTuple);
 
@@ -323,15 +327,24 @@ void World::Update(const v2f& cameraPosition, float dt)
 {
 	worldTime.Update();
 
-	v2f cameraChunkPosition = v2f((cameraPosition.x / SCALED_TILE_SIZE) / CHUNK_WIDTH, (cameraPosition.y / SCALED_TILE_SIZE) / CHUNK_HEIGHT);
+	for (auto entity : WorldEntities)
+	{
+		entity->Update(this, dt);
+	}
+
+	for (auto entity : EntitiesToDelete)
+	{
+		RemoveEntity(entity);
+
+	}
+
+	UpdateChunkList();
 
 	for (auto& chunk : Chunks)
 	{
 		if (chunk != nullptr)
 			chunk->Update(dt);
 	}
-
-	UpdateChunkList();
 	
 }
 

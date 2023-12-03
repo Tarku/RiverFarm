@@ -5,7 +5,7 @@ TilledSoilTile::TilledSoilTile()
 {
 	this->name = "Tilled Soil";
 	this->textureId = AtlasID(2, 0);
-	this->itemDrop = ItemID::ItemDirt;
+	this->tileDrops = std::vector<TileDrop>{ TileDrop(1, ItemID::ItemDirt, 1, 1) };
 	this->tileProperties = TileProperties(false, true, false, true, PlantSubstrateProperties(true, 0.15f));
 
 

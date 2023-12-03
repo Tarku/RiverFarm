@@ -6,6 +6,7 @@ class GameScene : public IScene
 {
 private:
 	short m_currentToolIndex = 0;
+	short m_currentBuildableTileIndex = 0;
 
 	float m_fps = 0;
 	float m_gameTime = 0;
@@ -18,14 +19,13 @@ private:
 	bool m_isCurrentToolTargetInRange = false;
 
 	sf::Texture m_daynightCycleOverlay;
+	
 
 	AgriculturalTool* m_currentTool = nullptr;
 
 	bool m_drawChunkBorders = false;
 	bool m_drawDebugMenu = false;
 
-	v2f m_cameraPosition = v2f(0, 0);
-	v2f m_mousePosition = v2f(0, 0);
 
 	World m_world;
 
@@ -39,7 +39,11 @@ private:
 
 
 public:
-	inline static PlayerEntity* player = nullptr;
+	inline static v2f CameraPosition = v2f(0, 0);
+	inline static v2f MousePosition = v2f(0, 0);
+	inline static v2f WorldMousePosition = v2f(0, 0);
+
+	inline static PlayerEntity* Player = nullptr;
 
 
 	inline GameScene() {};
@@ -47,6 +51,9 @@ public:
 	void Initialize(sf::RenderWindow* window) override;
 
 	void HandleEvents();
+
+	void HandleNormalModeEvents();
+	void HandleBuildingModeEvents();
 
 
 	v2f ScreenToWorld(const v2f& position);
@@ -58,7 +65,14 @@ public:
 	void DrawBiomeDebugInfoUI(const v2f& worldMousePosition);
 
 	void Update(float dt) override;
+
+	void NormalModeUpdate(float dt);
+	void BuildingModeUpdate(float dt);
+
 	void Draw() override;
+
+	void NormalModeDraw();
+	void BuildingModeDraw();
 
 	void Dispose() override;
 

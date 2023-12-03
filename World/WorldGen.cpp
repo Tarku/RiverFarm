@@ -4,6 +4,9 @@
 
 siv::PerlinNoise WorldGen::perlin = siv::PerlinNoise();
 
+double WorldGen::BeachLevel = 0.45;
+double WorldGen::WaterLevel = 0.4;
+
 void WorldGen::Initialize()
 {
 	perlin.reseed(Game::Seed);
@@ -12,8 +15,8 @@ void WorldGen::Initialize()
 double WorldGen::GetHumidityValue(int x, int y)
 {
 
-	double biomeValue = perlin.octave2D_01(x * (1.f / 128), y * (1.f / 187), 2);
-	double biomeValue2 = perlin.octave2D_01(x * (1.f / 28), y * (1.f / 69), 1);
+	double biomeValue = perlin.octave2D_01(x * (1.f / 128), y * (1.f / 128), 2);
+	double biomeValue2 = perlin.octave2D_01(x * (1.f / 64), y * (1.f / 64), 1);
 
 	double finalBiomeValue = (biomeValue + biomeValue2) * 0.35;
 
@@ -22,21 +25,33 @@ double WorldGen::GetHumidityValue(int x, int y)
 double WorldGen::GetHeatValue(int x, int y)
 {
 
-	double biomeValue = perlin.octave2D_01(x * (1.f / 289), y * (1.f / 320), 2);
-	double biomeValue2 = perlin.octave2D_01(x * (1.f / 28), y * (1.f / 68), 3);
-	double finalBiomeValue = (biomeValue + biomeValue2) * 0.6;
+	double biomeValue = perlin.octave2D_01(x * (1.f / 256), y * (1.f / 256), 2);
+	double biomeValue2 = perlin.octave2D_01(x * (1.f / 78), y * (1.f / 78), 3);
+	double biomeValue3 = perlin.octave2D_01(x * (1.f / 128), y * (1.f / 128), 5);
+	double finalBiomeValue = biomeValue3 * 0.7 + (biomeValue + biomeValue2) * 0.6;
 
 	return finalBiomeValue;
 }
 
 BiomeID WorldGen::GetBiome(int x, int y)
 {
+	double height = GetHeightmapValue(x, y);
 
-	int humidityValue = static_cast<int>( GetHumidityValue(x, y) * (lookupResolution + 1));
-	int heatValue = static_cast<int>(GetHeatValue(x, y) * (lookupResolution + 1));
 
-	humidityValue = Utils::Clamp<int>(humidityValue, 0, (lookupResolution));
-	heatValue = Utils::Clamp<int>(heatValue, 0, (lookupResolution));
+
+	int humidityValue = static_cast<int>( GetHumidityValue(x, y) * (lookupResolution));
+	int heatValue = static_cast<int>(GetHeatValue(x, y) * (lookupResolution));
+
+	int oceanLookupValue = static_cast<int>(GetHeatValue(x, y) * (oceanLookupResolution));
+	int beachLookupValue = static_cast<int>(GetHeatValue(x, y) * (beachLookupResolution));
+
+	humidityValue = Utils::Clamp<int>(humidityValue, 0, (lookupResolution + 1));
+	heatValue = Utils::Clamp<int>(heatValue, 0, (lookupResolution + 1));
+
+	if (height < WaterLevel)
+		return oceanLookup[oceanLookupValue];
+	else if (height < BeachLevel)
+		return beachLookup[beachLookupValue];
 		
 	return biomeLookup[humidityValue][heatValue];
 	

@@ -2,8 +2,9 @@
 
 std::array<amount_t, Inventory::m_inventorySize> Inventory::m_inventoryItems = std::array<amount_t, Inventory::m_inventorySize>();
 
-void Inventory::Initialize()
+void Inventory::Reset()
 {
+	m_inventoryItems.empty();
 }
 
 bool Inventory::IsIDInBounds(ItemID item)

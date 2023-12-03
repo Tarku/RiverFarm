@@ -7,6 +7,8 @@ DoorTile::DoorTile()
 {
 	this->textureId = { 5, 3 };
 	this->groundId = { 5, 3 };
+
+	this->tileDrops = std::vector<TileDrop>{ TileDrop(1, ItemID::ItemWood, 1, 3) };
 	this->tileProperties = TileProperties(false, false, true, true);
 
 	this->name = "Door";

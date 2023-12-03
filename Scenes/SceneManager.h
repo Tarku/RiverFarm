@@ -2,7 +2,6 @@
 
 #include "../Shared.h"
 #include "Scene.h"
-#include "SceneDeclarations.h"
 
 class SceneManager
 {

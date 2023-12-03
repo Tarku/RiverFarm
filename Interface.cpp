@@ -2,8 +2,9 @@
 #include "AtlasManager.h"
 #include "Utils.h"
 #include "Tools/ToolRegistry.h"
+#include "World/Tiles/BuildableTileRegistry.h"
 
-std::string Interface::fontName = "Assets/font.ttf";
+std::string Interface::fontName = "Assets/font2.otf";
 sf::Font Interface::font;
 sf::RenderWindow* Interface::window;
 sf::Texture Interface::uiTexture;
@@ -36,6 +37,14 @@ void Interface::CreateText(const std::string& tag, const std::string& stringToDr
 // This uses normalized coordinates like (0.0f, 0.5f)
 void Interface::CreateNormalizedText(const std::string& tag, const std::string& stringToDraw, const v2f& normalizedPosition, const v2f& adjust, const sf::Color& color, const float scale)
 {
+	for (const auto& [elementTag, element] : elementDeclarations)
+	{
+		if (elementTag == tag)
+		{
+			return;
+		}
+	}
+	
 	Text* text = new Text(font, stringToDraw);
 
 	text->setFillColor(color);
@@ -104,6 +113,7 @@ void Interface::Update(float dt)
 void Interface::Initialize(sf::RenderWindow* window)
 {
 	
+
 	bool couldLoadFont = Interface::font.loadFromFile(Interface::fontName);
 	assert(couldLoadFont);
 
@@ -126,6 +136,79 @@ void Interface::Initialize(sf::RenderWindow* window)
 
 	Interface::window = window;
 	Utils::Log("Interface initialized.");
+}
+
+void Interface::ShowBuildableTileOverlay(const int currentBuildableTileIndex)
+{
+	CreateNormalizedText(std::format("buildable_tile_{}", currentBuildableTileIndex), "", v2f(0.5f, 0.125f), v2f(0.5f, 0.0f));
+
+	int previousTileIndex = currentBuildableTileIndex - 1;
+	int nextTileIndex = currentBuildableTileIndex + 1;
+
+	if (previousTileIndex < 0)
+		previousTileIndex = BuildableTileRegistry::BuildableTileCount() - 1;
+
+	if (nextTileIndex < 0)
+		nextTileIndex = BuildableTileRegistry::BuildableTileCount() - 1;
+
+	if (previousTileIndex >= BuildableTileRegistry::BuildableTileCount())
+		previousTileIndex = 0;
+
+	if (nextTileIndex >= BuildableTileRegistry::BuildableTileCount())
+		nextTileIndex = 0;
+
+	BuildableTile& currentBuildableTile = BuildableTileRegistry::BuildableTiles.at(currentBuildableTileIndex);
+	BuildableTile& previousBuildableTile = BuildableTileRegistry::BuildableTiles.at(previousTileIndex);
+	BuildableTile& nextBuildableTile = BuildableTileRegistry::BuildableTiles.at(nextTileIndex);
+
+	Tile* currentTile = TileRegistry::Tiles[currentBuildableTile.tileID];
+	Tile* previousTile = TileRegistry::Tiles[previousBuildableTile.tileID];
+	Tile* nextTile = TileRegistry::Tiles[nextBuildableTile.tileID];
+
+	//  * Draw tile overlay
+	v2f position = v2f(.5f, 0.f) * (float)WINDOW_WIDTH;
+
+	position.x -= (TILE_SIZE / 2);
+	position.y += (TILE_SIZE / 2);
+	position.y += 30;
+	
+	AtlasID currentTileAtlasID = currentBuildableTile.tileLayer == 0 ? currentTile->groundId : currentTile->textureId;
+
+	sf::Sprite currentTileSprite =
+		sf::Sprite(
+			AtlasManager::Atlases[AtlasTextureID::Tiles],
+			IntRect(
+				v2i(
+					currentTileAtlasID.x * TILE_SIZE + currentTileAtlasID.x,
+					currentTileAtlasID.y * TILE_SIZE + currentTileAtlasID.y
+				),
+				v2i(
+					TILE_SIZE,
+					TILE_SIZE
+				)
+			)
+		);
+
+	currentTileSprite.setPosition(position);
+	currentTileSprite.setScale(v2f(2, 2));
+
+	uiIconBackground->setPosition(position);
+
+	window->draw(*uiIconBackground);
+	window->draw(currentTileSprite);
+
+	string tileNameDisplay = string("");
+
+	if (currentBuildableTile.tileLayer == 0)
+		tileNameDisplay = std::format("{} floor", currentTile->name);
+	else
+		tileNameDisplay = std::format("{} wall", currentTile->name);
+
+
+	SetTextString(std::format("buildable_tile_{}", currentBuildableTileIndex), tileNameDisplay);
+	DrawText(std::format("buildable_tile_{}", currentBuildableTileIndex));
+	
+
 }
 
 void Interface::ShowToolOverlay(const int currentToolIndex)
@@ -157,6 +240,7 @@ void Interface::ShowToolOverlay(const int currentToolIndex)
 
 		position.x -= (UI_ICON_WIDTH * 2.75f);
 		position.y += (UI_ICON_HEIGHT / 3);
+		position.y += 30;
 
 		DrawUIElement(previousTool->uiIcon, position, UI, 0.75f);
 	}
@@ -167,13 +251,20 @@ void Interface::ShowToolOverlay(const int currentToolIndex)
 
 		position.x += (UI_ICON_WIDTH * 1.25f);
 		position.y += (UI_ICON_HEIGHT / 3);
+		position.y += 30;
 
 		DrawUIElement(nextTool->uiIcon, position, UI, 0.75f);
 	}
 	//  * Draw tool overlay
 	if (currentTool != nullptr)
 	{
-		currentTool->Draw(this);
+		v2f position = v2f(.5f, 0.f) * (float)WINDOW_WIDTH;
+
+		position.x -= (UI_ICON_WIDTH);
+		position.y += (UI_ICON_HEIGHT / 4);
+		position.y += 30;
+
+		DrawUIElement(currentTool->uiIcon, position, UI, 1.0f);
 	}
 
 	// * Drawing left arrow
@@ -187,6 +278,7 @@ void Interface::ShowToolOverlay(const int currentToolIndex)
 		position.x -= (UI_ICON_WIDTH * 2.75f);
 		position.x -= bounds.width * 1.5f;
 		position.y += (UI_ICON_HEIGHT / 2);
+		position.y += 30;
 
 		Interface::uiLeftArrowSprite->setPosition(position);
 
@@ -204,6 +296,7 @@ void Interface::ShowToolOverlay(const int currentToolIndex)
 		position.x += (UI_ICON_WIDTH * 2.75f);
 		position.x += bounds.width * 0.5f;
 		position.y += (UI_ICON_HEIGHT / 2);
+		position.y += 30;
 
 		Interface::uiRightArrowSprite->setPosition(position);
 
@@ -243,8 +336,18 @@ void Interface::DrawText(const std::string& tag)
 	int backgroundWidth = Interface::uiElementsBackground.getSize().x;
 	int backgroundHeight = Interface::uiElementsBackground.getSize().y;
 	
-	uiBackgroundSprite.setPosition(v2f(textElement->text->getPosition().x - 16, textElement->text->getGlobalBounds().height / 2 + textElement->text->getPosition().y - 4));
-	uiBackgroundSprite.setScale(v2f(textElement->text->getGlobalBounds().width + 32, textElement->text->getGlobalBounds().height + 8) / (float) backgroundWidth);
+	int linesOfText = 0;
+
+	for (auto& character : textElement->text->getString())
+	{
+		if (character == '\n')
+		{
+			linesOfText++;
+		}
+	}
+
+	uiBackgroundSprite.setPosition(v2f(textElement->text->getPosition().x - 16, textElement->text->getPosition().y - 8));
+	uiBackgroundSprite.setScale(v2f(textElement->text->getGlobalBounds().width + 32, 30 * (linesOfText + 1) + 16) / (float) backgroundWidth);
 
 	window->draw(uiBackgroundSprite);
 	window->draw(*textElement->text);
@@ -270,6 +373,7 @@ void Interface::ShowInventoryOverlay()
 
 	sf::Sprite itemIconSprite = sf::Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Items));
 	sf::Sprite uiBackgroundSprite = sf::Sprite(Interface::uiElementsBackground);
+	int backgroundWidth = uiElementsBackground.getSize().x;
 
 	float fontScreenRatio = 30.0f / WINDOW_HEIGHT;
 	std::vector<int> itemsThatShouldBeShown = std::vector<int>();
@@ -295,7 +399,7 @@ void Interface::ShowInventoryOverlay()
 		itemIconSprite.setPosition(
 			v2f(
 				WINDOW_WIDTH * 0.95f - TILE_SIZE * 2,
-				itemCounter * TILE_SIZE * 2 + 4
+				30 + itemCounter * TILE_SIZE * 2 + 4
 			)
 		);
 
@@ -308,18 +412,23 @@ void Interface::ShowInventoryOverlay()
 		text.setPosition(
 			v2f(
 				WINDOW_WIDTH * 0.95f - 2 * TILE_SIZE - text.getGlobalBounds().width - 4.f,
-				fontScreenRatio + itemCounter * 2 * TILE_SIZE * 1.f
+				30 + itemCounter * 2 * TILE_SIZE * 1.f
 			)
 		);
 
 
-		uiBackgroundSprite.setPosition(v2f(WINDOW_WIDTH * 0.95f - 2 * TILE_SIZE - text.getGlobalBounds().width - 8, itemCounter * 2 * TILE_SIZE + 1));
+		uiBackgroundSprite.setPosition(
+			v2f(
+				WINDOW_WIDTH * 0.95f - 2 * TILE_SIZE - text.getGlobalBounds().width - 8,
+				30 + itemCounter * 2 * TILE_SIZE + 1
+			)
+		);
 		
 		v2f uiBackgroundSize = v2f(
 			SCALED_TILE_SIZE + text.getGlobalBounds().width + 8,
 			fontScreenRatio + 2 * TILE_SIZE - 2
 		);
-		uiBackgroundSprite.setScale(uiBackgroundSize);
+		uiBackgroundSprite.setScale(uiBackgroundSize / (float) backgroundWidth);
 
 		window->draw(uiBackgroundSprite);
 		window->draw(itemIconSprite);

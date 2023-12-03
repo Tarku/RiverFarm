@@ -21,17 +21,12 @@ void MainMenuScene::Initialize(sf::RenderWindow* window)
 		Utils::Log(std::string("Couldn't load title banner!"));
 	}
 
-	SoundManager::LoadSound(SOUNDS_PATH + "sfx_chop.ogg", "chop");
-	SoundManager::LoadSound(SOUNDS_PATH + "sfx_shovel.ogg", "shovel");
-	SoundManager::LoadSound(SOUNDS_PATH + "sfx_hoe.ogg", "hoe");
-	SoundManager::LoadSound(SOUNDS_PATH + "sfx_moo.ogg", "moo");
-
 	int counter = 0;
 	float fontScreenRatio = 30.f / WINDOW_HEIGHT;
 
 	for (auto& element : m_mainMenuElements)
 	{
-		p_interface.CreateNormalizedText(std::format("main_menu_selection_element_{}", counter), element.label, v2f(0.5f, 0.5f + counter * fontScreenRatio), v2f(0.5f, 0.5f));
+		p_interface.CreateNormalizedText(std::format("main_menu_selection_element_{}", counter), element.label, v2f(0.5f, 0.5f + counter * fontScreenRatio * 2), v2f(0.5f, 0.5f));
 			counter++;
 	}
 
@@ -83,12 +78,12 @@ void MainMenuScene::HandleEvents()
 			case Keyboard::Up:
 				m_currentMMenuElementID--;
 				break;
+			case Keyboard::Down:
+				m_currentMMenuElementID++;
+				break;
 
 			case Keyboard::Num8:
 				SoundManager::PlaySound("chop");
-				break;
-			case Keyboard::Down:
-				m_currentMMenuElementID++;
 				break;
 			}
 
@@ -99,14 +94,7 @@ void MainMenuScene::HandleEvents()
 	{
 		m_mainMenuElements.at(m_currentMMenuElementID).callback();
 	}
-	if (OptionsManager::IsForwardsActive() || OptionsManager::GetJoystickAxisY() < -0.1 )
-	{
-		m_currentMMenuElementID--;
-	}
-	if (OptionsManager::IsBackwardsActive() || OptionsManager::GetJoystickAxisY() > 0.1)
-	{
-		m_currentMMenuElementID++;
-	}
+
 	int menuElementsCount = (int) m_mainMenuElements.size();
 
 	if (m_currentMMenuElementID < 0)
@@ -124,20 +112,30 @@ void MainMenuScene::Update(float dt)
 {
 	HandleEvents();
 
+	v2i viMousePosition = Mouse::getPosition(*p_window);
+	v2f vfMousePosition = v2f(viMousePosition.x, viMousePosition.y);
+
 	int counter = 0;
 
 	p_interface.Update(dt);
 
 	for (auto& element : m_mainMenuElements)
 	{
-		bool isSelected = (counter == m_currentMMenuElementID);
 
 		std::string tag = std::format("main_menu_selection_element_{}", counter);
 
-		Color fillColor = isSelected ? Color::Yellow : Color::White;
-		float textScale = isSelected ? 1.2f : 1.f;
-
 		Text* text = p_interface.GetText(tag).text;
+
+		bool isSelected = false;
+		
+		if (text->getGlobalBounds().contains(vfMousePosition))
+			m_currentMMenuElementID = counter;
+
+		if (counter == m_currentMMenuElementID)
+			isSelected = true;
+
+		Color fillColor = isSelected ? Color::Yellow : Color::White;
+		float textScale = isSelected ? 1.1f : 1.0f;
 		
 		text->setFillColor(fillColor);
 		text->setScale(v2f(textScale, textScale));
@@ -151,12 +149,11 @@ void MainMenuScene::Draw()
 	sf::Sprite tileBackgroundSprite = sf::Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Tiles));
 	
 
-	int counter = 0;
+	int counter = m_mainMenuElements.size();
 
-	for (auto& element : m_mainMenuElements)
+	for (int i = counter - 1; i >= 0; i--)
 	{
-		p_interface.DrawText(std::format("main_menu_selection_element_{}", counter));
-		counter++;
+		p_interface.DrawText(std::format("main_menu_selection_element_{}", i));
 	}
 
 	p_interface.DrawImageElement(std::string("title_image"));

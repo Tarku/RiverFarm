@@ -14,9 +14,9 @@ bool HoeTool::CanBeUsedHere(World* world, const Vector2f& position)
 
 void HoeTool::OnUse(World* world, const Vector2f& position)
 {
-	uchar currentTileID = world->TileAt(position, 0);
+	TileID currentTileID = (TileID) world->TileAt(position, 0);
 
-	TileID tilledTile = TileID::Cactus;
+	TileID tilledTile = TileID::TilledSoil;
 
 	switch (currentTileID)
 	{
@@ -24,6 +24,12 @@ void HoeTool::OnUse(World* world, const Vector2f& position)
 		tilledTile = TileID::TilledSoil;
 		break;
 	case TileID::Dirt:
+		tilledTile = TileID::TilledSoil;
+		break;
+	case TileID::DryGrass:
+		tilledTile = TileID::TilledSoil;
+		break;
+	case TileID::Snow:
 		tilledTile = TileID::TilledSoil;
 		break;
 	case TileID::Sand:

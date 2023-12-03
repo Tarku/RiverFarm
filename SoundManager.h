@@ -16,7 +16,7 @@ private:
 	static std::map<std::string, sf::SoundBuffer*> m_musicBuffers;
 
 	static sf::Music* m_currentMusic;
-	static sf::Sound* m_sound;
+	static std::shared_ptr<sf::Sound> m_sound;
 
 public:
 	static float MinPitchVariation;
@@ -24,10 +24,12 @@ public:
 
 	static void Initialize();
 
-	static void LoadSound(const std::string& filepath, const std::string& tag);
-	static void LoadMusic(const std::string& filepath, const std::string& tag);
+	static void LoadSound(const string& filepath, const string& tag);
+	static void LoadMusic(const string& filepath, const string& tag);
 
-	static void PlaySound(const std::string& tag, bool pitchRandomness = true);
-	static void PlayMusic(const std::string& tag);
+	static void LoadSounds(std::vector<string>& tags);
+
+	static void PlaySound(const string& tag, bool pitchRandomness = true);
+	static void PlayMusic(const string& tag);
 
 };

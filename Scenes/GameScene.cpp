@@ -5,6 +5,8 @@
 #include "../Tools/ToolRegistry.h"
 #include "../World/WorldGen.h"
 #include "../World/BiomeRegistry.h"
+#include "../Entities/DolphinEntity.h"
+#include "../World/Tiles/BuildableTileRegistry.h"
 
 using namespace sf;
 
@@ -14,7 +16,7 @@ void GameScene::Initialize(RenderWindow* window)
 
 	p_interface = Interface();
 
-	player = new PlayerEntity(v2f(MAP_WIDTH / 2, MAP_HEIGHT / 2));
+	Player = new PlayerEntity(v2f(MAP_WIDTH / 2, MAP_HEIGHT / 2));
 
 	bool couldLoadDNCOverlay = m_daynightCycleOverlay.loadFromFile(TEXTURES_PATH + "daynight_overlay.png");
 
@@ -23,11 +25,9 @@ void GameScene::Initialize(RenderWindow* window)
 		Utils::Log("Couldn't load daynight cycle overlay!");
 	}
 
-	Inventory::Initialize();
-
 	float fontScreenRatio = 30.f / WINDOW_HEIGHT;
 
-	p_interface.CreateNormalizedText(std::string("ui_tool_name_text"), "", v2f(0.5f, 0.075f), v2f(0.5f, 0.0f));
+	p_interface.CreateNormalizedText(std::string("ui_tool_name_text"), "", v2f(0.5f, 0.125f), v2f(0.5f, 0.0f));
 	p_interface.CreateNormalizedText(std::string("fps_text"), "", v2f(0.05f, 0.05f), ZERO_VEC, sf::Color::Yellow);
 	p_interface.CreateNormalizedText(std::string("position_text"), "", v2f(0.05f, 0.15f), ZERO_VEC);
 	p_interface.CreateNormalizedText(std::string("current_hour"), "", v2f(0.5f, 0.950f - fontScreenRatio), v2f(0.5f, 0.f));
@@ -42,7 +42,7 @@ void GameScene::Initialize(RenderWindow* window)
 
 v2f GameScene::ScreenToWorld(const v2f& position)
 {
-	v2f output = position + m_cameraPosition;
+	v2f output = position + CameraPosition;
 
 	output.x /= (float)TILE_SIZE * TEXTURE_SCALE;
 	output.y /= (float)TILE_SIZE * TEXTURE_SCALE;
@@ -52,14 +52,37 @@ v2f GameScene::ScreenToWorld(const v2f& position)
 
 void GameScene::HandleEvents()
 {
+
+
+	Vector2i mousePositionVec = Mouse::getPosition(*p_window);
+
+	MousePosition = v2f((float)mousePositionVec.x, (float)mousePositionVec.y);
+	WorldMousePosition = ScreenToWorld(MousePosition);
+
+	if (m_currentMenuMode == MenuMode::NormalMode)
+	{
+		HandleNormalModeEvents();
+	}
+	else {
+
+		HandleBuildingModeEvents();
+	}
+
+	Player->HandleEvents(&p_event);
+
+	for (auto& entity : World::WorldEntities)
+	{
+		entity->HandleEvents(&p_event);
+	}
+
+}
+
+void GameScene::HandleNormalModeEvents()
+{
 	while (p_window->pollEvent(p_event))
 	{
-		Vector2i m = Mouse::getPosition(*p_window);
 
-		m_mousePosition = v2f((float)m.x, (float)m.y);
-		v2f worldMousePosition = ScreenToWorld(m_mousePosition);
-
-		v2f mouseToPlayerVector = worldMousePosition - player->position;
+		v2f mouseToPlayerVector = WorldMousePosition - Player->position;
 
 		m_isCurrentToolTargetInRange = mouseToPlayerVector.length() <= 3;
 
@@ -92,20 +115,27 @@ void GameScene::HandleEvents()
 
 			case Keyboard::F3:
 				m_drawDebugMenu = !m_drawDebugMenu;
-				
+
 				break;
 			case Keyboard::Numpad7:
-				player->noclip = !player->noclip;
+				Player->noclip = !Player->noclip;
 				break;
 			case Keyboard::Numpad8:
-				player->speedOffset += 0.5;
+				Player->speedOffset += 0.5;
 				break;
 
 
 			case Keyboard::P:
 				World::WorldEntities.push_back(
 					new CowEntity(
-						worldMousePosition
+						WorldMousePosition
+					)
+				);
+				break;
+			case Keyboard::I:
+				World::WorldEntities.push_back(
+					new DolphinEntity(
+						WorldMousePosition
 					)
 				);
 				break;
@@ -127,7 +157,7 @@ void GameScene::HandleEvents()
 			{
 				m_currentToolIndex++;
 			}
-
+			
 			if (m_currentToolIndex < 0)
 				m_currentToolIndex = ToolRegistry::ToolCount() - 1;
 
@@ -137,44 +167,109 @@ void GameScene::HandleEvents()
 
 		if (p_event.type == Event::MouseButtonPressed)
 		{
+
 			switch (p_event.mouseButton.button)
 			{
 			case Mouse::Left:
 
 				if (
-					m_world.InBounds(worldMousePosition, 0)
-					&& m_currentTool->CanBeUsedHere(&m_world, worldMousePosition)
+					m_world.InBounds(WorldMousePosition, 0)
+					&& m_currentTool->CanBeUsedHere(&m_world, WorldMousePosition)
 					&& m_isCurrentToolTargetInRange
-					&& !player->inWater
-				)
+					&& !Player->inWater
+					)
 				{
-					m_currentTool->OnUse(&m_world, worldMousePosition);
-					
+					m_currentTool->OnUse(&m_world, WorldMousePosition);
+
 					if (m_currentTool->soundEffectTag != "")
 						SoundManager::PlaySound(m_currentTool->soundEffectTag);
 				}
 				break;
 			case Mouse::Right:
 				if (
-					m_world.InBounds(worldMousePosition, 0)
+					m_world.InBounds(WorldMousePosition, 0)
 					&& m_isCurrentToolTargetInRange
-					&& !player->inWater
-				)
+					&& !Player->inWater
+					)
 				{
-					m_currentTool->OnRightClick(&m_world, worldMousePosition);
+					m_currentTool->OnRightClick(&m_world, WorldMousePosition);
 				}
 				break;
 			}
 		}
+	}
+}
 
-		player->HandleEvents(&p_event);
-
-		for (auto& entity : World::WorldEntities)
+void GameScene::HandleBuildingModeEvents()
+{
+	while (p_window->pollEvent(p_event))
+	{
+		
+		if (p_event.type == Event::Closed)
 		{
-			entity->HandleEvents(&p_event);
+			p_window->close();
+		}
+		if (p_event.type == Event::KeyPressed)
+		{
+			switch (p_event.key.code)
+			{
+			case Keyboard::B:
+				m_currentMenuMode = MenuMode::NormalMode;
+				break;
+			case Keyboard::Escape:
+				m_currentMenuMode = MenuMode::NormalMode;
+				break;
+			}
 		}
 
+		if (p_event.type == Event::MouseWheelScrolled)
+		{
+			if (p_event.mouseWheelScroll.delta > 0)
+			{
+				m_currentBuildableTileIndex--;
+			}
+
+			if (p_event.mouseWheelScroll.delta < 0)
+			{
+				m_currentBuildableTileIndex++;
+			}
+
+			if (m_currentBuildableTileIndex < 0)
+				m_currentBuildableTileIndex = BuildableTileRegistry::BuildableTileCount() - 1;
+
+			if (m_currentBuildableTileIndex >= BuildableTileRegistry::BuildableTileCount())
+				m_currentBuildableTileIndex = 0;
+		}
+
+		if (p_event.type == Event::MouseButtonPressed)
+		{
+
+			switch (p_event.mouseButton.button)
+			{
+			case Mouse::Left:
+				BuildableTile& bTile = BuildableTileRegistry::BuildableTiles[m_currentBuildableTileIndex];
+
+				if (
+					m_world.InBounds(WorldMousePosition, 0)
+					&& bTile.CanBePlacedHere(WorldMousePosition, &m_world)
+					&& m_isCurrentToolTargetInRange
+					&& !Player->inWater
+					)
+				{
+					m_world.SetTile(WorldMousePosition, bTile.tileLayer, bTile.tileID, true);
+
+					for (BuildableTileIngredient& bti : bTile.tileIngredients)
+					{
+						Inventory::Remove(bti.itemID, bti.cost);
+					}
+
+					SoundManager::PlaySound("build");
+				}
+				break;
+			}
+		}
 	}
+
 }
 
 void GameScene::Update(float dt)
@@ -183,26 +278,16 @@ void GameScene::Update(float dt)
 
 	m_currentTool = ToolRegistry::Tools.at(m_currentToolIndex);
 
-	player->Update(&m_world, dt);
 
-	for (auto entity : World::WorldEntities)
-	{
-		entity->Update(&m_world, dt);
-	}
+	m_world.Update(CameraPosition, dt);
+	Player->Update(&m_world, dt);
 
-	for (auto entity : World::EntitiesToDelete)
-	{
-		m_world.RemoveEntity(entity);
-
-	}
-
-	m_world.Update(m_cameraPosition, dt);
 
 	m_fps = 1.f / dt;
 
 	p_interface.SetTextString(std::string("ui_tool_name_text"), m_currentTool->name);
 	p_interface.SetTextString(std::string("fps_text"), std::format("{} FPS", (int)m_fps));
-	p_interface.SetTextString(std::string("position_text"), std::format("X: {}; Y: {}", (int)player->position.x, (int)player->position.y));
+	p_interface.SetTextString(std::string("position_text"), std::format("X: {}\nY: {}", (int) (Player->position.x * 10) / 10.0f, (int)(Player->position.y * 10) / 10.0f));
 
 	p_interface.SetTextString(std::string("current_hour"), m_world.worldTime.GetDateString());
 
@@ -303,8 +388,8 @@ void GameScene::DrawCursorToolUseUI(const v2f& worldMousePosition)
 		Sprite toolCursorSprite = Sprite(*AtlasManager::GetAtlas(AtlasTextureID::UI), cursorImgRect);
 
 		v2f cursorPosition = {
-			m_mousePosition.x + 16,
-			m_mousePosition.y + 16
+			MousePosition.x + 16,
+			MousePosition.y + 16
 		};
 
 		toolCursorSprite.setPosition(cursorPosition);
@@ -330,8 +415,8 @@ void GameScene::DrawBiomeDebugInfoUI(const v2f& worldMousePosition)
 	FloatRect bounds = element.text->getGlobalBounds();
 
 	v2f drawPosition = v2f(
-		m_mousePosition.x - bounds.width - 8,
-		m_mousePosition.y
+		MousePosition.x - bounds.width - 8,
+		MousePosition.y
 	);
 	element.absolutePosition = drawPosition;
 
@@ -340,7 +425,7 @@ void GameScene::DrawBiomeDebugInfoUI(const v2f& worldMousePosition)
 
 void GameScene::DrawUI()
 {
-	v2f worldMousePosition = ScreenToWorld(m_mousePosition);
+	v2f worldMousePosition = ScreenToWorld(MousePosition);
 
 	auto worldChunkCoords = m_world.WorldToChunkPosition(worldMousePosition);
 	
@@ -352,8 +437,17 @@ void GameScene::DrawUI()
 		DrawCursorToolUseUI(worldMousePosition);
 	}
 
-	//  * Draw tool overlay 
-	p_interface.ShowToolOverlay(m_currentToolIndex);
+	if (m_currentMenuMode == MenuMode::NormalMode)
+	{
+
+		//  * Draw tool overlay 
+		p_interface.ShowToolOverlay(m_currentToolIndex);
+		p_interface.DrawText(std::string("ui_tool_name_text"));
+	}
+	else
+	{
+		p_interface.ShowBuildableTileOverlay(m_currentBuildableTileIndex);
+	}
 
 	//  * Draw text elements
 	if (m_drawDebugMenu)
@@ -364,7 +458,6 @@ void GameScene::DrawUI()
 		DrawBiomeDebugInfoUI(worldMousePosition);
 	}
 
-	p_interface.DrawText(std::string("ui_tool_name_text"));
 	p_interface.DrawText(std::string("current_hour"));
 
 	//  * Draw inventory screen
@@ -378,19 +471,19 @@ void GameScene::DrawUI()
 
 void GameScene::Draw()
 {
-	m_cameraPosition = player->position * (float)SCALED_TILE_SIZE - v2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+	CameraPosition = Player->position * (float)SCALED_TILE_SIZE - v2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 
-	int chunksRendered = m_world.DrawChunks(p_window, m_cameraPosition, m_drawChunkBorders);
+	int chunksRendered = m_world.DrawChunks(p_window, CameraPosition, m_drawChunkBorders);
 
 	p_window->setTitle(std::format("River Farm - {} chunks rendered - {} chunks loaded", chunksRendered, m_world.Chunks.size()));
 
-	// -- Draw player and other entities --
+	// -- Draw Player and other entities --
 
-	player->Draw(p_window, m_cameraPosition);
+	Player->Draw(p_window, CameraPosition);
 
 	for (auto entity : World::WorldEntities)
 	{
-		entity->Draw(p_window, m_cameraPosition);
+		entity->Draw(p_window, CameraPosition);
 	}
 
 	// -- Draw UI --

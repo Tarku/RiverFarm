@@ -11,14 +11,36 @@ int SoundManager::sfxId = 0;
 std::map<std::string, sf::SoundBuffer*> SoundManager::m_sfxBuffers = std::map<std::string, sf::SoundBuffer*>();
 std::map<std::string, sf::SoundBuffer*> SoundManager::m_musicBuffers = std::map<std::string, sf::SoundBuffer*>();
 
-sf::Sound* SoundManager::m_sound = nullptr;
+std::shared_ptr<sf::Sound> SoundManager::m_sound = nullptr;
 sf::Music* SoundManager::m_currentMusic = nullptr;
 
 void SoundManager::Initialize()
 {
+	strings sfxToLoad = strings{
+		"chop",
+		"shovel",
+		"hoe",
+		"moo",
+		"door",
+		"build",
+		"pickup"
+	};
+
+	LoadSounds(
+		sfxToLoad
+	);
 }
 
-void SoundManager::LoadSound(const std::string& filepath, const std::string& tag)
+void SoundManager::LoadSounds(std::vector<string>& tags)
+{
+	for (string& tag : tags)
+	{
+		string sfxPath = std::format("sfx_{}.ogg", tag);
+		LoadSound(sfxPath, tag);
+	}
+}
+
+void SoundManager::LoadSound(const string& filepath, const string& tag)
 {
 	if (m_sfxBuffers.contains(tag))
 	{
@@ -31,8 +53,9 @@ void SoundManager::LoadSound(const std::string& filepath, const std::string& tag
 
 	sf::SoundBuffer* buffer = new sf::SoundBuffer();
 
-	
-	bool couldLoadFilepath = buffer->loadFromFile(filepath);
+	string trueFilepath = std::format("{}{}", SOUNDS_PATH, filepath);
+
+	bool couldLoadFilepath = buffer->loadFromFile(trueFilepath);
 
 	if (!couldLoadFilepath)
 	{
@@ -44,7 +67,7 @@ void SoundManager::LoadSound(const std::string& filepath, const std::string& tag
 	m_sfxBuffers.insert(std::make_pair(tag, buffer));
 }
 
-void SoundManager::PlaySound(const std::string& tag, bool pitchRandomness)
+void SoundManager::PlaySound(const string& tag, bool pitchRandomness)
 {
 	if (!m_sfxBuffers.contains(tag))
 	{
@@ -55,7 +78,7 @@ void SoundManager::PlaySound(const std::string& tag, bool pitchRandomness)
 		return;
 	}
 
-	m_sound = new sf::Sound(
+	m_sound = std::make_shared<sf::Sound>(
 		*m_sfxBuffers.at(tag)
 	);
 

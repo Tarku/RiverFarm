@@ -55,6 +55,15 @@ namespace TimeConstants
 
 // Just a bunch of shorthands for my lazy brain
 
+enum class Direction
+{
+	North,
+	South,
+	West,
+	East
+
+};
+
 using v3f = sf::Vector3f;
 using v2f = sf::Vector2f;
 using v3i = sf::Vector3i;
@@ -76,6 +85,7 @@ const v2f neighbors[8] = {
 	v2f(-1, 0),						v2f(1, 0),
 	v2f(-1, 1), v2f(0, 1),    v2f(1, 1)
 };
+
 
 // This is pretty much a 2d vector but idc at least it has a more fitting name
 

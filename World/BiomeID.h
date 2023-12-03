@@ -6,7 +6,12 @@ enum class BiomeID
 	Steppe,
 	Savanna,
 	Forest,
+	ColdForest,
 	Rainforest,
 	Taiga,
-	Desert
+	Desert,
+	Beach,
+	ColdBeach,
+	Ocean,
+	IceSheet
 };

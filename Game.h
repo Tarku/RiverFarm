@@ -17,7 +17,17 @@ class Game
 {
 private:
 	Clock m_clock;
-	RenderWindow m_window = RenderWindow(VideoMode(v2u(WINDOW_WIDTH, WINDOW_HEIGHT)), "River Farm", Style::Titlebar | Style::Close);
+	RenderWindow m_window =
+		RenderWindow(
+			VideoMode(
+				v2u(
+					WINDOW_WIDTH,
+					WINDOW_HEIGHT
+				)
+			),
+			"River Farm",
+			Style::Titlebar | Style::Close
+		);
 	
 	void Update(float timeElapsed);
 	void Draw();

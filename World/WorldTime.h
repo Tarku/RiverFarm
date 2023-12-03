@@ -24,6 +24,17 @@ struct WorldTime
 		years = 1000;
 	}
 
+	inline void Reset()
+	{
+		ticks = 0;
+		minutes = 0;
+		hours = 6;
+		days = 0;
+		weeks = 0;
+		months = 0;
+		years = 1000;
+	}
+
 	inline void Update()
 	{
 		ticks++;
@@ -97,8 +108,8 @@ struct WorldTime
 			dayString.insert(0, std::string("0"));
 		}
 
-		std::string hourString = std::format("{}", hours + 1);
-		std::string minutesString = std::format("{}", minutes + 1);
+		std::string hourString = std::format("{}", hours);
+		std::string minutesString = std::format("{}", minutes);
 
 		if (hourString.size() == 1)
 		{
