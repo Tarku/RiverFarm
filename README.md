@@ -20,10 +20,11 @@ It is made using the SFML library for C++.
 
 ## Upcoming/Planned
 
- * Hunger bar and system.
+ * Health bar.
+ * Hunger bar (that'd deplete over time).
+ * Player energy bar (that'd deplete as the player does actions).
  * Better inventory system.
  * Clay and derivatives (bricks). 
- * Energy statistic for the player that'd deplete when doing actions.
  * Crafting stations like the Campfire or the Kiln.
  * Saving and loading chunks.  
  * Stardew Valley style of farm buildings (pen, barn, coop, etc...).
