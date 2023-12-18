@@ -33,6 +33,8 @@ It is made using the SFML library for C++.
 ## Implemented
  * Dynamic chunk generation
  * Dynamic chunk unloading 
+ * Sound effects
+ * Building
 
 ## How to build
 
