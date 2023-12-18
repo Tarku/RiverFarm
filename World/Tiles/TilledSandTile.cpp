@@ -8,11 +8,13 @@ TilledSandTile::TilledSandTile()
 	this->tileDrops = std::vector<TileDrop>{ TileDrop(1, ItemID::ItemSand, 1, 1) };
 	this->tileProperties = TileProperties(false, true, false, true, PlantSubstrateProperties(true, 0.05f));
 
+	this->useDefaultDirectionalSprites = true;
+
 	this->groundId = textureId;
 }
 void TilledSandTile::OnRandomUpdate(const v2f& position, World* world, int layer)
 {
-	for (auto& neighbor : neighbors)
+	for (auto& neighbor : TileNeighbors)
 	{
 		if (world->TileAt(position + neighbor, 0) == TileID::Water)
 		{

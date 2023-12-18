@@ -7,7 +7,7 @@
 #include "../Inventory/ItemID.h"
 
 
-void Crop::OnUpdate(const v2f& position, Chunk* parentChunk, float dt)
+void Crop::OnUpdate(const v2f& position, std::shared_ptr<Chunk> parentChunk, float dt)
 {
 	actualGrowthRate = baseGrowthRate;
 
@@ -37,7 +37,7 @@ void Crop::OnUpdate(const v2f& position, Chunk* parentChunk, float dt)
 		growth = 1.f;
 };
 
-void Crop::OnDestroy(const v2f& position, Chunk* parentChunk, World* world)
+void Crop::OnDestroy(const v2f& position, std::shared_ptr<Chunk> parentChunk, World* world)
 {
 	float worldX = parentChunk->position.x * CHUNK_WIDTH + position.x;
 	float worldY = parentChunk->position.y * CHUNK_HEIGHT + position.y;
@@ -62,7 +62,7 @@ void Crop::OnDestroy(const v2f& position, Chunk* parentChunk, World* world)
 	parentChunk->RemoveCrop(position);
 }
 
-void CerealCrop::OnDestroy(const v2f& position, Chunk* parentChunk, World* world)
+void CerealCrop::OnDestroy(const v2f& position, std::shared_ptr<Chunk> parentChunk, World* world)
 {
 	float worldX = parentChunk->position.x * CHUNK_WIDTH + position.x;
 	float worldY = parentChunk->position.y * CHUNK_HEIGHT + position.y;

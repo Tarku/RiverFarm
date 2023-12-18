@@ -24,7 +24,7 @@ bool HandTool::CanBeUsedHere(World* world, const v2f& position)
 
 		if (cowCast == 0)
 		{
-			continue;
+			return false;
 		}
 		
 		if (cowCast->CheckIfHovered(GameScene::CameraPosition))
@@ -77,8 +77,10 @@ void HandTool::OnUse(World* world, const v2f& position)
 
 		SoundManager::PlaySound("door");
 		DoorTile::SetOpen(
-			position,
-			!DoorTile::IsOpenAt(position)
+			position, 
+			world,
+			1,
+			!DoorTile::IsOpenAt(position, world, 1)
 		);
 		break;
 	case HandAction::PetCow:

@@ -104,7 +104,7 @@ private:
 		inline void Update(float dt)
 		{
 			v2i viMousePosition = sf::Mouse::getPosition(*OptionsSelectionElement::interface->window);
-			v2f vfMousePosition = v2f(viMousePosition.x, viMousePosition.y);
+			v2f vfMousePosition = v2f((float) viMousePosition.x, (float) viMousePosition.y);
 
 			sf::Text* text = OptionsSelectionElement::interface->GetText(labelTextTag).text;
 

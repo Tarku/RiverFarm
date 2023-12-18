@@ -29,12 +29,22 @@ Tile::Tile(const std::string& name, const std::tuple<AtlasID, AtlasID>& textureI
 	this->useDefaultDirectionalSprites = useDefaultDirectionalSprites;
 }
 
+void Tile::TryTileBreak(const v2f& position, World* world, int layer)
+{
+	Metadata meta = world->MetaAt(position, layer);
+
+	if (meta.damage == 0xf)
+	{
+		OnTileBreak(position, world, layer);
+	}
+}
+
 void Tile::OnTileBreak(const v2f& position, World* world, int layer)
 {
 	world->SetTile(position, layer, TileID::Air, true);
 	TileRegistry::Tiles[TileID::Air]->OnUpdate(position, world, layer);
 
-	for (auto& neighbor : neighbors)
+	for (auto& neighbor : TileNeighbors)
 	{
 		TileRegistry::Tiles[world->TileAt(position + neighbor, 0)]->OnUpdate(position, world, 0);
 		TileRegistry::Tiles[world->TileAt(position + neighbor, 1)]->OnUpdate(position, world, 1);

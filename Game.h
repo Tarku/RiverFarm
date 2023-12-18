@@ -19,14 +19,9 @@ private:
 	Clock m_clock;
 	RenderWindow m_window =
 		RenderWindow(
-			VideoMode(
-				v2u(
-					WINDOW_WIDTH,
-					WINDOW_HEIGHT
-				)
-			),
+			VideoMode::getFullscreenModes()[0],
 			"River Farm",
-			Style::Titlebar | Style::Close
+			Style::Fullscreen
 		);
 	
 	void Update(float timeElapsed);

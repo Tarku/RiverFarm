@@ -113,7 +113,7 @@ void MainMenuScene::Update(float dt)
 	HandleEvents();
 
 	v2i viMousePosition = Mouse::getPosition(*p_window);
-	v2f vfMousePosition = v2f(viMousePosition.x, viMousePosition.y);
+	v2f vfMousePosition = v2f((float) viMousePosition.x, (float) viMousePosition.y);
 
 	int counter = 0;
 
@@ -149,7 +149,7 @@ void MainMenuScene::Draw()
 	sf::Sprite tileBackgroundSprite = sf::Sprite(*AtlasManager::GetAtlas(AtlasTextureID::Tiles));
 	
 
-	int counter = m_mainMenuElements.size();
+	int counter = (int) m_mainMenuElements.size();
 
 	for (int i = counter - 1; i >= 0; i--)
 	{

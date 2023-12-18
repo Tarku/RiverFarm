@@ -11,6 +11,7 @@
 #include <functional>
 #include <cstdint>
 
+
 constexpr int MAX_TILES = 256;
 constexpr int MAX_ITEMS = 256;
 constexpr int MAX_ATLASES = 4;
@@ -38,10 +39,14 @@ constexpr float TWO_PI = PI * 2.f;
 
 constexpr float RADIAN = PI / 180.f;
 
+
 constexpr int SCALED_TILE_SIZE = (int)(TEXTURE_SCALE * TILE_SIZE);
 
-constexpr unsigned int WINDOW_WIDTH = SCALED_TILE_SIZE * CHUNK_WIDTH;
-constexpr unsigned int WINDOW_HEIGHT = SCALED_TILE_SIZE * CHUNK_HEIGHT;
+constexpr unsigned int WINDOW_WIDTH = 1920;
+constexpr unsigned int WINDOW_HEIGHT = 1080;
+
+constexpr unsigned int FULLSCREEN_WINDOW_WIDTH = 1920;
+constexpr unsigned int FULLSCREEN_WINDOW_HEIGHT = 1080;
 
 namespace TimeConstants
 {
@@ -80,10 +85,11 @@ using voidfuncs = std::vector<voidfunc>;
 
 constexpr v2f ZERO_VEC = v2f(0.f, 0.f);
 
-const v2f neighbors[8] = {
-	v2f(-1, -1), v2f(0, -1),  v2f(1, -1),
+// All the direct neighbors of a tile, including diagonal ones
+const v2f TileNeighbors[8] = {
+	v2f(-1, -1), v2f(0, -1),		v2f(1, -1),
 	v2f(-1, 0),						v2f(1, 0),
-	v2f(-1, 1), v2f(0, 1),    v2f(1, 1)
+	v2f(-1, 1),  v2f(0, 1),			v2f(1, 1)
 };
 
 

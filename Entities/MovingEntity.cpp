@@ -3,7 +3,7 @@
 
 void MovingEntity::Update(World* world, float dt)
 {
-	inWater = (world->TileAt(position.x + .5f, position.y + .5f, 0) == TileID::Water);
+	inWater = (world->TileAt((int) (position.x + .5f), (int) (position.y + .5f), 0) == TileID::Water);
 
 	float actualSpeed = inWater ? speed / 2 : speed;
 

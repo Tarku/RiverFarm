@@ -14,10 +14,11 @@ BuildableTileIngredient::BuildableTileIngredient(
 }
 
 BuildableTile::BuildableTile(
+	string name,
 	int tileLayer,
 	TileID tileID,
 	std::vector<BuildableTileIngredient> tileIngredients
-) : tileLayer(tileLayer), tileID(tileID), tileIngredients(tileIngredients)
+) : name(name), tileLayer(tileLayer), tileID(tileID), tileIngredients(tileIngredients)
 {
 
 }
@@ -25,6 +26,8 @@ BuildableTile::BuildableTile(
 bool BuildableTile::CanBePlacedHere(const v2f& position, World* world)
 {
 	bool condition1 = world->TileAt(position, tileLayer) == TileID::Air;
+
+	bool condition1_bis = tileLayer == 0 && world->TileAt(position, tileLayer) != TileID::Water && world->TileAt(position, tileLayer) != tileID;
 
 	int counter = 0;
 
@@ -40,5 +43,5 @@ bool BuildableTile::CanBePlacedHere(const v2f& position, World* world)
 
 	bool condition2 = counter == tileIngredients.size();
 
-	return condition1 && condition2;
+	return (condition1 || condition1_bis) && condition2;
 }

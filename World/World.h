@@ -19,7 +19,7 @@ private:
 public:
 	World();
 
-	std::vector<Chunk*> Chunks{};
+	std::vector<std::shared_ptr<Chunk>> Chunks{};
 
 	void DoWorldGen();
 	void ResetWorld();
@@ -36,7 +36,7 @@ public:
 	std::tuple<v2f, v2f> WorldToChunkPosition(const v2f& worldPosition);
 	v2f ChunkToWorldPosition(const v2f& chunkPosition, const v2f& inChunkPosition);
 
-	Chunk* GetChunk(const v2f& position);
+	std::shared_ptr<Chunk> GetChunk(const v2f& position);
 	int DrawChunks(RenderWindow* window, const v2f& cameraPosition, bool drawChunkBorders);
 
 	void UpdateChunkList();
@@ -54,6 +54,12 @@ public:
 
 	// Gets the tile at position (in world coordinates)
 	unsigned char TileAt(int x, int y, int layer);
+
+	// Gets the tile's metadata at position (in world coordinates)
+	Metadata MetaAt(const v2f& position, int layer);
+
+	// Sets the tile's metadata at position (in world coordinates)
+	void SetMeta(const v2f& position, int layer, Metadata metadata);
 
 	void SetTile(const v2f& position, int layer, unsigned char tileID, bool updateBlocks = false);
 

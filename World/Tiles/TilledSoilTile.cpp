@@ -15,7 +15,7 @@ TilledSoilTile::TilledSoilTile()
 
 void TilledSoilTile::OnRandomUpdate(const v2f& position, World* world, int layer)
 {
-	for (auto& neighbor : neighbors)
+	for (auto& neighbor : TileNeighbors)
 	{
 		if (world->TileAt(position + neighbor, 0) == TileID::Water)
 		{

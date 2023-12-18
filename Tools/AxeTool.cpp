@@ -20,5 +20,15 @@ bool AxeTool::CanBeUsedHere(World* world, const sf::Vector2f& position)
 
 void AxeTool::OnUse(World* world, const sf::Vector2f& position)
 {
-	TileRegistry::Tiles[world->TileAt(position, 1)]->OnTileBreak(position, world, 1);
+	Metadata metaAt = world->MetaAt(position, 1);
+	
+	uint8_t randDamage = Utils::RandInt(1, 3);
+
+	if ((uint8_t) metaAt.damage + randDamage >= 0xF)
+		metaAt.damage = 0xF;
+	else
+		metaAt.damage += randDamage;
+
+	world->SetMeta(position, 1, metaAt);
+	TileRegistry::Tiles[world->TileAt(position, 1)]->TryTileBreak(position, world, 1);
 }

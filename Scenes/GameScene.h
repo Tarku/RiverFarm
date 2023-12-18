@@ -13,8 +13,7 @@ private:
 
 	long m_ticks = 0;
 
-	const float MAX_TOOL_COOLDOWN = 0.25f;
-	float m_toolCooldown = 0;
+	const float MAX_TOOL_COOLDOWN = 0.35f;
 
 	bool m_isCurrentToolTargetInRange = false;
 
@@ -44,6 +43,7 @@ public:
 	inline static v2f WorldMousePosition = v2f(0, 0);
 
 	inline static PlayerEntity* Player = nullptr;
+	inline static float ToolCooldown = 0.0f;
 
 
 	inline GameScene() {};
@@ -55,14 +55,13 @@ public:
 	void HandleNormalModeEvents();
 	void HandleBuildingModeEvents();
 
-
 	v2f ScreenToWorld(const v2f& position);
 
 	void DrawUI();
-	void DrawTileAtMouseUI(const v2f& worldMousePosition);
-	void DrawCursorToolUseUI(const v2f& worldMousePosition);
+	void DrawTileAtMouseUI();
+	void DrawCursorToolUseUI();
 
-	void DrawBiomeDebugInfoUI(const v2f& worldMousePosition);
+	void DrawBiomeDebugInfoUI();
 
 	void Update(float dt) override;
 
@@ -71,8 +70,8 @@ public:
 
 	void Draw() override;
 
-	void NormalModeDraw();
-	void BuildingModeDraw();
+	void NormalModeDrawUI();
+	void BuildingModeDrawUI();
 
 	void Dispose() override;
 

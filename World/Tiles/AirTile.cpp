@@ -15,7 +15,7 @@ void AirTile::OnRandomUpdate(const v2f& position, World* world, int layer)
 {
 	if (layer == 1) return;
 
-	for (auto& neighbor : neighbors)
+	for (auto& neighbor : TileNeighbors)
 	{
 		if (world->TileAt(position + neighbor, layer) == TileID::Water)
 		{

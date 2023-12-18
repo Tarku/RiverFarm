@@ -33,6 +33,6 @@ public:
 		this->atlasID = atlasID;
 		this->cropType = cropType;
 	}
-	//void OnUse(const v2f& position, Chunk* chunk, World* world);
+	//void OnUse(const v2f& position, std::shared_ptr<Chunk> chunk, World* world);
 };
 

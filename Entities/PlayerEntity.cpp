@@ -60,8 +60,13 @@ PlayerEntity::PlayerEntity(const v2f& _position)
 
 	atlasID = { 0, 0 };
 
+	maxHp = 1000;
+	hp = maxHp;
 
-	Utils::Log("Player was added.\n");
+	maxEnergy = 1000;
+	energy = maxEnergy;
+
+	Utils::Log(std::format("Player {} was added.\n", name));
 }
 
 void PlayerEntity::HandleEvents(Event* event)
@@ -105,9 +110,9 @@ void PlayerEntity::Update(World* world, float dt)
 		{
 			m_currentDirection = Direction::North;
 
-			if (WillCollideWithBlock(dt * v2f(0, -1) * speed, world))
+			if (WillCollideWithBlock(dt * v2f(0, -1) * 2.f * speed, world))
 			{
-				velocity.y *= 0.1f;
+				velocity.y *= 0.2f;
 			}
 			else
 			{
@@ -119,9 +124,9 @@ void PlayerEntity::Update(World* world, float dt)
 		{
 			m_currentDirection = Direction::South;
 
-			if (WillCollideWithBlock(dt * v2f(0, 1)  * speed, world))
+			if (WillCollideWithBlock(dt * v2f(0, 1) * 2.f * speed, world))
 			{
-				velocity.y *= 0.1f;
+				velocity.y *= 0.2f;
 			}
 			else
 			{
@@ -133,9 +138,9 @@ void PlayerEntity::Update(World* world, float dt)
 		{
 			m_currentDirection = Direction::West;
 
-			if (WillCollideWithBlock(dt * v2f(-1, 0) * speed, world))
+			if (WillCollideWithBlock(dt * v2f(-1, 0) * 2.f * speed, world))
 			{
-				velocity.x *= 0.1f;
+				velocity.x *= 0.2f;
 			}
 			else
 			{
@@ -146,9 +151,9 @@ void PlayerEntity::Update(World* world, float dt)
 		if (OptionsManager::IsRightActive())
 		{
 			m_currentDirection = Direction::East;
-			if (WillCollideWithBlock(dt * v2f(1, 0) * speed, world))
+			if (WillCollideWithBlock(dt * v2f(1, 0) * 2.f * speed, world))
 			{
-				velocity.x *= 0.1f;
+				velocity.x *= 0.2f;
 			}
 			else
 			{
@@ -183,9 +188,9 @@ void PlayerEntity::Update(World* world, float dt)
 
 	atlasID = tile->useDefaultDirectionalSprites ? DefaultDirectionalSprites[m_currentDirection] : ContextualDirectionalSprites.at(groundTile).at(m_currentDirection);
 
-	position += velocity * dt * (speed / TileRegistry::Tiles[groundTile]->tileProperties.slipperiness);
+	position += velocity * dt * (speed / tile->tileProperties.slipperiness);
 
-	velocity *= 0.25f * TileRegistry::Tiles[groundTile]->tileProperties.slipperiness;
+	velocity *= 0.25f * tile->tileProperties.slipperiness;
 }
 
 void PlayerEntity::Draw(sf::RenderWindow* window, v2f cameraPosition)

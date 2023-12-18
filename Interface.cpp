@@ -4,7 +4,7 @@
 #include "Tools/ToolRegistry.h"
 #include "World/Tiles/BuildableTileRegistry.h"
 
-std::string Interface::fontName = "Assets/font2.otf";
+std::string Interface::fontName = "Assets/font.ttf";
 sf::Font Interface::font;
 sf::RenderWindow* Interface::window;
 sf::Texture Interface::uiTexture;
@@ -168,9 +168,15 @@ void Interface::ShowBuildableTileOverlay(const int currentBuildableTileIndex)
 	//  * Draw tile overlay
 	v2f position = v2f(.5f, 0.f) * (float)WINDOW_WIDTH;
 
-	position.x -= (TILE_SIZE / 2);
-	position.y += (TILE_SIZE / 2);
+	position.x -= (UI_ICON_WIDTH);
+	position.y += (UI_ICON_HEIGHT / 4);
 	position.y += 30;
+
+	v2f tilePreviewPosition = v2f(.5f, 0.f) * (float)WINDOW_WIDTH;
+
+	tilePreviewPosition.x -= (TILE_SIZE);
+	tilePreviewPosition.y += (TILE_SIZE);
+	tilePreviewPosition.y += 30;
 	
 	AtlasID currentTileAtlasID = currentBuildableTile.tileLayer == 0 ? currentTile->groundId : currentTile->textureId;
 
@@ -189,7 +195,7 @@ void Interface::ShowBuildableTileOverlay(const int currentBuildableTileIndex)
 			)
 		);
 
-	currentTileSprite.setPosition(position);
+	currentTileSprite.setPosition(tilePreviewPosition);
 	currentTileSprite.setScale(v2f(2, 2));
 
 	uiIconBackground->setPosition(position);
@@ -197,15 +203,7 @@ void Interface::ShowBuildableTileOverlay(const int currentBuildableTileIndex)
 	window->draw(*uiIconBackground);
 	window->draw(currentTileSprite);
 
-	string tileNameDisplay = string("");
-
-	if (currentBuildableTile.tileLayer == 0)
-		tileNameDisplay = std::format("{} floor", currentTile->name);
-	else
-		tileNameDisplay = std::format("{} wall", currentTile->name);
-
-
-	SetTextString(std::format("buildable_tile_{}", currentBuildableTileIndex), tileNameDisplay);
+	SetTextString(std::format("buildable_tile_{}", currentBuildableTileIndex), currentBuildableTile.name);
 	DrawText(std::format("buildable_tile_{}", currentBuildableTileIndex));
 	
 
@@ -336,7 +334,7 @@ void Interface::DrawText(const std::string& tag)
 	int backgroundWidth = Interface::uiElementsBackground.getSize().x;
 	int backgroundHeight = Interface::uiElementsBackground.getSize().y;
 	
-	int linesOfText = 0;
+	int linesOfText = 1;
 
 	for (auto& character : textElement->text->getString())
 	{
@@ -346,10 +344,15 @@ void Interface::DrawText(const std::string& tag)
 		}
 	}
 
-	uiBackgroundSprite.setPosition(v2f(textElement->text->getPosition().x - 16, textElement->text->getPosition().y - 8));
-	uiBackgroundSprite.setScale(v2f(textElement->text->getGlobalBounds().width + 32, 30 * (linesOfText + 1) + 16) / (float) backgroundWidth);
+	Text textCopy = Text(*textElement->text);
+
+	textCopy.setFillColor(sf::Color(64, 64, 64, 255));
+
+	textCopy.move(v2f(3, 3));
 
 	window->draw(uiBackgroundSprite);
+
+	window->draw(textCopy);
 	window->draw(*textElement->text);
 }
 

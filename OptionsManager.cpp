@@ -3,6 +3,7 @@
 typedef sf::Keyboard::Key Key;
 
 OptionsManager::InputType OptionsManager::currentInputType = OptionsManager::InputType::KeyboardAZERTY;
+bool OptionsManager::fullscreenMode = false;
 
 bool OptionsManager::IsForwardsActive()
 {

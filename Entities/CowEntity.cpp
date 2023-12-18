@@ -16,7 +16,7 @@ CowEntity::CowEntity(const v2f& position)
 
 void CowEntity::Update(World* world, float dt)
 {
-	inWater = (world->TileAt(position.x + .5f, position.y + .5f, 0) == TileID::Water);
+	inWater = (world->TileAt((int) (position.x + .5f), (int) (position.y + .5f), 0) == TileID::Water);
 
 	m_moveTimer += dt;
 
@@ -39,7 +39,7 @@ void CowEntity::Update(World* world, float dt)
 
 			atlasID = { 1, 1 };
 			actualSpeed = 0;
-			m_hunger -= dt * 0.1;
+			m_hunger -= dt * 0.1f;
 		}
 		else
 		{
@@ -91,7 +91,7 @@ void CowEntity::Update(World* world, float dt)
 		{
 			for (int xO = -4; xO < 5; xO++)
 			{
-				if (world->TileAt(position.x + xO, position.y + yO, 1) == TileID::Flowers)
+				if (world->TileAt((int) position.x + xO, (int) position.y + yO, 1) == TileID::Flowers || world->TileAt((int)position.x - xO, (int)position.y - yO, 1) == TileID::Flowers)
 				{
 					m_foodTarget = v2f(position.x + xO, position.y + yO);
 					//Utils::Log(std::format("Found food target at {};{}", m_foodTarget.x, m_foodTarget.y));

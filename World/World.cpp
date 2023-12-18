@@ -22,7 +22,7 @@ void World::ResetWorld()
 	worldTime.Reset();
 	Inventory::Reset();
 
-	WorldEntities.empty();
+	WorldEntities.clear();
 
 }
 
@@ -32,10 +32,18 @@ std::tuple<v2f, v2f> World::WorldToChunkPosition(const v2f& worldPosition)
 	float chunkY = worldPosition.y / (float)CHUNK_HEIGHT;
 	float chunkX = worldPosition.x / (float)CHUNK_WIDTH;
 
-	int chunkPosX = abs(chunkX - (int)chunkX) * CHUNK_WIDTH;
-	int chunkPosY = abs(chunkY - (int)chunkY) * CHUNK_HEIGHT;
+	int chunkPosX = abs (chunkX - (int)chunkX) * CHUNK_WIDTH;
+	int chunkPosY = abs (chunkY - (int)chunkY) * CHUNK_HEIGHT;
 
-	return std::make_tuple(v2f((int) chunkX, (int) chunkY), v2f((int) chunkPosX, (int)chunkPosY));
+	return std::make_tuple(
+		v2f(
+			(int) chunkX,
+			(int) chunkY),
+		v2f(
+			(int) chunkPosX,
+			(int) chunkPosY
+		)
+	);
 }
 v2f World::ChunkToWorldPosition(const v2f& chunkPosition, const v2f& inChunkPosition)
 {
@@ -175,7 +183,7 @@ void World::DoWorldGen()
 		{
 
 			Chunks.push_back(
-				new Chunk(spawnChunkCoords + v2f(ox, oy), this)
+				std::make_shared<Chunk>(spawnChunkCoords + v2f(ox, oy), this)
 			);
 		}
 	}
@@ -244,41 +252,37 @@ void World::UpdateChunkList()
 		{
 			v2f localPlayerChunkPosition = v2f(playerChunkPosition.x + xo, playerChunkPosition.y + yo);
 
-			Chunk* chunkAtPos = GetChunk(localPlayerChunkPosition);
+			std::shared_ptr<Chunk> chunkAtPos = GetChunk(localPlayerChunkPosition);
 
 			if (chunkAtPos == nullptr)
 			{
-				chunkAtPos = new Chunk(v2f((int)localPlayerChunkPosition.x, (int)localPlayerChunkPosition.y), this);
+				chunkAtPos = std::make_shared<Chunk>(v2f((int)localPlayerChunkPosition.x, (int)localPlayerChunkPosition.y), this);
 				chunkAtPos->DoWorldGen();
 				Chunks.push_back(chunkAtPos);
 			}
 		}
 	}
 
+	// A list containing the chunks that are going to be kept in the next iteration. Get swapped with the current list;
+	std::vector<std::shared_ptr<Chunk>> keptChunks = std::vector<std::shared_ptr<Chunk>>();
 
-	std::vector<Chunk*> chunksToRemove = std::vector<Chunk*>();
-
-	for (Chunk*& chunkToCheck : Chunks)
+	for (auto it = Chunks.begin(); it != Chunks.end(); it++)
 	{
+		std::shared_ptr<Chunk> chunkToCheck = *it;
+
 		bool condition =
 			chunkToCheck->position.x < minPosition.x
 			|| chunkToCheck->position.y < minPosition.y
 			|| chunkToCheck->position.x > maxPosition.x
 			|| chunkToCheck->position.y > maxPosition.y;
 
-		if (condition)
+		if (!condition)
 		{
-			chunksToRemove.push_back(chunkToCheck);
+			keptChunks.push_back(chunkToCheck);
 		}
 	}
 
-	for (auto& chunkToRemove : chunksToRemove)
-	{
-		Chunks.erase(std::remove(Chunks.begin(), Chunks.end(), chunkToRemove), Chunks.end());
-
-	}
-
-	Chunks.shrink_to_fit();
+	Chunks.swap(keptChunks);
 }
 
 int World::DrawChunks(RenderWindow* window, const v2f& cameraPosition, bool drawChunkBorders)
@@ -337,18 +341,18 @@ void World::Update(const v2f& cameraPosition, float dt)
 		RemoveEntity(entity);
 
 	}
-
 	UpdateChunkList();
 
 	for (auto& chunk : Chunks)
 	{
-		if (chunk != nullptr)
+		if (chunk.get() != 0)
 			chunk->Update(dt);
 	}
-	
+
+
 }
 
-Chunk* World::GetChunk(const v2f& position)
+std::shared_ptr<Chunk> World::GetChunk(const v2f& position)
 {
 	for (auto& chunk : Chunks)
 	{
@@ -367,12 +371,50 @@ bool World::InBounds(const v2f& position, int layer)
 	return GetChunk(std::get<0>(chunkPositionTuple)) != nullptr;
 }
 
+void World::SetMeta(const v2f& position, int layer, Metadata metadata)
+{
+
+	if (!InBounds(position, layer))
+		return;
+
+	auto chunkPosTuple = WorldToChunkPosition(position);
+
+	auto worldChunkPosition = std::get<0>(chunkPosTuple);
+	auto inChunkOffset = std::get<1>(chunkPosTuple);
+
+	std::shared_ptr<Chunk> chunk = GetChunk(worldChunkPosition);
+
+	if (chunk == nullptr)
+		return;
+
+	chunk->SetMeta(inChunkOffset, layer, metadata);
+
+
+
+
+}
+
+Metadata World::MetaAt(const v2f& position, int layer)
+{
+
+	if (!InBounds(position, layer)) return Metadata(Metadata::InvalidTileMisc, 0, 0);
+
+	auto chunkPosTuple = WorldToChunkPosition(position);
+
+	auto worldChunkPosition = std::get<0>(chunkPosTuple);
+	auto inChunkOffset = std::get<1>(chunkPosTuple);
+
+	std::shared_ptr<Chunk> chunk = GetChunk(worldChunkPosition);
+
+	if (chunk == nullptr) return Metadata(Metadata::InvalidTileMisc, 0, 0);
+
+	return chunk->MetaAt(inChunkOffset, layer);
+
+}
+
 unsigned char World::TileAt(const v2f& position, int layer)
 {
 	if (!InBounds(position, layer)) return 0;
-
-	auto chunkPosition = std::get<0>(WorldToChunkPosition(position));
-	auto chunkPositionOffset = std::get<1>(WorldToChunkPosition(position));
 
 	return World::TileAt(position.x, position.y, layer);
 }
@@ -384,7 +426,7 @@ unsigned char World::TileAt(int x, int y, int layer)
 	auto chunkPosition = std::get<0>(WorldToChunkPosition(v2f(x, y)));
 	auto chunkPositionOffset = std::get<1>(WorldToChunkPosition(v2f(x, y)));
 
-	Chunk* chunk = GetChunk(chunkPosition);
+	std::shared_ptr<Chunk> chunk = GetChunk(chunkPosition);
 
 	if (chunk == nullptr) return 0;
 
@@ -399,7 +441,7 @@ void World::SetTile(const v2f& position, int layer, unsigned char tileID, bool u
 	auto chunkPositionOffset = std::get<1>(WorldToChunkPosition(position));
 
 
-	Chunk* chunk = GetChunk(chunkPosition);
+	std::shared_ptr<Chunk> chunk = GetChunk(chunkPosition);
 
 	if (chunk == nullptr) return;
 

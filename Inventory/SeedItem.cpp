@@ -4,7 +4,7 @@
 #include "../World/Crop.h"
 
 /*
-void SeedItem::OnUse(const v2f& position, Chunk* chunk, World* world)
+void SeedItem::OnUse(const v2f& position, std::shared_ptr<Chunk> chunk, World* world)
 {
 	auto positionTuple = world->WorldToChunkPosition(position);
 

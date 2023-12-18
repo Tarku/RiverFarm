@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include "MainMenuScene.h"
 #include "SceneManager.h"
+#include "../OptionsManager.h"
 #include "../SoundManager.h"
 #include "../Tools/ToolRegistry.h"
 #include "../World/WorldGen.h"
@@ -33,7 +34,7 @@ void GameScene::Initialize(RenderWindow* window)
 	p_interface.CreateNormalizedText(std::string("current_hour"), "", v2f(0.5f, 0.950f - fontScreenRatio), v2f(0.5f, 0.f));
 
 	p_interface.CreateNormalizedText(std::string("tile_hovered"), "", v2f(0.05f, 0.95f - fontScreenRatio), v2f(0.f, 0.f));
-	p_interface.CreateText(std::string("biome_debug_info"), "", v2f(0.0f, 0.0f), v2f(0.f, 0.f), sf::Color::White, 1.0f);
+	p_interface.CreateNormalizedText(std::string("biome_debug_info"), "", v2f(0.05f, 0.25f), ZERO_VEC, sf::Color::White, 1.0f);
 
 	Utils::Log("World created.");
 
@@ -59,6 +60,10 @@ void GameScene::HandleEvents()
 	MousePosition = v2f((float)mousePositionVec.x, (float)mousePositionVec.y);
 	WorldMousePosition = ScreenToWorld(MousePosition);
 
+	v2f mouseToPlayerVector = WorldMousePosition - Player->position;
+
+	m_isCurrentToolTargetInRange = mouseToPlayerVector.length() <= 3;
+
 	if (m_currentMenuMode == MenuMode::NormalMode)
 	{
 		HandleNormalModeEvents();
@@ -81,11 +86,6 @@ void GameScene::HandleNormalModeEvents()
 {
 	while (p_window->pollEvent(p_event))
 	{
-
-		v2f mouseToPlayerVector = WorldMousePosition - Player->position;
-
-		m_isCurrentToolTargetInRange = mouseToPlayerVector.length() <= 3;
-
 		if (p_event.type == Event::Closed)
 			p_window->close();
 
@@ -99,6 +99,11 @@ void GameScene::HandleNormalModeEvents()
 
 			case Keyboard::R:
 				m_world.DoWorldGen();
+				break;
+
+			case Keyboard::F11:
+				OptionsManager::fullscreenMode = !OptionsManager::fullscreenMode;
+
 				break;
 
 			case Keyboard::B:
@@ -123,6 +128,10 @@ void GameScene::HandleNormalModeEvents()
 			case Keyboard::Numpad8:
 				Player->speedOffset += 0.5;
 				break;
+			case Keyboard::Numpad9:
+				Player->speedOffset = 0;
+				break;
+
 
 
 			case Keyboard::P:
@@ -157,7 +166,7 @@ void GameScene::HandleNormalModeEvents()
 			{
 				m_currentToolIndex++;
 			}
-			
+
 			if (m_currentToolIndex < 0)
 				m_currentToolIndex = ToolRegistry::ToolCount() - 1;
 
@@ -165,39 +174,42 @@ void GameScene::HandleNormalModeEvents()
 				m_currentToolIndex = 0;
 		}
 
-		if (p_event.type == Event::MouseButtonPressed)
+
+	}
+	if (ToolCooldown > 0)
+		return;
+	
+	if (Mouse::isButtonPressed(Mouse::Left))
+	{
+		if (
+			m_world.InBounds(WorldMousePosition, 0)
+			&& m_currentTool->CanBeUsedHere(&m_world, WorldMousePosition)
+			&& m_isCurrentToolTargetInRange
+			&& !Player->inWater
+			)
 		{
+			m_currentTool->OnUse(&m_world, WorldMousePosition);
 
-			switch (p_event.mouseButton.button)
-			{
-			case Mouse::Left:
+			if (m_currentTool->soundEffectTag != "")
+				SoundManager::PlaySound(m_currentTool->soundEffectTag);
 
-				if (
-					m_world.InBounds(WorldMousePosition, 0)
-					&& m_currentTool->CanBeUsedHere(&m_world, WorldMousePosition)
-					&& m_isCurrentToolTargetInRange
-					&& !Player->inWater
-					)
-				{
-					m_currentTool->OnUse(&m_world, WorldMousePosition);
-
-					if (m_currentTool->soundEffectTag != "")
-						SoundManager::PlaySound(m_currentTool->soundEffectTag);
-				}
-				break;
-			case Mouse::Right:
-				if (
-					m_world.InBounds(WorldMousePosition, 0)
-					&& m_isCurrentToolTargetInRange
-					&& !Player->inWater
-					)
-				{
-					m_currentTool->OnRightClick(&m_world, WorldMousePosition);
-				}
-				break;
-			}
+			ToolCooldown = MAX_TOOL_COOLDOWN;
 		}
 	}
+	if (Mouse::isButtonPressed(Mouse::Right))
+	{
+		if (
+			m_world.InBounds(WorldMousePosition, 0)
+			&& m_isCurrentToolTargetInRange
+			&& !Player->inWater
+			)
+		{
+			m_currentTool->OnRightClick(&m_world, WorldMousePosition);
+
+			ToolCooldown = MAX_TOOL_COOLDOWN;
+		}
+	}
+
 }
 
 void GameScene::HandleBuildingModeEvents()
@@ -257,6 +269,8 @@ void GameScene::HandleBuildingModeEvents()
 					)
 				{
 					m_world.SetTile(WorldMousePosition, bTile.tileLayer, bTile.tileID, true);
+					m_world.SetMeta(WorldMousePosition, bTile.tileLayer, Metadata(0, 0, 0));
+
 
 					for (BuildableTileIngredient& bti : bTile.tileIngredients)
 					{
@@ -276,7 +290,10 @@ void GameScene::Update(float dt)
 {
 	HandleEvents();
 
-	m_currentTool = ToolRegistry::Tools.at(m_currentToolIndex);
+	if (m_currentMenuMode == MenuMode::NormalMode)
+	{
+		m_currentTool = ToolRegistry::Tools.at(m_currentToolIndex);
+	}
 
 
 	m_world.Update(CameraPosition, dt);
@@ -285,23 +302,24 @@ void GameScene::Update(float dt)
 
 	m_fps = 1.f / dt;
 
-	p_interface.SetTextString(std::string("ui_tool_name_text"), m_currentTool->name);
-	p_interface.SetTextString(std::string("fps_text"), std::format("{} FPS", (int)m_fps));
-	p_interface.SetTextString(std::string("position_text"), std::format("X: {}\nY: {}", (int) (Player->position.x * 10) / 10.0f, (int)(Player->position.y * 10) / 10.0f));
+	if (m_currentMenuMode == MenuMode::NormalMode)
+	{
 
-	p_interface.SetTextString(std::string("current_hour"), m_world.worldTime.GetDateString());
+		p_interface.SetTextString(std::string("ui_tool_name_text"), m_currentTool->name);
+		p_interface.SetTextString(std::string("fps_text"), std::format("{} FPS", (int)m_fps));
+		p_interface.SetTextString(std::string("position_text"), std::format("X: {}\nY: {}", (int)(Player->position.x * 10) / 10.0f, (int)(Player->position.y * 10) / 10.0f));
 
-	
-
+		p_interface.SetTextString(std::string("current_hour"), m_world.worldTime.GetDateString());
+	}
 
 	m_gameTime += dt;
-	m_toolCooldown += dt;
+	ToolCooldown -= dt;
 	m_ticks++;
 }
 
-void GameScene::DrawTileAtMouseUI(const v2f& worldMousePosition)
+void GameScene::DrawTileAtMouseUI()
 {
-	auto worldChunkCoords = m_world.WorldToChunkPosition(worldMousePosition);
+	auto worldChunkCoords = m_world.WorldToChunkPosition(WorldMousePosition);
 
 	v2f chunkPosition = std::get<0>(worldChunkCoords);
 	v2f inChunkPositionOffset = std::get<1>(worldChunkCoords);
@@ -340,14 +358,16 @@ void GameScene::DrawTileAtMouseUI(const v2f& worldMousePosition)
 		cropString = std::format("{} {}% {}", cropAtMousePos->name, roundf(cropAtMousePos->growth * 100), status);
 	}
 
-	uchar groundTileAtMousePos = m_world.TileAt(worldMousePosition, 0);
-	uchar topTileAtMousePos = m_world.TileAt(worldMousePosition, 1);
-	uchar tileHovered;
+	uchar topTileAtMousePos = m_world.TileAt(WorldMousePosition, 1);
+
+	int layer = 1;
 
 	if (topTileAtMousePos == TileID::Air)
-		tileHovered = groundTileAtMousePos;
-	else
-		tileHovered = topTileAtMousePos;
+		layer = 0;
+
+	uchar tileHovered = m_world.TileAt(WorldMousePosition, layer);
+
+	Metadata tileMeta = m_world.MetaAt(WorldMousePosition, layer);
 
 	if (tileHovered < 0 || tileHovered >= TileRegistry::TileCount())
 	{
@@ -359,14 +379,20 @@ void GameScene::DrawTileAtMouseUI(const v2f& worldMousePosition)
 	if (isCropAtMousePos)
 		tileHoveredText = cropString;
 	else
-		tileHoveredText = TileRegistry::Tiles[tileHovered]->name;
-
+		if (m_drawDebugMenu)
+		{
+			tileHoveredText = std::format("{}({};{};{})", TileRegistry::Tiles[tileHovered]->name, (int)tileMeta.misc, (int)tileMeta.binaryState, (int) tileMeta.damage);
+		}
+		else
+		{
+			tileHoveredText = TileRegistry::Tiles[tileHovered]->name;
+		}
 	p_interface.SetTextString(std::string("tile_hovered"), tileHoveredText);
 
 	p_interface.DrawText(std::string("tile_hovered"));
 }
 
-void GameScene::DrawCursorToolUseUI(const v2f& worldMousePosition)
+void GameScene::DrawCursorToolUseUI()
 {
 	// * Draw tool cursor
 	AtlasID cursorID = { 0, 0 };
@@ -375,7 +401,7 @@ void GameScene::DrawCursorToolUseUI(const v2f& worldMousePosition)
 	if (m_currentTool != nullptr)
 	{
 		cursorID = m_currentTool->uiIcon;
-		shouldShowCursor = m_currentTool->CanBeUsedHere(&m_world, worldMousePosition) && m_isCurrentToolTargetInRange;
+		shouldShowCursor = m_currentTool->CanBeUsedHere(&m_world, WorldMousePosition) && m_isCurrentToolTargetInRange;
 	}
 
 	if (shouldShowCursor)
@@ -399,66 +425,40 @@ void GameScene::DrawCursorToolUseUI(const v2f& worldMousePosition)
 	}
 }
 
-void GameScene::DrawBiomeDebugInfoUI(const v2f& worldMousePosition)
+void GameScene::DrawBiomeDebugInfoUI()
 {
+	BiomeID biomeAtMouse = WorldGen::GetBiome((int) Player->position.x, (int)Player->position.y);
 
-	auto worldChunkCoords = m_world.WorldToChunkPosition(worldMousePosition);
+	double humidityValue = WorldGen::GetHumidityValue((int)Player->position.x, (int)Player->position.y);
+	double heatValue = WorldGen::GetHeatValue((int)Player->position.x, (int)Player->position.y);
 
-	BiomeID biomeAtMouse = WorldGen::GetBiome((int) worldMousePosition.x, (int) worldMousePosition.y);
-
-	double humidityValue = WorldGen::GetHumidityValue((int)worldMousePosition.x, (int)worldMousePosition.y);
-	double heatValue = WorldGen::GetHeatValue((int)worldMousePosition.x, (int)worldMousePosition.y);
-
-	p_interface.SetTextString(std::string("biome_debug_info"), std::format("Wet: {} \nHot: {} \nBiome: {}", round((1 - humidityValue) * 100) / 100, round((1 - heatValue) * 100) / 100, BiomeRegistry::Biomes.at(biomeAtMouse)->name));
-	
-	auto& element = p_interface.GetText("biome_debug_info");
-	FloatRect bounds = element.text->getGlobalBounds();
-
-	v2f drawPosition = v2f(
-		MousePosition.x - bounds.width - 8,
-		MousePosition.y
+	p_interface.SetTextString(
+		"biome_debug_info",
+		std::format(
+			"Humidity: {}\nTemperature: {}\nBiome: {}",
+			round((1 - humidityValue) * 100) / 100,
+			round((1 - heatValue) * 100) / 100,
+			BiomeRegistry::Biomes.at(biomeAtMouse)->name
+		)
 	);
-	element.absolutePosition = drawPosition;
-
+	
 	p_interface.DrawText("biome_debug_info");
 }
 
 void GameScene::DrawUI()
 {
-	v2f worldMousePosition = ScreenToWorld(MousePosition);
-
-	auto worldChunkCoords = m_world.WorldToChunkPosition(worldMousePosition);
-	
-	if (m_world.InBounds(worldMousePosition, 0))
-	{
-
-		DrawTileAtMouseUI(worldMousePosition);
-
-		DrawCursorToolUseUI(worldMousePosition);
-	}
-
 	if (m_currentMenuMode == MenuMode::NormalMode)
 	{
-
-		//  * Draw tool overlay 
-		p_interface.ShowToolOverlay(m_currentToolIndex);
-		p_interface.DrawText(std::string("ui_tool_name_text"));
+		NormalModeDrawUI();
 	}
-	else
+	else {
+		BuildingModeDrawUI();
+	}
+
+	if (m_world.InBounds(WorldMousePosition, 0))
 	{
-		p_interface.ShowBuildableTileOverlay(m_currentBuildableTileIndex);
+		DrawTileAtMouseUI();
 	}
-
-	//  * Draw text elements
-	if (m_drawDebugMenu)
-	{
-		p_interface.DrawText(std::string("position_text"));
-		p_interface.DrawText(std::string("fps_text"));
-
-		DrawBiomeDebugInfoUI(worldMousePosition);
-	}
-
-	p_interface.DrawText(std::string("current_hour"));
 
 	//  * Draw inventory screen
 	p_interface.ShowInventoryOverlay();
@@ -468,6 +468,31 @@ void GameScene::DrawUI()
 }
 
 
+
+void GameScene::BuildingModeDrawUI()
+{
+	p_interface.ShowBuildableTileOverlay(m_currentBuildableTileIndex);
+}
+void GameScene::NormalModeDrawUI()
+{
+
+	DrawCursorToolUseUI();
+
+	//  * Draw tool overlay 
+	p_interface.ShowToolOverlay(m_currentToolIndex);
+	p_interface.DrawText(std::string("ui_tool_name_text"));
+
+	//  * Draw text elements
+	if (m_drawDebugMenu)
+	{
+		p_interface.DrawText(std::string("position_text"));
+		p_interface.DrawText(std::string("fps_text"));
+
+		DrawBiomeDebugInfoUI();
+	}
+
+	p_interface.DrawText(std::string("current_hour"));
+}
 
 void GameScene::Draw()
 {
@@ -486,7 +511,6 @@ void GameScene::Draw()
 		entity->Draw(p_window, CameraPosition);
 	}
 
-	// -- Draw UI --
 	//  * Draw daynight overlay
 
 	const int pixelsPerHour = 50;
@@ -517,6 +541,7 @@ void GameScene::Draw()
 
 	p_window->draw(daynightOverlaySprite, RenderStates(sf::BlendMultiply));
 
+	// -- Draw UI --
 	DrawUI();
 }
 

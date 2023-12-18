@@ -23,7 +23,7 @@ protected:
 	static Texture* itemsAtlas;
 
 public:
-	Entity() {};
+	Entity() : hp(maxHp) {};
 	virtual ~Entity()
 	{
 	};
@@ -31,6 +31,10 @@ public:
 	bool noclip = false;
 	v2f position;
 	v2f velocity;
+
+	short maxHp = 100;
+	short hp;
+
 
 	bool inWater = false;
 
@@ -89,7 +93,12 @@ private:
 	static std::map<TileID, std::map<Direction, AtlasID>> ContextualDirectionalSprites;
 
 public:
+	string name = "David";
+
 	float speedOffset = 0.0f;
+
+	short energy;
+	short maxEnergy;
 
 	PlayerEntity(const v2f& position);
 
@@ -127,6 +136,7 @@ protected:
 	const float MaxMoveTimer = 3.0f;
 
 	float m_moveTimer = 0;
+
 
 public:
 	inline MovingEntity() {};

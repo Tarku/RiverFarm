@@ -6,6 +6,7 @@ public:
 	enum class InputType { KeyboardAZERTY, KeyboardQWERTY, Controller };
 
 	static InputType currentInputType;
+	static bool fullscreenMode;
 
 	static bool IsForwardsActive();
 	static bool IsBackwardsActive();

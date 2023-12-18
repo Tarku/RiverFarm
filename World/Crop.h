@@ -30,9 +30,9 @@ public:
 	bool isFullyGrown = false;
 	bool isGrowing = true;
 
-	virtual void OnUpdate(const v2f& position, Chunk* parentChunk, float dt);
+	virtual void OnUpdate(const v2f& position, std::shared_ptr<Chunk> parentChunk, float dt);
 
-	virtual void OnDestroy(const v2f& position, Chunk* parentChunk, World* world);
+	virtual void OnDestroy(const v2f& position, std::shared_ptr<Chunk> parentChunk, World* world);
 };
 
 class CerealCrop : public Crop
@@ -40,7 +40,7 @@ class CerealCrop : public Crop
 protected:
 	CerealCrop() {};
 public:
-	void OnDestroy(const v2f& position, Chunk* parentChunk, World* world) override;
+	void OnDestroy(const v2f& position, std::shared_ptr<Chunk> parentChunk, World* world) override;
 };
 
 class BarleyCrop : public CerealCrop

@@ -54,7 +54,7 @@ public:
 		new Tile("Stone brick", std::make_tuple(AtlasID(4, 0), AtlasID(4, 1)), std::vector<TileDrop> {}, TileProperties(false, false, false, true)),
 
 		new TilledSandTile(),
-		new Tile("Watered tilled sand", AtlasID(5, 1), std::vector<TileDrop> {TileDrop(1, ItemID::ItemSand, 1, 1)}, TileProperties(false, true, false, true, PlantSubstrateProperties(true, 0.5f))),
+		new Tile("Watered tilled sand", AtlasID(5, 1), std::vector<TileDrop> {TileDrop(1, ItemID::ItemSand, 1, 1)}, TileProperties(false, true, false, true, PlantSubstrateProperties(true, 0.5f)), true),
 
 		new Tile("Snow", AtlasID(6, 0), std::vector<TileDrop> {TileDrop(1, ItemID::ItemDirt, 1, 1)}, DefaultGroundProperties),
 		new Tile("Swamp grass", AtlasID(7, 0), std::vector<TileDrop> {TileDrop(1, ItemID::ItemDirt, 1, 1)}, DefaultGroundProperties),
@@ -68,7 +68,9 @@ public:
 		new DoorTile(),
 
 		new Tile("Birch tree", AtlasID(8, 2),  std::vector<TileDrop> {TileDrop(1, ItemID::ItemWood, 1, 3)}, DefaultTreeProperties),
-		new Tile("Ice", AtlasID(8, 0), std::vector<TileDrop>{}, TileProperties(false, true, false, false, PlantSubstrateProperties(), 3.0f), false)
+		new Tile("Ice", AtlasID(8, 0), std::vector<TileDrop>{}, TileProperties(false, true, false, false, PlantSubstrateProperties(), 3.0f), false),
+	
+		new Tile("Ashes", AtlasID(3, 2), std::vector<TileDrop> {}, TileProperties(false, false, false, false, PlantSubstrateProperties(), 1.0f), true)
 	};
 
 	inline static int TileCount()
@@ -103,6 +105,7 @@ enum TileID
 	DryGrass,
 	Door,
 	BirchTree,
-	Ice
+	Ice,
+	Ashes
 };
 

@@ -4,6 +4,7 @@
 #include "SoundManager.h"
 #include <iostream>
 #include <SFML/OpenGL.hpp>
+#include "Entities/EntityDeclarations.h"
 
 using namespace sf;
 
@@ -58,6 +59,8 @@ Game::Game()
 
 	SceneManager::Initialize(&m_window);
 	SceneManager::ChangeScene(new MainMenuScene());
+
+	//Utils::Log(std::format("Size of cow entity: {} bytes", sizeof(CowEntity)));
 }
 
 void Game::Update(float timeElapsed)
@@ -93,6 +96,7 @@ void Game::Run()
 	time_t gameStartTime = Utils::GetTimestamp();
 
 	Utils::Log("Game started.");
+
 	m_window.setKeyRepeatEnabled(false);
 
 	while (m_window.isOpen())

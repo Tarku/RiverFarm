@@ -66,7 +66,7 @@ public:
 	std::string name{};
 	AtlasID textureId{};
 
-	bool useDefaultDirectionalSprites;
+	bool useDefaultDirectionalSprites = true;
 
 	std::vector<TileDrop> tileDrops = {};
 
@@ -81,6 +81,7 @@ public:
 	Tile(const std::string& name, const std::tuple<AtlasID, AtlasID>& textureIds, std::vector<TileDrop> tileDrops, const TileProperties& tileProperties, bool useDefaultDirectionalSprites = true);
 
 	virtual void OnTileBreak(const v2f& position, World* world, int layer = 0);
+	virtual void TryTileBreak(const v2f& position, World* world, int layer = 0);
 
 	virtual void OnRandomUpdate(const v2f& position, World* world, int layer = 0);
 

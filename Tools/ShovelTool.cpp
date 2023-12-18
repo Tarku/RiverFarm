@@ -15,5 +15,15 @@ bool ShovelTool::CanBeUsedHere(World* world, const sf::Vector2f& position)
 
 void ShovelTool::OnUse(World* world, const sf::Vector2f& position)
 {
-	TileRegistry::Tiles[world->TileAt(position, 0)]->OnTileBreak(position, world);
+	Metadata metaAt = world->MetaAt(position, 0);
+
+	uint8_t randDamage = 2;
+
+	if ((uint8_t)metaAt.damage + randDamage >= 0xF)
+		metaAt.damage = 0xF;
+	else
+		metaAt.damage += randDamage;
+
+	world->SetMeta(position, 0, metaAt);
+	TileRegistry::Tiles[world->TileAt(position, 0)]->TryTileBreak(position, world, 0);
 }

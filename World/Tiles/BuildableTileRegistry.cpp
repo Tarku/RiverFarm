@@ -6,6 +6,7 @@
 std::vector<BuildableTile> BuildableTileRegistry::BuildableTiles = std::vector<BuildableTile>
 {
 	BuildableTile(
+		string("Wood floor"),
 		0,
 		TileID::WoodWall,
 		std::vector<BuildableTileIngredient> {
@@ -13,6 +14,7 @@ std::vector<BuildableTile> BuildableTileRegistry::BuildableTiles = std::vector<B
 		}
 	),
 	BuildableTile(
+		string("Wood wall"),
 		1,
 		TileID::WoodWall,
 		std::vector<BuildableTileIngredient> {
@@ -20,10 +22,11 @@ std::vector<BuildableTile> BuildableTileRegistry::BuildableTiles = std::vector<B
 		}
 	),
 	BuildableTile(
+		string("Door"),
 		1,
 		TileID::Door,
 		std::vector<BuildableTileIngredient> {
-			BuildableTileIngredient(2, ItemID::ItemWood)
+			BuildableTileIngredient(3, ItemID::ItemWood)
 		}
 	),
 };

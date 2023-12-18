@@ -4,7 +4,7 @@ std::array<amount_t, Inventory::m_inventorySize> Inventory::m_inventoryItems = s
 
 void Inventory::Reset()
 {
-	m_inventoryItems.empty();
+	m_inventoryItems.fill(0);
 }
 
 bool Inventory::IsIDInBounds(ItemID item)

@@ -21,12 +21,15 @@ public:
 class BuildableTile
 {
 public:
+	string name;
+
 	int tileLayer;
 	TileID tileID;
 
 	std::vector<BuildableTileIngredient> tileIngredients;
 
 	BuildableTile(
+		string name,
 		int tileLayer,
 		TileID tileID,
 		std::vector<BuildableTileIngredient> tileIngredients

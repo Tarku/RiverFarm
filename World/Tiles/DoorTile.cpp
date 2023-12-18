@@ -28,33 +28,27 @@ long long DoorTile::DoorIDAt(const v2f& position)
 	return result;
 }
 
-bool DoorTile::IsOpenAt(const v2f& position)
+bool DoorTile::IsOpenAt(const v2f& position, World* world, int layer)
 {
-	bool result = false;
+	auto chunkPosTuple = world->WorldToChunkPosition(position);
 
-	long long id = DoorIDAt(position);
+	v2f chunkWorldPos = std::get<0>(chunkPosTuple);
+	v2f inChunkPos = std::get<1>(chunkPosTuple);
 
-	if (DoorStates.contains(id))
-	{
-		result = DoorStates.at(id);
-	}
-
-	return result;
+	return world->GetChunk(chunkWorldPos)->MetaAt(inChunkPos, layer).binaryState;
 }
 
-void DoorTile::SetOpen(const v2f& position, bool state)
+void DoorTile::SetOpen(const v2f& position, World* world, int layer, bool state)
 {
+	auto chunkPosTuple = world->WorldToChunkPosition(position);
 
-	long long id = DoorIDAt(position);
+	v2f chunkWorldPos = std::get<0>(chunkPosTuple);
+	v2f inChunkPos = std::get<1>(chunkPosTuple);
 
-	if (DoorStates.contains(id))
-	{
-		DoorStates[id] = state;
-	}
-	else
-	{
-		DoorStates.insert(std::make_pair(id, state));
-	}
+	Metadata meta = world->GetChunk(chunkWorldPos)->MetaAt(inChunkPos, layer);
+	meta.binaryState = state;
+
+	world->GetChunk(chunkWorldPos)->SetMeta(inChunkPos, layer, meta);
 }
 
 
@@ -98,11 +92,11 @@ AtlasID DoorTile::GetContextTextureID(const v2f& position, World* world, int lay
 
 	if (isHorizontalDoor)
 	{
-		contextId = IsOpenAt(position) ? AtlasID(7, 3) : AtlasID(5, 3);
+		contextId = IsOpenAt(position, world, layer) ? AtlasID(7, 3) : AtlasID(5, 3);
 	}
 	if (isVerticalDoor)
 	{
-		contextId = IsOpenAt(position) ? AtlasID(5, 3) : AtlasID(6, 3);
+		contextId = IsOpenAt(position, world, layer) ? AtlasID(5, 3) : AtlasID(6, 3);
 	}
 
 	return contextId;
@@ -110,5 +104,5 @@ AtlasID DoorTile::GetContextTextureID(const v2f& position, World* world, int lay
 
 bool DoorTile::IsSolidAt(const v2f& position, World* world, int layer)
 {
-	return !IsOpenAt(position);
+	return !IsOpenAt(position, world, layer);
 }
